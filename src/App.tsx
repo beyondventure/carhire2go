@@ -31,6 +31,7 @@ import AdminSettlements from "./pages/admin/AdminSettlements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminVerification from "./pages/admin/AdminVerification";
 import AdminSettings from "./pages/admin/AdminSettings";
+import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
           <Routes>
             {/* Landing */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/sitemap" element={<Sitemap />} />
             
             {/* Consumer Routes */}
             <Route path="/consumer" element={<ConsumerHome />} />
