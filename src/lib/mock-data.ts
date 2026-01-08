@@ -1,0 +1,238 @@
+import type { User, Provider, Vehicle, Driver, Booking, PlatformMetrics, ProviderMetrics } from '@/types';
+
+// Mock Users
+export const mockUsers: Record<string, User> = {
+  consumer1: {
+    id: 'consumer1',
+    email: 'john@example.com',
+    phone: '+234 801 234 5678',
+    name: 'John Adebayo',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john',
+    role: 'consumer',
+    verified: true,
+    createdAt: new Date('2024-01-15'),
+  },
+  provider1: {
+    id: 'provider1',
+    email: 'emeka@fleetmaster.ng',
+    phone: '+234 802 345 6789',
+    name: 'Emeka Okonkwo',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emeka',
+    role: 'provider',
+    verified: true,
+    createdAt: new Date('2023-11-10'),
+  },
+  driver1: {
+    id: 'driver1',
+    email: 'ahmed@gmail.com',
+    phone: '+234 803 456 7890',
+    name: 'Ahmed Ibrahim',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ahmed',
+    role: 'driver',
+    verified: true,
+    createdAt: new Date('2024-02-20'),
+  },
+  admin1: {
+    id: 'admin1',
+    email: 'admin@carhire2go.com',
+    name: 'Sarah Oke',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
+    role: 'admin',
+    verified: true,
+    createdAt: new Date('2023-06-01'),
+  },
+};
+
+// Mock Vehicles
+export const mockVehicles: Vehicle[] = [
+  {
+    id: 'v1',
+    providerId: 'provider1',
+    type: 'sedan',
+    make: 'Toyota',
+    model: 'Camry',
+    year: 2022,
+    plateNumber: 'LAG-234-ABC',
+    color: 'Black',
+    seats: 4,
+    images: ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400'],
+    available: true,
+    assignedDriverId: 'driver1',
+    dailyRate: 45000,
+    verified: true,
+  },
+  {
+    id: 'v2',
+    providerId: 'provider1',
+    type: 'suv',
+    make: 'Toyota',
+    model: 'Land Cruiser',
+    year: 2023,
+    plateNumber: 'LAG-567-XYZ',
+    color: 'White',
+    seats: 7,
+    images: ['https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400'],
+    available: true,
+    dailyRate: 85000,
+    verified: true,
+  },
+  {
+    id: 'v3',
+    providerId: 'provider1',
+    type: 'luxury',
+    make: 'Mercedes-Benz',
+    model: 'S-Class',
+    year: 2024,
+    plateNumber: 'ABJ-890-LUX',
+    color: 'Silver',
+    seats: 4,
+    images: ['https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400'],
+    available: false,
+    dailyRate: 150000,
+    verified: true,
+  },
+];
+
+// Mock Drivers
+export const mockDrivers: Driver[] = [
+  {
+    id: 'driver1',
+    providerId: 'provider1',
+    user: mockUsers.driver1,
+    licenseNumber: 'LAG-DL-12345',
+    licenseExpiry: new Date('2026-05-15'),
+    verified: true,
+    available: true,
+    assignedVehicleId: 'v1',
+    rating: 4.8,
+    totalTrips: 234,
+  },
+  {
+    id: 'driver2',
+    providerId: 'provider1',
+    user: {
+      id: 'driver2',
+      email: 'chidi@gmail.com',
+      phone: '+234 804 567 8901',
+      name: 'Chidi Nnamdi',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chidi',
+      role: 'driver',
+      verified: true,
+      createdAt: new Date('2024-03-10'),
+    },
+    licenseNumber: 'LAG-DL-67890',
+    licenseExpiry: new Date('2025-12-20'),
+    verified: true,
+    available: true,
+    rating: 4.6,
+    totalTrips: 156,
+  },
+];
+
+// Mock Provider
+export const mockProvider: Provider = {
+  id: 'provider1',
+  user: mockUsers.provider1,
+  businessName: 'FleetMaster Nigeria',
+  businessAddress: '45 Victoria Island, Lagos',
+  serviceAreas: ['Lagos', 'Ogun', 'Oyo'],
+  verified: true,
+  rating: 4.7,
+  totalBookings: 1250,
+  acceptanceRate: 92,
+  responseTime: 35,
+  vehicles: mockVehicles,
+  drivers: mockDrivers,
+  bankDetails: {
+    bankName: 'GTBank',
+    accountNumber: '0123456789',
+    accountName: 'FleetMaster Nigeria Ltd',
+  },
+};
+
+// Mock Bookings
+export const mockBookings: Booking[] = [
+  {
+    id: 'b1',
+    consumerId: 'consumer1',
+    consumer: mockUsers.consumer1,
+    providerId: 'provider1',
+    provider: mockProvider,
+    driverId: 'driver1',
+    vehicleId: 'v1',
+    vehicle: mockVehicles[0],
+    pickup: {
+      lat: 6.4541,
+      lng: 3.3947,
+      address: 'Lekki Phase 1, Lagos',
+      name: 'Lekki Toll Gate',
+    },
+    dropoff: {
+      lat: 6.4281,
+      lng: 3.4219,
+      address: 'Victoria Island, Lagos',
+      name: 'Eko Hotel',
+    },
+    bookingType: 'full-day',
+    vehiclePreference: 'sedan',
+    scheduledDate: new Date(),
+    scheduledTime: '09:00',
+    status: 'in-progress',
+    estimatedPrice: { min: 35000, max: 50000, currency: 'NGN' },
+    negotiatedPrice: 42000,
+    finalPrice: 42000,
+    matchedAt: new Date(),
+    confirmedAt: new Date(),
+    startedAt: new Date(),
+    createdAt: new Date(),
+  },
+  {
+    id: 'b2',
+    consumerId: 'consumer1',
+    consumer: mockUsers.consumer1,
+    pickup: {
+      lat: 6.5244,
+      lng: 3.3792,
+      address: 'Ikeja, Lagos',
+      name: 'Ikeja City Mall',
+    },
+    dropoff: {
+      lat: 6.4541,
+      lng: 3.3947,
+      address: 'Lekki, Lagos',
+      name: 'Lekki Mall',
+    },
+    bookingType: 'point-to-point',
+    vehiclePreference: 'suv',
+    scheduledDate: new Date(Date.now() + 86400000),
+    scheduledTime: '14:00',
+    status: 'pending',
+    estimatedPrice: { min: 25000, max: 35000, currency: 'NGN' },
+    createdAt: new Date(),
+  },
+];
+
+// Mock Platform Metrics
+export const mockPlatformMetrics: PlatformMetrics = {
+  totalBookings: 15420,
+  activeBookings: 89,
+  totalGMV: 458000000,
+  platformRevenue: 45800000,
+  totalProviders: 342,
+  activeProviders: 287,
+  totalConsumers: 12500,
+  activeConsumers: 3420,
+  avgResponseTime: 28,
+  avgAcceptanceRate: 87,
+};
+
+// Mock Provider Metrics
+export const mockProviderMetrics: ProviderMetrics = {
+  todayBookings: 8,
+  todayEarnings: 285000,
+  pendingSettlement: 1250000,
+  totalEarnings: 18500000,
+  acceptanceRate: 92,
+  responseTime: 35,
+  fleetUtilization: 78,
+};

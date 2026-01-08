@@ -2,95 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* CarHire2Go Design System
+   Calm Futurism - Premium Mobility Platform
+   Deep Graphite + Electric Teal + Muted Neon Accents
 */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Palette - Calm Futurism */
+    --background: 220 14% 96%;
+    --foreground: 220 20% 10%;
 
+    /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 10%;
+    --card-elevated: 0 0% 100%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 20% 10%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Deep Graphite */
+    --primary: 220 20% 12%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Electric Teal */
+    --secondary: 180 60% 45%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Electric Teal for Actions */
+    --accent: 175 84% 40%;
+    --accent-foreground: 0 0% 100%;
+    --accent-glow: 175 84% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Status Colors - Muted */
+    --success: 152 50% 42%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 80% 55%;
+    --warning-foreground: 220 20% 10%;
+    
+    --destructive: 0 55% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Muted & Borders */
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 46%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 175 84% 40%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Map Colors */
+    --map-pickup: 152 50% 42%;
+    --map-dropoff: 0 55% 50%;
+    --map-route: 175 84% 40%;
+    --map-provider: 38 80% 55%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Status Indicators */
+    --status-active: 152 50% 42%;
+    --status-pending: 38 80% 55%;
+    --status-inactive: 220 10% 60%;
+    --status-error: 0 55% 50%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(175 84% 40%) 0%, hsl(180 60% 45%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(220 20% 12%) 0%, hsl(220 25% 8%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 25% 16%) 50%, hsl(175 60% 20%) 100%);
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 20% 10% / 0.03);
+    --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.05), 0 2px 4px -2px hsl(220 20% 10% / 0.03);
+    --shadow-lg: 0 10px 15px -3px hsl(220 20% 10% / 0.05), 0 4px 6px -4px hsl(220 20% 10% / 0.03);
+    --shadow-xl: 0 20px 25px -5px hsl(220 20% 10% / 0.08), 0 8px 10px -6px hsl(220 20% 10% / 0.03);
+    --shadow-glow: 0 0 20px hsl(175 84% 40% / 0.25);
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Sidebar */
+    --sidebar-background: 220 20% 10%;
+    --sidebar-foreground: 220 14% 85%;
+    --sidebar-primary: 175 84% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 16%;
+    --sidebar-accent-foreground: 220 14% 90%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 175 84% 40%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Chart Colors */
+    --chart-1: 175 84% 40%;
+    --chart-2: 152 50% 42%;
+    --chart-3: 38 80% 55%;
+    --chart-4: 220 20% 50%;
+    --chart-5: 280 60% 50%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 25% 6%;
+    --foreground: 220 14% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 22% 10%;
+    --card-foreground: 220 14% 92%;
+    --card-elevated: 220 20% 14%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 22% 10%;
+    --popover-foreground: 220 14% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 220 20% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 175 84% 40%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 175 84% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 10% 55%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 55% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 175 84% 45%;
+
+    --sidebar-background: 220 25% 5%;
+    --sidebar-foreground: 220 14% 85%;
+    --sidebar-primary: 175 84% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 220 14% 90%;
+    --sidebar-border: 220 20% 12%;
+    --sidebar-ring: 175 84% 45%;
   }
 }
 
@@ -99,7 +145,295 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  /* Numbers - Tabular for data clarity */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Glass Morphism Cards */
+  .glass-card {
+    @apply backdrop-blur-xl bg-card/80 border border-border/50;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .glass-card-dark {
+    @apply backdrop-blur-xl bg-sidebar/90 border border-sidebar-border;
+  }
+
+  /* Map Container */
+  .map-container {
+    @apply relative w-full h-full rounded-xl overflow-hidden;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-active {
+    @apply bg-success/10 text-success;
+  }
+
+  .status-pending {
+    @apply bg-warning/10 text-warning;
+  }
+
+  .status-inactive {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    @apply bg-card rounded-xl p-6 border border-border/50;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Navigation Items */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200;
+  }
+
+  .nav-item-active {
+    @apply bg-sidebar-accent text-sidebar-foreground;
+  }
+
+  /* Data Tables */
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply text-left text-muted-foreground font-medium py-3 px-4 border-b border-border;
+  }
+
+  .data-table td {
+    @apply py-4 px-4 border-b border-border/50;
+  }
+
+  .data-table tr:hover {
+    @apply bg-muted/30;
+  }
+
+  /* Action Buttons */
+  .btn-action {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply btn-action bg-accent text-accent-foreground hover:bg-accent/90;
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+  }
+
+  .btn-secondary {
+    @apply btn-action bg-muted text-foreground hover:bg-muted/80;
+  }
+
+  .btn-ghost {
+    @apply btn-action text-foreground hover:bg-muted;
+  }
+
+  /* Input Fields */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+  }
+
+  /* Countdown Timer */
+  .countdown-ring {
+    @apply relative w-16 h-16;
+  }
+
+  .countdown-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  /* Booking Cards */
+  .booking-card {
+    @apply bg-card rounded-xl border border-border/50 overflow-hidden transition-all duration-200 hover:border-accent/30;
+    box-shadow: var(--shadow-md);
+  }
+
+  .booking-card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Provider Cards */
+  .provider-card {
+    @apply bg-card rounded-xl p-5 border border-border/50 transition-all duration-200;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .provider-card:hover {
+    @apply border-accent/30;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Fleet Vehicle Card */
+  .vehicle-card {
+    @apply bg-card rounded-xl overflow-hidden border border-border/50;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Chat Messages */
+  .chat-bubble-sent {
+    @apply bg-accent text-accent-foreground rounded-2xl rounded-br-md px-4 py-2.5;
+  }
+
+  .chat-bubble-received {
+    @apply bg-muted text-foreground rounded-2xl rounded-bl-md px-4 py-2.5;
+  }
+
+  /* Price Proposal Card */
+  .price-proposal {
+    @apply bg-muted/50 border border-border rounded-xl p-4;
+  }
+
+  /* Skeleton Loaders */
+  .skeleton {
+    @apply bg-muted animate-pulse rounded;
+  }
+
+  /* Map Markers */
+  .map-marker {
+    @apply w-10 h-10 rounded-full flex items-center justify-center shadow-lg;
+  }
+
+  .map-marker-pickup {
+    @apply bg-success text-white;
+  }
+
+  .map-marker-dropoff {
+    @apply bg-destructive text-white;
+  }
+
+  .map-marker-vehicle {
+    @apply bg-warning text-white;
+  }
+
+  /* Hero Section */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  /* Scrollbar Styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted-foreground/30;
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-countdown {
+    animation: countdown linear forwards;
+  }
+
+  .animate-search-pulse {
+    animation: searchPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from { 
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes countdown {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: 283; }
+  }
+
+  @keyframes searchPulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% { 
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+}
+
+/* Leaflet Map Overrides */
+.leaflet-container {
+  @apply rounded-xl;
+  font-family: 'Inter', sans-serif;
+}
+
+.leaflet-control-zoom {
+  @apply border-none shadow-lg overflow-hidden;
+}
+
+.leaflet-control-zoom a {
+  @apply bg-card text-foreground border-none hover:bg-muted;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-card rounded-xl shadow-xl border border-border/50;
+}
+
+.leaflet-popup-tip {
+  @apply bg-card;
+}
+
+.leaflet-popup-content {
+  @apply m-0 p-3;
 }
