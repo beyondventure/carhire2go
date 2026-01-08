@@ -81,8 +81,6 @@ export function BookingMap({
   interactive = true,
   className,
 }: BookingMapProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   const routePositions: LatLngExpression[] = pickup && dropoff
     ? [[pickup.lat, pickup.lng], [dropoff.lat, dropoff.lng]]
     : [];
@@ -99,7 +97,6 @@ export function BookingMap({
         style={{ height: '100%', width: '100%' }}
         zoomControl={true}
         attributionControl={false}
-        whenReady={() => setIsLoaded(true)}
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
