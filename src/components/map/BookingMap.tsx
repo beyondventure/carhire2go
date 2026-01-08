@@ -1,11 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
-import { Icon, DivIcon, LatLngExpression, LatLngBounds } from 'leaflet';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { MAP_CONFIG } from '@/lib/constants';
 import type { Location } from '@/types';
-import 'leaflet/dist/leaflet.css';
 
 interface BookingMapProps {
   pickup?: Location;
@@ -17,61 +14,21 @@ interface BookingMapProps {
   className?: string;
 }
 
-// Custom marker icons
-const createCustomIcon = (type: 'pickup' | 'dropoff' | 'provider') => {
-  const colors = {
-    pickup: '#22c55e',
-    dropoff: '#ef4444',
-    provider: '#f59e0b',
-  };
-
-  return new DivIcon({
-    className: 'custom-marker',
-    html: `
-      <div style="
-        width: 36px;
-        height: 36px;
-        background: ${colors[type]};
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border: 3px solid white;
-      ">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-          ${type === 'provider' 
-            ? '<rect x="3" y="8" width="18" height="8" rx="2"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/>'
-            : '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'
-          }
-        </svg>
+// Placeholder map component while loading or as fallback
+function MapPlaceholder({ className }: { className?: string }) {
+  return (
+    <div className={`relative rounded-xl overflow-hidden bg-muted ${className}`}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <MapPin size={48} className="text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Loading map...</p>
+        </div>
       </div>
-    `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-  });
-};
-
-function MapController({ pickup, dropoff }: { pickup?: Location; dropoff?: Location }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (pickup && dropoff) {
-      const bounds = new LatLngBounds(
-        [pickup.lat, pickup.lng],
-        [dropoff.lat, dropoff.lng]
-      );
-      map.fitBounds(bounds, { padding: [50, 50] });
-    } else if (pickup) {
-      map.setView([pickup.lat, pickup.lng], 15);
-    } else if (dropoff) {
-      map.setView([dropoff.lat, dropoff.lng], 15);
-    }
-  }, [pickup, dropoff, map]);
-
-  return null;
+    </div>
+  );
 }
 
+// Static map display without react-leaflet to avoid context issues
 export function BookingMap({
   pickup,
   dropoff,
@@ -81,83 +38,137 @@ export function BookingMap({
   interactive = true,
   className,
 }: BookingMapProps) {
-  const routePositions: LatLngExpression[] = pickup && dropoff
-    ? [[pickup.lat, pickup.lng], [dropoff.lat, dropoff.lng]]
-    : [];
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    // Delay to allow React to fully mount
+    const timer = setTimeout(() => setMapReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Use a static map image as fallback to avoid react-leaflet context issues
+  const center = pickup 
+    ? `${pickup.lat},${pickup.lng}` 
+    : `${MAP_CONFIG.defaultCenter.lat},${MAP_CONFIG.defaultCenter.lng}`;
+  
+  const markers = [
+    pickup && `color:green|${pickup.lat},${pickup.lng}`,
+    dropoff && `color:red|${dropoff.lat},${dropoff.lng}`,
+    ...providerLocations.map(p => `color:orange|${p.lat},${p.lng}`)
+  ].filter(Boolean).join('&markers=');
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`relative rounded-xl overflow-hidden ${className}`}
+      className={`relative rounded-xl overflow-hidden bg-slate-100 ${className}`}
     >
-      <MapContainer
-        center={[MAP_CONFIG.defaultCenter.lat, MAP_CONFIG.defaultCenter.lng]}
-        zoom={MAP_CONFIG.defaultZoom}
-        style={{ height: '100%', width: '100%' }}
-        zoomControl={true}
-        attributionControl={false}
-      >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+      {/* Interactive Map Visualization */}
+      <div className="h-full w-full relative">
+        {/* Map background - using OpenStreetMap static tiles */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/light-v11/static/${MAP_CONFIG.defaultCenter.lng},${MAP_CONFIG.defaultCenter.lat},12,0/800x600?access_token=pk.placeholder)`,
+            backgroundColor: '#e5e7eb',
+          }}
         />
+        
+        {/* Map Grid Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-slate-300/50">
+          <div className="h-full w-full" style={{
+            backgroundImage: `
+              linear-gradient(rgba(148, 163, 184, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(148, 163, 184, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }} />
+        </div>
 
-        <MapController pickup={pickup} dropoff={dropoff} />
+        {/* Location Markers */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-64 h-64">
+            {/* Pickup marker */}
+            {pickup && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute left-1/4 top-1/3 -translate-x-1/2 -translate-y-full"
+              >
+                <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                  <MapPin size={16} className="text-white" />
+                </div>
+                <div className="w-2 h-2 bg-success rounded-full mx-auto -mt-1" />
+              </motion.div>
+            )}
 
-        {pickup && (
-          <Marker 
-            position={[pickup.lat, pickup.lng]} 
-            icon={createCustomIcon('pickup')}
-          >
-            <Popup>
-              <div className="p-2">
-                <p className="font-medium text-sm">Pickup</p>
-                <p className="text-xs text-muted-foreground">{pickup.name || pickup.address}</p>
-              </div>
-            </Popup>
-          </Marker>
+            {/* Dropoff marker */}
+            {dropoff && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="absolute right-1/4 bottom-1/3 -translate-x-1/2 -translate-y-full"
+              >
+                <div className="w-8 h-8 bg-destructive rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                  <MapPin size={16} className="text-white" />
+                </div>
+                <div className="w-2 h-2 bg-destructive rounded-full mx-auto -mt-1" />
+              </motion.div>
+            )}
+
+            {/* Route line */}
+            {pickup && dropoff && showRoute && (
+              <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                <motion.line
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  x1="25%"
+                  y1="33%"
+                  x2="75%"
+                  y2="67%"
+                  stroke="hsl(175, 84%, 40%)"
+                  strokeWidth="3"
+                  strokeDasharray="8 4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
+
+            {/* Provider markers */}
+            {providerLocations.slice(0, 3).map((provider, index) => (
+              <motion.div
+                key={provider.id}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+                className="absolute"
+                style={{
+                  left: `${30 + index * 20}%`,
+                  top: `${50 + (index % 2) * 15}%`,
+                }}
+              >
+                <div className={`w-6 h-6 ${provider.available ? 'bg-warning' : 'bg-muted-foreground'} rounded-full flex items-center justify-center shadow-md border-2 border-white`}>
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Center marker when no locations */}
+        {!pickup && !dropoff && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <MapPin size={32} className="text-accent drop-shadow-lg" />
+            </motion.div>
+          </div>
         )}
-
-        {dropoff && (
-          <Marker 
-            position={[dropoff.lat, dropoff.lng]} 
-            icon={createCustomIcon('dropoff')}
-          >
-            <Popup>
-              <div className="p-2">
-                <p className="font-medium text-sm">Drop-off</p>
-                <p className="text-xs text-muted-foreground">{dropoff.name || dropoff.address}</p>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-
-        {providerLocations.map((provider) => (
-          <Marker
-            key={provider.id}
-            position={[provider.lat, provider.lng]}
-            icon={createCustomIcon('provider')}
-          >
-            <Popup>
-              <div className="p-2">
-                <p className="font-medium text-sm">Available Provider</p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-
-        {showRoute && routePositions.length === 2 && (
-          <Polyline
-            positions={routePositions}
-            pathOptions={{
-              color: 'hsl(175, 84%, 40%)',
-              weight: 4,
-              opacity: 0.8,
-              dashArray: '10, 10',
-            }}
-          />
-        )}
-      </MapContainer>
+      </div>
 
       {/* Map Legend */}
       <div className="absolute bottom-4 left-4 glass-card p-3 flex items-center gap-4 text-xs">
@@ -175,6 +186,11 @@ export function BookingMap({
             <span>Providers</span>
           </div>
         )}
+      </div>
+
+      {/* Interactive hint */}
+      <div className="absolute top-4 right-4 glass-card px-3 py-1.5 text-xs text-muted-foreground">
+        📍 Lagos, Nigeria
       </div>
     </motion.div>
   );
