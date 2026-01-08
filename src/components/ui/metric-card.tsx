@@ -1,7 +1,6 @@
-import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;
@@ -11,6 +10,8 @@ interface MetricCardProps {
   icon: LucideIcon;
   iconColor?: string;
   className?: string;
+  trend?: { value: number; isPositive: boolean };
+  variant?: 'default' | 'success' | 'warning' | 'destructive';
 }
 
 export function MetricCard({
@@ -21,11 +22,20 @@ export function MetricCard({
   icon: Icon,
   iconColor,
   className,
+  trend,
+  variant = 'default',
 }: MetricCardProps) {
   const changeColors = {
     positive: 'text-success',
     negative: 'text-destructive',
     neutral: 'text-muted-foreground',
+  };
+
+  const variantStyles = {
+    default: 'bg-accent/10 text-accent',
+    success: 'bg-success/10 text-success',
+    warning: 'bg-warning/10 text-warning',
+    destructive: 'bg-destructive/10 text-destructive',
   };
 
   return (
@@ -37,7 +47,7 @@ export function MetricCard({
       <div className="flex items-start justify-between mb-4">
         <div className={cn(
           'w-11 h-11 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110',
-          iconColor || 'bg-accent/10 text-accent'
+          iconColor || variantStyles[variant]
         )}>
           <Icon size={22} />
         </div>
@@ -45,6 +55,15 @@ export function MetricCard({
           <span className={cn('text-sm font-medium', changeColors[changeType])}>
             {change}
           </span>
+        )}
+        {trend && (
+          <div className={cn(
+            'flex items-center gap-1 text-sm font-medium',
+            trend.isPositive ? 'text-success' : 'text-destructive'
+          )}>
+            {trend.isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            <span>{trend.isPositive ? '+' : ''}{trend.value}%</span>
+          </div>
         )}
       </div>
       
