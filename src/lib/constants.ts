@@ -36,6 +36,15 @@ export const BOOKING_STATUS_LABELS = {
   cancelled: 'Cancelled',
 } as const;
 
+// Booking Type Labels
+export const BOOKING_TYPE_LABELS: Record<string, string> = {
+  'full-day': 'Full Day',
+  'half-day': 'Half Day',
+  'to-and-fro': 'To & Fro',
+  'point-to-point': 'Point to Point',
+  'event': 'Event',
+};
+
 // Nigerian Cities (Major Service Areas)
 export const SERVICE_CITIES = [
   'Lagos',
