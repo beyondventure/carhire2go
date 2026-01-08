@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   Car, 
@@ -17,9 +19,10 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { mockProviderMetrics, mockBookings, mockVehicles, mockDrivers } from '@/lib/mock-data';
 import { CURRENCY } from '@/lib/constants';
+import { toast } from 'sonner';
 
-// Mock incoming requests
-const incomingRequests = [
+// Mock incoming requests with state
+const initialRequests = [
   {
     id: 'req1',
     consumer: 'Adaeze Okafor',
@@ -41,7 +44,20 @@ const incomingRequests = [
 ];
 
 export default function ProviderDashboard() {
+  const navigate = useNavigate();
   const metrics = mockProviderMetrics;
+  const [requests, setRequests] = useState(initialRequests);
+
+  const handleAcceptRequest = (requestId: string) => {
+    toast.success('Request accepted! Proceeding to negotiation...');
+    setRequests(prev => prev.filter(r => r.id !== requestId));
+    navigate('/provider/requests');
+  };
+
+  const handleDeclineRequest = (requestId: string) => {
+    toast.info('Request declined');
+    setRequests(prev => prev.filter(r => r.id !== requestId));
+  };
 
   return (
     <DashboardLayout 
@@ -91,91 +107,107 @@ export default function ProviderDashboard() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Bell size={20} className="text-foreground" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-xs text-white rounded-full flex items-center justify-center">
-                  {incomingRequests.length}
-                </span>
+                {requests.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-xs text-white rounded-full flex items-center justify-center">
+                    {requests.length}
+                  </span>
+                )}
               </div>
               <h2 className="text-lg font-semibold text-foreground">Incoming Requests</h2>
             </div>
+            <button 
+              onClick={() => navigate('/provider/requests')}
+              className="text-sm text-accent hover:underline"
+            >
+              View all
+            </button>
           </div>
 
           <div className="space-y-4">
-            {incomingRequests.map((request, index) => (
-              <motion.div
-                key={request.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-4 bg-muted/30 rounded-xl border border-border hover:border-accent/30 transition-all"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-medium text-foreground">{request.consumer}</h3>
-                    <p className="text-sm text-muted-foreground">{request.vehicleType}</p>
-                  </div>
-                  
-                  {/* Countdown Timer */}
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-12 h-12">
-                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                        <circle
-                          cx="18"
-                          cy="18"
-                          r="16"
-                          fill="none"
-                          stroke="hsl(var(--muted))"
-                          strokeWidth="2"
-                        />
-                        <circle
-                          cx="18"
-                          cy="18"
-                          r="16"
-                          fill="none"
-                          stroke="hsl(var(--accent))"
-                          strokeWidth="2"
-                          strokeDasharray={100}
-                          strokeDashoffset={100 - (request.countdown / 60) * 100}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
-                        {request.countdown}
-                      </span>
+            {requests.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No pending requests
+              </div>
+            ) : (
+              requests.map((request, index) => (
+                <motion.div
+                  key={request.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="p-4 bg-muted/30 rounded-xl border border-border hover:border-accent/30 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium text-foreground">{request.consumer}</h3>
+                      <p className="text-sm text-muted-foreground">{request.vehicleType}</p>
+                    </div>
+                    
+                    {/* Countdown Timer */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-12 h-12">
+                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="16"
+                            fill="none"
+                            stroke="hsl(var(--muted))"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="16"
+                            fill="none"
+                            stroke="hsl(var(--accent))"
+                            strokeWidth="2"
+                            strokeDasharray={100}
+                            strokeDashoffset={100 - (request.countdown / 60) * 100}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
+                          {request.countdown}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                  <span className="w-2 h-2 rounded-full bg-success" />
-                  <span>{request.pickup}</span>
-                  <span className="text-muted-foreground/50">→</span>
-                  <span className="w-2 h-2 rounded-full bg-destructive" />
-                  <span>{request.dropoff}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-accent">{request.estimatedPrice}</span>
-                  <div className="flex gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                    >
-                      <XCircle size={16} />
-                      Decline
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors"
-                    >
-                      <CheckCircle2 size={16} />
-                      Accept
-                    </motion.button>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                    <span className="w-2 h-2 rounded-full bg-success" />
+                    <span>{request.pickup}</span>
+                    <span className="text-muted-foreground/50">→</span>
+                    <span className="w-2 h-2 rounded-full bg-destructive" />
+                    <span>{request.dropoff}</span>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-accent">{request.estimatedPrice}</span>
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDeclineRequest(request.id)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                      >
+                        <XCircle size={16} />
+                        Decline
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAcceptRequest(request.id)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors"
+                      >
+                        <CheckCircle2 size={16} />
+                        Accept
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         </motion.div>
 
@@ -190,7 +222,12 @@ export default function ProviderDashboard() {
           <div className="bg-card rounded-2xl border border-border p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Fleet Status</h3>
-              <button className="text-sm text-accent hover:underline">View all</button>
+              <button 
+                onClick={() => navigate('/provider/fleet')}
+                className="text-sm text-accent hover:underline"
+              >
+                View all
+              </button>
             </div>
             
             <div className="space-y-3">
@@ -221,7 +258,12 @@ export default function ProviderDashboard() {
           <div className="bg-card rounded-2xl border border-border p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Drivers</h3>
-              <button className="text-sm text-accent hover:underline">View all</button>
+              <button 
+                onClick={() => navigate('/provider/drivers')}
+                className="text-sm text-accent hover:underline"
+              >
+                View all
+              </button>
             </div>
             
             <div className="space-y-3">

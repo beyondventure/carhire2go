@@ -6,11 +6,21 @@ import { BookingMap } from '@/components/map/BookingMap';
 import { LocationInput } from '@/components/booking/LocationInput';
 import { BookingTypeSelector, VehicleTypeSelector } from '@/components/booking/BookingSelectors';
 import { MatchingOverlay } from '@/components/booking/MatchingOverlay';
+import { NegotiationOverlay } from '@/components/booking/NegotiationOverlay';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { mockBookings } from '@/lib/mock-data';
 import { CURRENCY, BOOKING_STATUS_LABELS } from '@/lib/constants';
 import type { Location, BookingType, VehicleType } from '@/types';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+interface MatchedProvider {
+  id: string;
+  name: string;
+  rating: number;
+  distance: string;
+  vehicle: string;
+}
 
 export default function ConsumerBooking() {
   const navigate = useNavigate();
@@ -21,17 +31,35 @@ export default function ConsumerBooking() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [isMatching, setIsMatching] = useState(false);
+  const [isNegotiating, setIsNegotiating] = useState(false);
+  const [matchedProvider, setMatchedProvider] = useState<MatchedProvider | null>(null);
 
   const estimatedPrice = { min: 35000, max: 55000 };
+  const basePrice = Math.round((estimatedPrice.min + estimatedPrice.max) / 2);
 
   const handleSubmit = () => {
     if (!pickup || !dropoff) return;
+    if (!date || !time) {
+      toast.error('Please select date and time');
+      return;
+    }
     setIsMatching(true);
   };
 
-  const handleMatched = (providerId: string) => {
+  const handleMatched = (provider: MatchedProvider) => {
     setIsMatching(false);
-    // Navigate to chat/negotiation
+    setMatchedProvider(provider);
+    setIsNegotiating(true);
+  };
+
+  const handleNegotiationClose = () => {
+    setIsNegotiating(false);
+    setMatchedProvider(null);
+  };
+
+  const handleBookingConfirmed = (finalPrice: number) => {
+    setIsNegotiating(false);
+    toast.success(`Booking confirmed at ₦${finalPrice.toLocaleString()}!`);
     navigate('/consumer/bookings');
   };
 
@@ -212,6 +240,15 @@ export default function ConsumerBooking() {
         isVisible={isMatching}
         onClose={() => setIsMatching(false)}
         onMatched={handleMatched}
+      />
+
+      {/* Negotiation Overlay */}
+      <NegotiationOverlay
+        isVisible={isNegotiating}
+        provider={matchedProvider}
+        basePrice={basePrice}
+        onClose={handleNegotiationClose}
+        onConfirm={handleBookingConfirmed}
       />
     </DashboardLayout>
   );

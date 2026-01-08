@@ -4,16 +4,24 @@ import { Search, Check, X, Car, Clock, MapPin, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MATCHING_TIMEOUT } from '@/lib/constants';
 
+interface MatchedProvider {
+  id: string;
+  name: string;
+  rating: number;
+  distance: string;
+  vehicle: string;
+}
+
 interface MatchingOverlayProps {
   isVisible: boolean;
   onClose: () => void;
-  onMatched?: (providerId: string) => void;
+  onMatched?: (provider: MatchedProvider) => void;
 }
 
 export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverlayProps) {
   const [countdown, setCountdown] = useState(MATCHING_TIMEOUT);
   const [status, setStatus] = useState<'searching' | 'found' | 'timeout'>('searching');
-  const [matchedProvider, setMatchedProvider] = useState<any>(null);
+  const [matchedProvider, setMatchedProvider] = useState<MatchedProvider | null>(null);
 
   useEffect(() => {
     if (!isVisible) {
@@ -41,7 +49,6 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
         name: 'FleetMaster Nigeria',
         rating: 4.7,
         distance: '2.3 km',
-        responseTime: '35s avg',
         vehicle: 'Toyota Camry 2022',
       });
     }, 5000);
@@ -180,7 +187,7 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
                     Cancel
                   </button>
                   <button
-                    onClick={() => onMatched?.(matchedProvider.id)}
+                    onClick={() => onMatched?.(matchedProvider)}
                     className="btn-primary flex-1"
                   >
                     Continue

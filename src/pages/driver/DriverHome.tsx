@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Navigation, MapPin, Clock, Phone, CheckCircle2, XCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BookingMap } from '@/components/map/BookingMap';
 import { mockBookings } from '@/lib/mock-data';
 import { CURRENCY } from '@/lib/constants';
+import { toast } from 'sonner';
 
 export default function DriverHome() {
+  const navigate = useNavigate();
   const activeTrip = mockBookings.find(b => b.status === 'in-progress');
+
+  const handleCompleteTrip = () => {
+    toast.success('Trip completed successfully!');
+    navigate('/driver/earnings');
+  };
+
+  const handleCall = () => {
+    toast.info('Calling customer...');
+  };
 
   return (
     <DashboardLayout title="Driver Dashboard">
@@ -21,9 +33,9 @@ export default function DriverHome() {
             </div>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl mb-6">
               <div><p className="text-sm text-muted-foreground">Customer</p><p className="font-medium text-foreground">{activeTrip.consumer?.name}</p></div>
-              <button className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center"><Phone size={20} /></button>
+              <button onClick={handleCall} className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent/90 transition-colors"><Phone size={20} /></button>
             </div>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="btn-primary w-full py-4"><CheckCircle2 size={20} />Complete Trip</motion.button>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCompleteTrip} className="btn-primary w-full py-4"><CheckCircle2 size={20} />Complete Trip</motion.button>
           </motion.div>
         </div>
       ) : (
