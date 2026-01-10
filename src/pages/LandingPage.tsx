@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Car, Users, Briefcase, Shield, ChevronRight, MapPin, Clock, CreditCard, Zap, Check } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { PLATFORM_NAME, PLATFORM_TAGLINE } from '@/lib/constants';
 import type { UserRole } from '@/types';
 
@@ -56,10 +55,9 @@ const features = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleRoleSelect = (role: UserRole) => {
-    login(role);
+    // Navigate to login with role pre-selected, or directly to role page for demo
     const routes: Record<UserRole, string> = {
       consumer: '/consumer',
       provider: '/provider',
