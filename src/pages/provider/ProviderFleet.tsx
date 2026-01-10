@@ -1,41 +1,92 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Car, Plus, Edit, Trash2, Eye, EyeOff, Users, Calendar, TrendingUp, Filter } from 'lucide-react';
+import { Car, Plus, Edit, Trash2, Eye, Calendar, TrendingUp, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { FleetUtilizationChart } from '@/components/analytics/AnalyticsCharts';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { mockVehicles, mockDrivers } from '@/lib/mock-data';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useVehicles } from '@/hooks/useVehicles';
+import { useProviders } from '@/hooks/useProviders';
 import { CURRENCY, VEHICLE_TYPES } from '@/lib/constants';
-import type { Vehicle } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
+
+type VehicleType = Database['public']['Enums']['vehicle_type'];
+type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
 
 export default function ProviderFleet() {
-  const [vehicles, setVehicles] = useState(mockVehicles);
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const { provider } = useProviders();
+  const { vehicles, isLoading, addVehicle, updateVehicle, deleteVehicle } = useVehicles();
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleRow | null>(null);
   const [filter, setFilter] = useState<string>('all');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  // Form state
+  const [newVehicle, setNewVehicle] = useState({
+    make: '',
+    model: '',
+    year: new Date().getFullYear(),
+    plate_number: '',
+    color: '',
+    vehicle_type: 'sedan' as VehicleType,
+    seats: 4,
+    daily_rate: 0,
+  });
 
   const availableVehicles = vehicles.filter(v => v.available).length;
-  const totalRevenue = vehicles.reduce((sum, v) => sum + v.dailyRate * 20, 0); // Simulated monthly
-  const avgUtilization = 78;
+  const totalRevenue = vehicles.reduce((sum, v) => sum + v.daily_rate * 20, 0);
+  const avgUtilization = vehicles.length > 0 ? Math.round((availableVehicles / vehicles.length) * 100) : 0;
 
   const filteredVehicles = vehicles.filter(v => {
     if (filter === 'all') return true;
     if (filter === 'available') return v.available;
     if (filter === 'unavailable') return !v.available;
-    return v.type === filter;
+    return v.vehicle_type === filter;
   });
 
-  const toggleAvailability = (vehicleId: string) => {
-    setVehicles(vehicles.map(v =>
-      v.id === vehicleId ? { ...v, available: !v.available } : v
-    ));
+  const toggleAvailability = async (vehicle: VehicleRow) => {
+    await updateVehicle(vehicle.id, { available: !vehicle.available });
   };
 
-  const getAssignedDriver = (vehicleId: string) => {
-    return mockDrivers.find(d => d.assignedVehicleId === vehicleId);
+  const handleAddVehicle = async () => {
+    if (!newVehicle.make || !newVehicle.model || !newVehicle.plate_number) return;
+    
+    await addVehicle(newVehicle);
+    
+    setIsAddDialogOpen(false);
+    setNewVehicle({
+      make: '',
+      model: '',
+      year: new Date().getFullYear(),
+      plate_number: '',
+      color: '',
+      vehicle_type: 'sedan',
+      seats: 4,
+      daily_rate: 0,
+    });
   };
+
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    await deleteVehicle(vehicleId);
+    if (selectedVehicle?.id === vehicleId) {
+      setSelectedVehicle(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Fleet Management" subtitle="Manage your vehicles and track utilization">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Fleet Management" subtitle="Manage your vehicles and track utilization">
@@ -59,8 +110,8 @@ export default function ProviderFleet() {
           trend={{ value: 5, isPositive: true }}
         />
         <MetricCard
-          title="Monthly Revenue"
-          value={`${CURRENCY}${(totalRevenue / 1000000).toFixed(1)}M`}
+          title="Est. Monthly Revenue"
+          value={`${CURRENCY}${(totalRevenue / 1000).toFixed(0)}K`}
           icon={Calendar}
           trend={{ value: 12, isPositive: true }}
         />
@@ -87,16 +138,118 @@ export default function ProviderFleet() {
                   ))}
                 </div>
               </div>
-              <Button size="sm">
-                <Plus size={16} className="mr-1" />
-                Add Vehicle
-              </Button>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <Plus size={16} className="mr-1" />
+                    Add Vehicle
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Vehicle</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Make</Label>
+                        <Input
+                          placeholder="Toyota"
+                          value={newVehicle.make}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, make: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Model</Label>
+                        <Input
+                          placeholder="Camry"
+                          value={newVehicle.model}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Year</Label>
+                        <Input
+                          type="number"
+                          value={newVehicle.year}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, year: parseInt(e.target.value) })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Plate Number</Label>
+                        <Input
+                          placeholder="LAG-123-ABC"
+                          value={newVehicle.plate_number}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, plate_number: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Color</Label>
+                        <Input
+                          placeholder="Black"
+                          value={newVehicle.color}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, color: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Vehicle Type</Label>
+                        <Select
+                          value={newVehicle.vehicle_type}
+                          onValueChange={(value: VehicleType) => setNewVehicle({ ...newVehicle, vehicle_type: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sedan">Sedan</SelectItem>
+                            <SelectItem value="suv">SUV</SelectItem>
+                            <SelectItem value="luxury">Luxury</SelectItem>
+                            <SelectItem value="van">Van</SelectItem>
+                            <SelectItem value="bus">Bus</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Seats</Label>
+                        <Input
+                          type="number"
+                          value={newVehicle.seats}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, seats: parseInt(e.target.value) })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Daily Rate ({CURRENCY})</Label>
+                        <Input
+                          type="number"
+                          placeholder="45000"
+                          value={newVehicle.daily_rate || ''}
+                          onChange={(e) => setNewVehicle({ ...newVehicle, daily_rate: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                    </div>
+                    <Button onClick={handleAddVehicle} className="w-full">
+                      Add Vehicle
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="divide-y divide-border">
-              {filteredVehicles.map((vehicle, index) => {
-                const driver = getAssignedDriver(vehicle.id);
-                return (
+              {filteredVehicles.length === 0 ? (
+                <div className="text-center py-12">
+                  <Car size={48} className="text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No vehicles found</h3>
+                  <p className="text-muted-foreground">Add your first vehicle to get started</p>
+                </div>
+              ) : (
+                filteredVehicles.map((vehicle, index) => (
                   <motion.div
                     key={vehicle.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -108,37 +261,29 @@ export default function ProviderFleet() {
                     onClick={() => setSelectedVehicle(vehicle)}
                   >
                     <div className="flex items-center gap-4">
-                      <img
-                        src={vehicle.images[0]}
-                        alt={`${vehicle.make} ${vehicle.model}`}
-                        className="w-20 h-14 rounded-lg object-cover"
-                      />
+                      <div className="w-20 h-14 rounded-lg bg-muted flex items-center justify-center">
+                        <Car size={24} className="text-muted-foreground" />
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold text-foreground">
                             {vehicle.make} {vehicle.model}
                           </h4>
                           <span className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground capitalize">
-                            {vehicle.type}
+                            {vehicle.vehicle_type}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                          <span>{vehicle.plateNumber}</span>
+                          <span>{vehicle.plate_number}</span>
                           <span>•</span>
                           <span>{vehicle.year}</span>
                           <span>•</span>
                           <span>{vehicle.seats} seats</span>
                         </div>
-                        {driver && (
-                          <div className="flex items-center gap-1.5 mt-1 text-sm">
-                            <Users size={12} className="text-accent" />
-                            <span className="text-foreground">{driver.user.name}</span>
-                          </div>
-                        )}
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-foreground">
-                          {CURRENCY}{vehicle.dailyRate.toLocaleString()}
+                          {CURRENCY}{vehicle.daily_rate.toLocaleString()}
                           <span className="text-xs text-muted-foreground font-normal">/day</span>
                         </p>
                         <div className="flex items-center gap-2 mt-2">
@@ -146,15 +291,15 @@ export default function ProviderFleet() {
                             {vehicle.available ? 'Available' : 'Unavailable'}
                           </span>
                           <Switch
-                            checked={vehicle.available}
-                            onCheckedChange={() => toggleAvailability(vehicle.id)}
+                            checked={vehicle.available || false}
+                            onCheckedChange={() => toggleAvailability(vehicle)}
                           />
                         </div>
                       </div>
                     </div>
                   </motion.div>
-                );
-              })}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -168,11 +313,9 @@ export default function ProviderFleet() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
             >
-              <img
-                src={selectedVehicle.images[0]}
-                alt={`${selectedVehicle.make} ${selectedVehicle.model}`}
-                className="w-full h-40 object-cover"
-              />
+              <div className="w-full h-40 bg-muted flex items-center justify-center">
+                <Car size={48} className="text-muted-foreground" />
+              </div>
               <div className="p-5">
                 <h4 className="font-semibold text-foreground text-lg">
                   {selectedVehicle.make} {selectedVehicle.model}
@@ -182,11 +325,11 @@ export default function ProviderFleet() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Type</span>
-                    <span className="text-foreground capitalize">{selectedVehicle.type}</span>
+                    <span className="text-foreground capitalize">{selectedVehicle.vehicle_type}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Plate Number</span>
-                    <span className="text-foreground">{selectedVehicle.plateNumber}</span>
+                    <span className="text-foreground">{selectedVehicle.plate_number}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Color</span>
@@ -195,12 +338,16 @@ export default function ProviderFleet() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Daily Rate</span>
                     <span className="text-foreground font-semibold">
-                      {CURRENCY}{selectedVehicle.dailyRate.toLocaleString()}
+                      {CURRENCY}{selectedVehicle.daily_rate.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status</span>
                     <StatusBadge status={selectedVehicle.available ? 'confirmed' : 'cancelled'} />
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Verified</span>
+                    <StatusBadge status={selectedVehicle.verified ? 'confirmed' : 'pending'} />
                   </div>
                 </div>
 
@@ -209,7 +356,12 @@ export default function ProviderFleet() {
                     <Edit size={14} className="mr-1" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-destructive border-destructive/30"
+                    onClick={() => handleDeleteVehicle(selectedVehicle.id)}
+                  >
                     <Trash2 size={14} />
                   </Button>
                 </div>
