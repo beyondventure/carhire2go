@@ -90,7 +90,9 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/verification" element={<AdminVerification />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/architecture" element={<SystemArchitecture />} />
+            
+            {/* Architecture - Public */}
+            <Route path="/architecture" element={<SystemArchitecture />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
