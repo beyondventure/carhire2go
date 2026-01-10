@@ -8,8 +8,9 @@ import { BookingTypeSelector, VehicleTypeSelector } from '@/components/booking/B
 import { MatchingOverlay } from '@/components/booking/MatchingOverlay';
 import { NegotiationOverlay } from '@/components/booking/NegotiationOverlay';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { mockBookings } from '@/lib/mock-data';
-import { CURRENCY, BOOKING_STATUS_LABELS } from '@/lib/constants';
+import { useBookings } from '@/hooks/useBookings';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { CURRENCY } from '@/lib/constants';
 import type { Location, BookingType, VehicleType } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -24,6 +25,9 @@ interface MatchedProvider {
 
 export default function ConsumerBooking() {
   const navigate = useNavigate();
+  const { user } = useSupabaseAuth();
+  const { bookings, createBooking } = useBookings();
+  
   const [pickup, setPickup] = useState<Location | undefined>();
   const [dropoff, setDropoff] = useState<Location | undefined>();
   const [bookingType, setBookingType] = useState<BookingType>('full-day');
@@ -33,17 +37,50 @@ export default function ConsumerBooking() {
   const [isMatching, setIsMatching] = useState(false);
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [matchedProvider, setMatchedProvider] = useState<MatchedProvider | null>(null);
+  const [currentBookingId, setCurrentBookingId] = useState<string | null>(null);
 
   const estimatedPrice = { min: 35000, max: 55000 };
   const basePrice = Math.round((estimatedPrice.min + estimatedPrice.max) / 2);
 
-  const handleSubmit = () => {
-    if (!pickup || !dropoff) return;
+  const handleSubmit = async () => {
+    if (!pickup || !dropoff) {
+      toast.error('Please enter pickup and dropoff locations');
+      return;
+    }
     if (!date || !time) {
       toast.error('Please select date and time');
       return;
     }
-    setIsMatching(true);
+    if (!user) {
+      toast.error('Please sign in to create a booking');
+      navigate('/login');
+      return;
+    }
+
+    // Create the booking in database
+    const booking = await createBooking({
+      pickup_lat: pickup.lat,
+      pickup_lng: pickup.lng,
+      pickup_address: pickup.address,
+      pickup_name: pickup.name || null,
+      dropoff_lat: dropoff.lat,
+      dropoff_lng: dropoff.lng,
+      dropoff_address: dropoff.address,
+      dropoff_name: dropoff.name || null,
+      booking_type: bookingType,
+      vehicle_preference: vehicleType,
+      scheduled_date: date,
+      scheduled_time: time,
+      estimated_min_price: estimatedPrice.min,
+      estimated_max_price: estimatedPrice.max,
+      status: 'matching',
+      matching_started_at: new Date().toISOString(),
+    });
+
+    if (booking) {
+      setCurrentBookingId(booking.id);
+      setIsMatching(true);
+    }
   };
 
   const handleMatched = (provider: MatchedProvider) => {
@@ -59,11 +96,11 @@ export default function ConsumerBooking() {
 
   const handleBookingConfirmed = (finalPrice: number) => {
     setIsNegotiating(false);
-    toast.success(`Booking confirmed at ₦${finalPrice.toLocaleString()}!`);
+    toast.success(`Booking confirmed at ${CURRENCY}${finalPrice.toLocaleString()}!`);
     navigate('/consumer/bookings');
   };
 
-  const activeBookings = mockBookings.filter(b => 
+  const activeBookings = bookings.filter(b => 
     ['pending', 'matching', 'matched', 'negotiating', 'confirmed', 'in-progress'].includes(b.status)
   );
 
@@ -132,6 +169,7 @@ export default function ConsumerBooking() {
                       type="date"
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full pl-11 pr-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
@@ -219,10 +257,10 @@ export default function ConsumerBooking() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground truncate max-w-[150px]">
-                          {booking.dropoff.name || booking.dropoff.address}
+                          {booking.dropoff_name || booking.dropoff_address}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(booking.scheduledDate).toLocaleDateString()}
+                          {new Date(booking.scheduled_date).toLocaleDateString()}
                         </p>
                       </div>
                     </div>

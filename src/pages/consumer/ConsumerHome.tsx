@@ -1,22 +1,28 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Car, Plus, TrendingUp, ArrowRight } from 'lucide-react';
+import { MapPin, Clock, Car, Plus, TrendingUp, ArrowRight, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { mockBookings } from '@/lib/mock-data';
-import { CURRENCY, BOOKING_STATUS_LABELS } from '@/lib/constants';
+import { useBookings } from '@/hooks/useBookings';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { CURRENCY } from '@/lib/constants';
 
 export default function ConsumerHome() {
   const navigate = useNavigate();
+  const { user, profile } = useSupabaseAuth();
+  const { bookings, isLoading } = useBookings();
   
-  const activeBookings = mockBookings.filter(b => 
+  const activeBookings = bookings.filter(b => 
     ['pending', 'matching', 'matched', 'negotiating', 'confirmed', 'in-progress'].includes(b.status)
   );
 
-  const recentBookings = mockBookings.slice(0, 3);
+  const completedBookings = bookings.filter(b => b.status === 'completed');
+  const recentBookings = bookings.slice(0, 3);
+
+  const userName = profile?.name?.split(' ')[0] || 'there';
 
   return (
-    <DashboardLayout title="Welcome back, John" subtitle="What would you like to do today?">
+    <DashboardLayout title={`Welcome back, ${userName}`} subtitle="What would you like to do today?">
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Quick Book Card */}
         <motion.div
@@ -57,19 +63,26 @@ export default function ConsumerHome() {
               <TrendingUp size={20} className="text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">12</p>
+              <p className="text-2xl font-bold text-foreground">{completedBookings.length}</p>
               <p className="text-sm text-muted-foreground">Total Trips</p>
             </div>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">This month</span>
-            <span className="text-success font-medium">+3 trips</span>
+            <span className="text-muted-foreground">Active bookings</span>
+            <span className="text-accent font-medium">{activeBookings.length} active</span>
           </div>
         </motion.div>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="mt-6 flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      )}
+
       {/* Active Booking */}
-      {activeBookings.length > 0 && (
+      {!isLoading && activeBookings.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -95,11 +108,13 @@ export default function ConsumerHome() {
                       <Car size={24} className="text-accent" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">
-                        {booking.vehicle?.make} {booking.vehicle?.model}
+                      <h4 className="font-semibold text-foreground capitalize">
+                        {booking.vehicle_preference || 'Any'} Vehicle
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        {booking.provider?.businessName}
+                        {booking.status === 'pending' || booking.status === 'matching' 
+                          ? 'Finding provider...' 
+                          : 'Provider assigned'}
                       </p>
                     </div>
                   </div>
@@ -111,7 +126,7 @@ export default function ConsumerHome() {
                     <div className="w-3 h-3 rounded-full bg-success mt-1.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {booking.pickup.name || booking.pickup.address}
+                        {booking.pickup_name || booking.pickup_address}
                       </p>
                       <p className="text-xs text-muted-foreground">Pickup</p>
                     </div>
@@ -121,7 +136,7 @@ export default function ConsumerHome() {
                     <div className="w-3 h-3 rounded-full bg-destructive mt-1.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {booking.dropoff.name || booking.dropoff.address}
+                        {booking.dropoff_name || booking.dropoff_address}
                       </p>
                       <p className="text-xs text-muted-foreground">Drop-off</p>
                     </div>
@@ -132,13 +147,13 @@ export default function ConsumerHome() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Clock size={14} />
-                      {booking.scheduledTime}
+                      {booking.scheduled_time}
                     </span>
-                    <span>{new Date(booking.scheduledDate).toLocaleDateString()}</span>
+                    <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
                   </div>
-                  {booking.finalPrice && (
+                  {booking.final_price && (
                     <p className="font-semibold text-foreground">
-                      {CURRENCY}{booking.finalPrice.toLocaleString()}
+                      {CURRENCY}{booking.final_price.toLocaleString()}
                     </p>
                   )}
                 </div>
@@ -149,62 +164,87 @@ export default function ConsumerHome() {
       )}
 
       {/* Recent Bookings */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Recent Bookings</h3>
-          <button 
-            onClick={() => navigate('/consumer/bookings')}
-            className="text-sm text-accent hover:underline flex items-center gap-1"
-          >
-            View all <ArrowRight size={14} />
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {recentBookings.map((booking, index) => (
-            <motion.div
-              key={booking.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
-              className="booking-card p-4 cursor-pointer"
+      {!isLoading && recentBookings.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Recent Bookings</h3>
+            <button 
               onClick={() => navigate('/consumer/bookings')}
+              className="text-sm text-accent hover:underline flex items-center gap-1"
             >
-              <div className="flex items-center justify-between mb-3">
-                <StatusBadge status={booking.status} />
-                <span className="text-xs text-muted-foreground">
-                  {new Date(booking.createdAt).toLocaleDateString()}
-                </span>
-              </div>
+              View all <ArrowRight size={14} />
+            </button>
+          </div>
 
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin size={14} className="text-success" />
-                <p className="text-sm text-foreground truncate">
-                  {booking.pickup.name || booking.pickup.address}
-                </p>
-              </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentBookings.map((booking, index) => (
+              <motion.div
+                key={booking.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+                className="booking-card p-4 cursor-pointer"
+                onClick={() => navigate('/consumer/bookings')}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <StatusBadge status={booking.status} />
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(booking.created_at).toLocaleDateString()}
+                  </span>
+                </div>
 
-              <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-destructive" />
-                <p className="text-sm text-foreground truncate">
-                  {booking.dropoff.name || booking.dropoff.address}
-                </p>
-              </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin size={14} className="text-success" />
+                  <p className="text-sm text-foreground truncate">
+                    {booking.pickup_name || booking.pickup_address}
+                  </p>
+                </div>
 
-              {booking.finalPrice && (
-                <p className="text-sm font-semibold text-foreground mt-3">
-                  {CURRENCY}{booking.finalPrice.toLocaleString()}
-                </p>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+                <div className="flex items-center gap-2">
+                  <MapPin size={14} className="text-destructive" />
+                  <p className="text-sm text-foreground truncate">
+                    {booking.dropoff_name || booking.dropoff_address}
+                  </p>
+                </div>
+
+                {booking.final_price && (
+                  <p className="text-sm font-semibold text-foreground mt-3">
+                    {CURRENCY}{booking.final_price.toLocaleString()}
+                  </p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && bookings.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-6 text-center py-12 bg-card rounded-2xl border border-border"
+        >
+          <Car size={48} className="text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No bookings yet</h3>
+          <p className="text-muted-foreground mb-4">Create your first booking to get started</p>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/consumer/book')}
+            className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-6 py-3 rounded-xl font-medium hover:bg-accent/90 transition-colors"
+          >
+            <Plus size={20} />
+            Create Booking
+          </motion.button>
+        </motion.div>
+      )}
     </DashboardLayout>
   );
 }

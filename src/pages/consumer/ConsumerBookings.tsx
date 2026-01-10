@@ -1,63 +1,51 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Car, MessageSquare, Filter, Search } from 'lucide-react';
+import { MapPin, Clock, Car, MessageSquare, Search, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockBookings } from '@/lib/mock-data';
+import { useBookings } from '@/hooks/useBookings';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { CURRENCY, BOOKING_STATUS_LABELS } from '@/lib/constants';
-import type { Booking, ChatMessage } from '@/types';
+import type { ChatMessage } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
+
+type BookingRow = Database['public']['Tables']['bookings']['Row'];
 
 export default function ConsumerBookings() {
   const navigate = useNavigate();
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const { user } = useSupabaseAuth();
+  const { bookings, isLoading, cancelBooking } = useBookings();
+  
+  const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      bookingId: 'b1',
-      senderId: 'provider1',
-      senderRole: 'provider',
-      content: 'Hello! Thank you for your booking request.',
-      type: 'text',
-      createdAt: new Date(Date.now() - 3600000),
-    },
-    {
-      id: '2',
-      bookingId: 'b1',
-      senderId: 'provider1',
-      senderRole: 'provider',
-      content: 'Based on your requirements, here is my proposal:',
-      type: 'price-proposal',
-      proposedPrice: 45000,
-      createdAt: new Date(Date.now() - 3000000),
-    },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
-  const filteredBookings = mockBookings.filter((booking) => {
+  const filteredBookings = bookings.filter((booking) => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
-        booking.pickup.address.toLowerCase().includes(query) ||
-        booking.dropoff.address.toLowerCase().includes(query) ||
-        booking.provider?.businessName?.toLowerCase().includes(query)
+        booking.pickup_address.toLowerCase().includes(query) ||
+        booking.dropoff_address.toLowerCase().includes(query)
       );
     }
     return true;
   });
 
   const handleSendMessage = (content: string) => {
+    if (!user || !selectedBooking) return;
+    
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedBooking?.id || '',
-      senderId: 'consumer1',
+      bookingId: selectedBooking.id,
+      senderId: user.id,
       senderRole: 'consumer',
       content,
       type: 'text',
@@ -67,10 +55,12 @@ export default function ConsumerBookings() {
   };
 
   const handlePriceProposal = (price: number) => {
+    if (!user || !selectedBooking) return;
+    
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedBooking?.id || '',
-      senderId: 'consumer1',
+      bookingId: selectedBooking.id,
+      senderId: user.id,
       senderRole: 'consumer',
       content: 'Counter proposal',
       type: 'price-proposal',
@@ -81,10 +71,12 @@ export default function ConsumerBookings() {
   };
 
   const handleAcceptPrice = (messageId: string, price: number) => {
+    if (!user || !selectedBooking) return;
+    
     const acceptMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedBooking?.id || '',
-      senderId: 'consumer1',
+      bookingId: selectedBooking.id,
+      senderId: user.id,
       senderRole: 'consumer',
       content: `Price accepted: ${CURRENCY}${price.toLocaleString()}`,
       type: 'price-accepted',
@@ -106,6 +98,20 @@ export default function ConsumerBookings() {
     };
     setChatMessages([...chatMessages, systemMessage]);
   };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    await cancelBooking(bookingId);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="My Bookings" subtitle="View and manage all your bookings">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="My Bookings" subtitle="View and manage all your bookings">
@@ -140,102 +146,117 @@ export default function ConsumerBookings() {
 
           {/* Bookings */}
           <div className="flex-1 overflow-y-auto space-y-4">
-            {filteredBookings.map((booking, index) => (
-              <motion.div
-                key={booking.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`booking-card p-5 cursor-pointer ${
-                  selectedBooking?.id === booking.id ? 'ring-2 ring-accent' : ''
-                }`}
-                onClick={() => {
-                  setSelectedBooking(booking);
-                  if (booking.status === 'negotiating' || booking.status === 'matched') {
-                    setShowChat(true);
-                  }
-                }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    {booking.vehicle ? (
-                      <img
-                        src={booking.vehicle.images[0]}
-                        alt={`${booking.vehicle.make} ${booking.vehicle.model}`}
-                        className="w-14 h-14 rounded-lg object-cover"
-                      />
-                    ) : (
+            {filteredBookings.length === 0 ? (
+              <div className="text-center py-12">
+                <Car size={48} className="text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No bookings found</h3>
+                <p className="text-muted-foreground">
+                  {statusFilter === 'all' 
+                    ? "You haven't made any bookings yet" 
+                    : `No ${statusFilter} bookings found`}
+                </p>
+              </div>
+            ) : (
+              filteredBookings.map((booking, index) => (
+                <motion.div
+                  key={booking.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`booking-card p-5 cursor-pointer ${
+                    selectedBooking?.id === booking.id ? 'ring-2 ring-accent' : ''
+                  }`}
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    if (booking.status === 'negotiating' || booking.status === 'matched') {
+                      setShowChat(true);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
                         <Car size={24} className="text-muted-foreground" />
                       </div>
-                    )}
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        {booking.vehicle 
-                          ? `${booking.vehicle.make} ${booking.vehicle.model}`
-                          : `${booking.vehiclePreference || 'Any'} vehicle`
-                        }
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {booking.provider?.businessName || 'Matching provider...'}
+                      <div>
+                        <h4 className="font-semibold text-foreground capitalize">
+                          {booking.vehicle_preference || 'Any'} vehicle
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {booking.status === 'pending' ? 'Matching provider...' : 
+                           booking.provider_id ? 'Provider assigned' : 'Pending'}
+                        </p>
+                      </div>
+                    </div>
+                    <StatusBadge status={booking.status} />
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-success" />
+                      <p className="text-sm text-foreground truncate">
+                        {booking.pickup_name || booking.pickup_address}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-destructive" />
+                      <p className="text-sm text-foreground truncate">
+                        {booking.dropoff_name || booking.dropoff_address}
                       </p>
                     </div>
                   </div>
-                  <StatusBadge status={booking.status} />
-                </div>
 
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-success" />
-                    <p className="text-sm text-foreground truncate">
-                      {booking.pickup.name || booking.pickup.address}
-                    </p>
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock size={14} />
+                        {booking.scheduled_time}
+                      </span>
+                      <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {(booking.status === 'negotiating' || booking.status === 'matched') && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedBooking(booking);
+                            setShowChat(true);
+                          }}
+                        >
+                          <MessageSquare size={16} className="mr-1" />
+                          Chat
+                        </Button>
+                      )}
+                      {booking.status === 'pending' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelBooking(booking.id);
+                          }}
+                          className="text-destructive"
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                      {booking.final_price && (
+                        <p className="font-semibold text-foreground">
+                          {CURRENCY}{booking.final_price.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-destructive" />
-                    <p className="text-sm text-foreground truncate">
-                      {booking.dropoff.name || booking.dropoff.address}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock size={14} />
-                      {booking.scheduledTime}
-                    </span>
-                    <span>{new Date(booking.scheduledDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {(booking.status === 'negotiating' || booking.status === 'matched') && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedBooking(booking);
-                          setShowChat(true);
-                        }}
-                      >
-                        <MessageSquare size={16} className="mr-1" />
-                        Chat
-                      </Button>
-                    )}
-                    {booking.finalPrice && (
-                      <p className="font-semibold text-foreground">
-                        {CURRENCY}{booking.finalPrice.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Chat Panel */}
-        {showChat && selectedBooking && (
+        {showChat && selectedBooking && user && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -243,7 +264,7 @@ export default function ConsumerBookings() {
           >
             <ChatPanel
               messages={chatMessages}
-              currentUserId="consumer1"
+              currentUserId={user.id}
               currentUserRole="consumer"
               onSendMessage={handleSendMessage}
               onPriceProposal={handlePriceProposal}
