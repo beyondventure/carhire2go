@@ -3,10 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { SupabaseAuthProvider } from "@/hooks/useSupabaseAuth";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ProviderOnboarding from "./pages/onboarding/ProviderOnboarding";
+import DriverOnboarding from "./pages/onboarding/DriverOnboarding";
 import ConsumerHome from "./pages/consumer/ConsumerHome";
 import ConsumerBooking from "./pages/consumer/ConsumerBooking";
 import ConsumerBookings from "./pages/consumer/ConsumerBookings";
@@ -39,14 +43,20 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
+      <SupabaseAuthProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Landing */}
+            {/* Landing & Auth */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            
+            {/* Onboarding */}
+            <Route path="/onboarding/provider" element={<ProviderOnboarding />} />
+            <Route path="/onboarding/driver" element={<DriverOnboarding />} />
             
             {/* Consumer Routes */}
             <Route path="/consumer" element={<ConsumerHome />} />
@@ -84,7 +94,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
+      </SupabaseAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
