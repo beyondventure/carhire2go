@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,8 +25,10 @@ import {
   FileText,
   Smartphone,
   Monitor,
-  Cloud
+  Cloud,
+  ArrowLeft
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function SystemArchitecture() {
   const [activeSection, setActiveSection] = useState('overview');
@@ -37,7 +38,7 @@ export default function SystemArchitecture() {
   };
 
   return (
-    <DashboardLayout title="System Architecture" subtitle="Technical Documentation">
+    <div className="min-h-screen bg-background">
       {/* Print-only styles */}
       <style>{`
         @media print {
@@ -61,22 +62,32 @@ export default function SystemArchitecture() {
         }
       `}</style>
 
-      <div className="space-y-6 architecture-content">
-        {/* Header */}
-        <div className="flex items-center justify-between no-print">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              System Architecture
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              CarHire2Go Platform Technical Documentation
-            </p>
+      {/* Header */}
+      <header className="bg-card border-b px-6 py-4 no-print">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                System Architecture
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                CarHire2Go Platform Technical Documentation
+              </p>
+            </div>
           </div>
           <Button onClick={handleExportPDF} className="gap-2">
             <Download className="h-4 w-4" />
             Export PDF
           </Button>
         </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-6 space-y-6 architecture-content">
 
         {/* Cover Page for Print */}
         <div className="hidden print:block text-center py-16">
@@ -159,8 +170,8 @@ export default function SystemArchitecture() {
             <InfrastructureSection />
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </main>
+    </div>
   );
 }
 
