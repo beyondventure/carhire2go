@@ -67,8 +67,6 @@ export default function SystemArchitecture() {
         });
         
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const contentWidth = pageWidth - (margin * 2);
-        const imgHeight = (canvas.height * contentWidth) / canvas.width;
         
         if (i > 0) pdf.addPage();
         
@@ -80,13 +78,24 @@ export default function SystemArchitecture() {
         pdf.text('CarHire2Go - System Architecture', margin, 8);
         pdf.text(`${tabContents[i].charAt(0).toUpperCase() + tabContents[i].slice(1)}`, pageWidth - margin, 8, { align: 'right' });
         
-        // Add content - center horizontally
+        // Calculate dimensions - fit width and center
+        const contentWidth = pageWidth - (margin * 2);
+        const imgRatio = canvas.height / canvas.width;
         const maxHeight = pageHeight - 30;
-        const scaledHeight = Math.min(imgHeight, maxHeight);
-        const scaledWidth = (scaledHeight / imgHeight) * contentWidth;
-        const xOffset = (pageWidth - scaledWidth) / 2;
         
-        pdf.addImage(imgData, 'JPEG', xOffset, 15, scaledWidth, scaledHeight);
+        let finalWidth = contentWidth;
+        let finalHeight = contentWidth * imgRatio;
+        
+        // Scale down if too tall
+        if (finalHeight > maxHeight) {
+          finalHeight = maxHeight;
+          finalWidth = finalHeight / imgRatio;
+        }
+        
+        // Center horizontally
+        const xOffset = (pageWidth - finalWidth) / 2;
+        
+        pdf.addImage(imgData, 'JPEG', xOffset, 15, finalWidth, finalHeight);
         
         // Add footer
         pdf.setTextColor(128, 128, 128);
