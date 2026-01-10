@@ -20,7 +20,8 @@ import {
   Bell,
   LogOut,
   ChevronLeft,
-  Menu
+  Menu,
+  Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -63,6 +64,7 @@ const roleNavItems: Record<UserRole, Array<{ label: string; path: string; icon: 
     { label: 'Settlements', path: '/admin/settlements', icon: <CreditCard size={20} /> },
     { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> },
     { label: 'Verification', path: '/admin/verification', icon: <Shield size={20} /> },
+    { label: 'Architecture', path: '/admin/architecture', icon: <Layers size={20} /> },
     { label: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ],
 };

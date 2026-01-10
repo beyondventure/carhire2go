@@ -35,6 +35,7 @@ import AdminSettlements from "./pages/admin/AdminSettlements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminVerification from "./pages/admin/AdminVerification";
 import AdminSettings from "./pages/admin/AdminSettings";
+import SystemArchitecture from "./pages/admin/SystemArchitecture";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
 
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/verification" element={<AdminVerification />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/architecture" element={<SystemArchitecture />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
