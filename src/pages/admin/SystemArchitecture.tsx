@@ -43,9 +43,10 @@ export default function SystemArchitecture() {
     setIsExporting(true);
     
     try {
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-      const pageWidth = 297;
-      const pageHeight = 210;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 10;
       
       // Get all tab contents
       const tabContents = ['overview', 'architecture', 'database', 'modules', 'security', 'infrastructure'];
@@ -59,15 +60,15 @@ export default function SystemArchitecture() {
         if (!element) continue;
         
         const canvas = await html2canvas(element, {
-          scale: 1.5,
+          scale: 2,
           backgroundColor: '#ffffff',
           logging: false,
           useCORS: true
         });
         
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const imgWidth = pageWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const contentWidth = pageWidth - (margin * 2);
+        const imgHeight = (canvas.height * contentWidth) / canvas.width;
         
         if (i > 0) pdf.addPage();
         
@@ -76,21 +77,22 @@ export default function SystemArchitecture() {
         pdf.rect(0, 0, pageWidth, 12, 'F');
         pdf.setTextColor(255, 255, 255);
         pdf.setFontSize(10);
-        pdf.text('CarHire2Go - System Architecture Document', 10, 8);
-        pdf.text(`Section ${i + 1}: ${tabContents[i].charAt(0).toUpperCase() + tabContents[i].slice(1)}`, pageWidth - 60, 8);
+        pdf.text('CarHire2Go - System Architecture', margin, 8);
+        pdf.text(`${tabContents[i].charAt(0).toUpperCase() + tabContents[i].slice(1)}`, pageWidth - margin, 8, { align: 'right' });
         
-        // Add content
-        const maxHeight = pageHeight - 25;
+        // Add content - center horizontally
+        const maxHeight = pageHeight - 30;
         const scaledHeight = Math.min(imgHeight, maxHeight);
-        const scaledWidth = (scaledHeight / imgHeight) * imgWidth;
+        const scaledWidth = (scaledHeight / imgHeight) * contentWidth;
+        const xOffset = (pageWidth - scaledWidth) / 2;
         
-        pdf.addImage(imgData, 'JPEG', 10, 15, scaledWidth, scaledHeight);
+        pdf.addImage(imgData, 'JPEG', xOffset, 15, scaledWidth, scaledHeight);
         
         // Add footer
         pdf.setTextColor(128, 128, 128);
         pdf.setFontSize(8);
         pdf.text(`Page ${i + 1} of ${tabContents.length}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
-        pdf.text('Confidential', pageWidth - 25, pageHeight - 5);
+        pdf.text('Confidential', pageWidth - margin, pageHeight - 5, { align: 'right' });
       }
       
       // Reset to overview
