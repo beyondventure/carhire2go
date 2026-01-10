@@ -1,49 +1,118 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Clock, User, Car, Check, X, MessageSquare, ChevronDown } from 'lucide-react';
+import { MapPin, Clock, Check, X, MessageSquare, Loader2, Car } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { Button } from '@/components/ui/button';
-import { mockBookings, mockVehicles, mockDrivers } from '@/lib/mock-data';
+import { useBookings } from '@/hooks/useBookings';
+import { useProviders } from '@/hooks/useProviders';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { CURRENCY, BOOKING_TYPE_LABELS } from '@/lib/constants';
-import type { Booking, ChatMessage } from '@/types';
+import { toast } from 'sonner';
+import type { ChatMessage } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
+
+type BookingRow = Database['public']['Tables']['bookings']['Row'];
 
 export default function ProviderRequests() {
-  const [selectedRequest, setSelectedRequest] = useState<Booking | null>(null);
+  const { user } = useSupabaseAuth();
+  const { provider, isLoading: providerLoading } = useProviders();
+  const { bookings, acceptBooking, confirmBooking } = useBookings();
+  
+  const [pendingRequests, setPendingRequests] = useState<BookingRow[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(true);
+  const [selectedRequest, setSelectedRequest] = useState<BookingRow | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [countdown, setCountdown] = useState(45);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
-  const pendingRequests = mockBookings.filter(b => 
-    ['pending', 'matching', 'matched', 'negotiating'].includes(b.status)
+  // Get pending requests (unassigned bookings)
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      if (!provider || provider.verification_status !== 'approved') {
+        setPendingRequests([]);
+        setRequestsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('status', 'pending')
+          .is('provider_id', null)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setPendingRequests(data || []);
+      } catch (err) {
+        console.error('Error fetching pending requests:', err);
+      } finally {
+        setRequestsLoading(false);
+      }
+    };
+
+    fetchPendingRequests();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('provider-requests-page')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+        },
+        () => {
+          fetchPendingRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [provider]);
+
+  // Get my assigned bookings (matched, negotiating, confirmed)
+  const myAssignedBookings = bookings.filter(b => 
+    b.provider_id === provider?.id && 
+    ['matched', 'negotiating', 'confirmed'].includes(b.status)
   );
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      bookingId: 'b1',
-      senderId: 'consumer1',
-      senderRole: 'consumer',
-      content: 'Hi, I need a car for a full day hire tomorrow.',
-      type: 'text',
-      createdAt: new Date(Date.now() - 3600000),
-    },
-  ]);
+  const allRequests = [...pendingRequests, ...myAssignedBookings];
 
-  const handleAcceptRequest = (booking: Booking) => {
-    console.log('Accepting booking:', booking.id);
-    // In real app, this would call API
+  const handleAcceptRequest = async (booking: BookingRow) => {
+    if (!provider) return;
+    
+    const success = await acceptBooking(booking.id, provider.id);
+    if (success) {
+      setPendingRequests(prev => prev.filter(r => r.id !== booking.id));
+      toast.success('Request accepted! You can now negotiate the price.');
+    }
   };
 
-  const handleDeclineRequest = (booking: Booking) => {
-    console.log('Declining booking:', booking.id);
+  const handleDeclineRequest = (bookingId: string) => {
+    toast.info('Request declined');
+    setPendingRequests(prev => prev.filter(r => r.id !== bookingId));
+  };
+
+  const handleConfirmBooking = async (bookingId: string, price: number) => {
+    const success = await confirmBooking(bookingId, price);
+    if (success) {
+      toast.success('Booking confirmed!');
+    }
   };
 
   const handleSendMessage = (content: string) => {
+    if (!user || !selectedRequest) return;
+    
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedRequest?.id || '',
-      senderId: 'provider1',
+      bookingId: selectedRequest.id,
+      senderId: user.id,
       senderRole: 'provider',
       content,
       type: 'text',
@@ -53,10 +122,12 @@ export default function ProviderRequests() {
   };
 
   const handlePriceProposal = (price: number) => {
+    if (!user || !selectedRequest) return;
+    
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedRequest?.id || '',
-      senderId: 'provider1',
+      bookingId: selectedRequest.id,
+      senderId: user.id,
       senderRole: 'provider',
       content: 'My price proposal for this trip:',
       type: 'price-proposal',
@@ -67,10 +138,14 @@ export default function ProviderRequests() {
   };
 
   const handleAcceptPrice = (messageId: string, price: number) => {
+    if (!selectedRequest) return;
+    
+    handleConfirmBooking(selectedRequest.id, price);
+    
     const acceptMessage: ChatMessage = {
       id: Date.now().toString(),
-      bookingId: selectedRequest?.id || '',
-      senderId: 'provider1',
+      bookingId: selectedRequest.id,
+      senderId: user?.id || '',
       senderRole: 'provider',
       content: `Price agreed: ${CURRENCY}${price.toLocaleString()}`,
       type: 'price-accepted',
@@ -82,6 +157,18 @@ export default function ProviderRequests() {
 
   const handleRejectPrice = () => {};
 
+  const isLoading = providerLoading || requestsLoading;
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Booking Requests" subtitle="Manage incoming booking requests">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout title="Booking Requests" subtitle="Manage incoming booking requests">
       <div className="flex gap-6 h-[calc(100vh-180px)]">
@@ -89,140 +176,147 @@ export default function ProviderRequests() {
         <div className={`flex-1 ${showChat ? 'lg:w-1/2' : 'w-full'}`}>
           <div className="space-y-4">
             <AnimatePresence>
-              {pendingRequests.map((request, index) => (
-                <motion.div
-                  key={request.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`bg-card rounded-xl border ${
-                    request.status === 'pending' ? 'border-warning/50' : 'border-border'
-                  } overflow-hidden`}
-                >
-                  {/* Countdown Bar */}
-                  {request.status === 'pending' && (
-                    <div className="h-1 bg-warning/20">
-                      <motion.div
-                        className="h-full bg-warning"
-                        initial={{ width: '100%' }}
-                        animate={{ width: '0%' }}
-                        transition={{ duration: countdown, ease: 'linear' }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={request.consumer?.avatar}
-                          alt={request.consumer?.name}
-                          className="w-12 h-12 rounded-xl"
+              {allRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                    <Clock size={32} className="text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">No pending requests</h3>
+                  <p className="text-muted-foreground">New booking requests will appear here</p>
+                </div>
+              ) : (
+                allRequests.map((request, index) => (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ delay: index * 0.05 }}
+                    className={`bg-card rounded-xl border ${
+                      request.status === 'pending' ? 'border-warning/50' : 'border-border'
+                    } overflow-hidden`}
+                  >
+                    {/* Countdown Bar for pending */}
+                    {request.status === 'pending' && (
+                      <div className="h-1 bg-warning/20">
+                        <motion.div
+                          className="h-full bg-warning"
+                          initial={{ width: '100%' }}
+                          animate={{ width: '0%' }}
+                          transition={{ duration: 60, ease: 'linear' }}
                         />
-                        <div>
-                          <h4 className="font-semibold text-foreground">{request.consumer?.name}</h4>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>{BOOKING_TYPE_LABELS[request.bookingType]}</span>
-                            <span>•</span>
-                            <span className="capitalize">{request.vehiclePreference || 'Any'}</span>
-                          </div>
-                        </div>
                       </div>
-                      <StatusBadge status={request.status} />
-                    </div>
+                    )}
 
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2">
-                          <div className="w-2 h-2 rounded-full bg-success mt-2" />
+                    <div className="p-5">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                            <Car size={24} className="text-accent" />
+                          </div>
                           <div>
-                            <p className="text-sm font-medium text-foreground">
-                              {request.pickup.name || request.pickup.address}
-                            </p>
-                            <p className="text-xs text-muted-foreground">Pickup</p>
+                            <h4 className="font-semibold text-foreground capitalize">
+                              {BOOKING_TYPE_LABELS[request.booking_type] || request.booking_type.replace('-', ' ')}
+                            </h4>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span className="capitalize">{request.vehicle_preference || 'Any'} vehicle</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-start gap-2">
-                          <div className="w-2 h-2 rounded-full bg-destructive mt-2" />
-                          <div>
-                            <p className="text-sm font-medium text-foreground">
-                              {request.dropoff.name || request.dropoff.address}
-                            </p>
-                            <p className="text-xs text-muted-foreground">Drop-off</p>
-                          </div>
-                        </div>
+                        <StatusBadge status={request.status} />
                       </div>
 
-                      <div className="flex flex-col justify-center">
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Clock size={14} />
-                            <span>{request.scheduledTime}</span>
+                      <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-2">
+                            <div className="w-2 h-2 rounded-full bg-success mt-2" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {request.pickup_name || request.pickup_address}
+                              </p>
+                              <p className="text-xs text-muted-foreground">Pickup</p>
+                            </div>
                           </div>
-                          <span className="text-muted-foreground">
-                            {new Date(request.scheduledDate).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-start gap-2">
+                            <div className="w-2 h-2 rounded-full bg-destructive mt-2" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {request.dropoff_name || request.dropoff_address}
+                              </p>
+                              <p className="text-xs text-muted-foreground">Drop-off</p>
+                            </div>
+                          </div>
                         </div>
-                        {request.estimatedPrice && (
-                          <p className="text-lg font-bold text-foreground mt-2">
-                            {CURRENCY}{request.estimatedPrice.min.toLocaleString()} - {CURRENCY}{request.estimatedPrice.max.toLocaleString()}
-                          </p>
+
+                        <div className="flex flex-col justify-center">
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Clock size={14} />
+                              <span>{request.scheduled_time}</span>
+                            </div>
+                            <span className="text-muted-foreground">
+                              {new Date(request.scheduled_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {request.estimated_min_price && request.estimated_max_price && (
+                            <p className="text-lg font-bold text-foreground mt-2">
+                              {CURRENCY}{request.estimated_min_price.toLocaleString()} - {CURRENCY}{request.estimated_max_price.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-3 pt-4 border-t border-border">
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              onClick={() => handleAcceptRequest(request)}
+                              className="flex-1 bg-success hover:bg-success/90"
+                            >
+                              <Check size={18} className="mr-2" />
+                              Accept
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleDeclineRequest(request.id)}
+                              className="flex-1"
+                            >
+                              <X size={18} className="mr-2" />
+                              Decline
+                            </Button>
+                          </>
                         )}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-3 pt-4 border-t border-border">
-                      {request.status === 'pending' && (
-                        <>
+                        {request.status === 'matched' && (
                           <Button
-                            onClick={() => handleAcceptRequest(request)}
+                            onClick={() => handleConfirmBooking(request.id, request.estimated_max_price || 50000)}
                             className="flex-1 bg-success hover:bg-success/90"
                           >
                             <Check size={18} className="mr-2" />
-                            Accept ({countdown}s)
+                            Confirm Booking
                           </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => handleDeclineRequest(request)}
-                            className="flex-1"
-                          >
-                            <X size={18} className="mr-2" />
-                            Decline
-                          </Button>
-                        </>
-                      )}
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedRequest(request);
-                          setShowChat(true);
-                        }}
-                      >
-                        <MessageSquare size={18} className="mr-2" />
-                        Chat
-                      </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setShowChat(true);
+                          }}
+                        >
+                          <MessageSquare size={18} className="mr-2" />
+                          Chat
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              )}
             </AnimatePresence>
-
-            {pendingRequests.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                  <Clock size={32} className="text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground">No pending requests</h3>
-                <p className="text-muted-foreground">New booking requests will appear here</p>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Chat Panel */}
-        {showChat && selectedRequest && (
+        {showChat && selectedRequest && user && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -230,7 +324,7 @@ export default function ProviderRequests() {
           >
             <ChatPanel
               messages={chatMessages}
-              currentUserId="provider1"
+              currentUserId={user.id}
               currentUserRole="provider"
               onSendMessage={handleSendMessage}
               onPriceProposal={handlePriceProposal}

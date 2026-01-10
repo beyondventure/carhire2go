@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -8,90 +8,191 @@ import {
   Wallet, 
   Clock, 
   Bell,
-  ArrowUpRight,
-  ArrowDownRight,
   CheckCircle2,
   XCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { mockProviderMetrics, mockBookings, mockVehicles, mockDrivers } from '@/lib/mock-data';
+import { useBookings } from '@/hooks/useBookings';
+import { useProviders } from '@/hooks/useProviders';
+import { useVehicles } from '@/hooks/useVehicles';
+import { useDrivers } from '@/hooks/useDrivers';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { CURRENCY } from '@/lib/constants';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
-// Mock incoming requests with state
-const initialRequests = [
-  {
-    id: 'req1',
-    consumer: 'Adaeze Okafor',
-    pickup: 'Lekki Phase 1',
-    dropoff: 'Victoria Island',
-    vehicleType: 'Sedan',
-    countdown: 45,
-    estimatedPrice: '₦35,000 - ₦45,000',
-  },
-  {
-    id: 'req2',
-    consumer: 'Olumide Taiwo',
-    pickup: 'Ikeja GRA',
-    dropoff: 'Murtala Airport',
-    vehicleType: 'SUV',
-    countdown: 52,
-    estimatedPrice: '₦50,000 - ₦65,000',
-  },
-];
+type BookingRow = Database['public']['Tables']['bookings']['Row'];
 
 export default function ProviderDashboard() {
   const navigate = useNavigate();
-  const metrics = mockProviderMetrics;
-  const [requests, setRequests] = useState(initialRequests);
+  const { user, profile } = useSupabaseAuth();
+  const { provider, isLoading: providerLoading } = useProviders();
+  const { bookings, isLoading: bookingsLoading, acceptBooking } = useBookings();
+  const { vehicles } = useVehicles();
+  const { allDrivers } = useDrivers();
+  
+  const [pendingRequests, setPendingRequests] = useState<BookingRow[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(true);
 
-  const handleAcceptRequest = (requestId: string) => {
-    toast.success('Request accepted! Proceeding to negotiation...');
-    setRequests(prev => prev.filter(r => r.id !== requestId));
-    navigate('/provider/requests');
+  // Fetch pending bookings available for matching
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      if (!provider || provider.verification_status !== 'approved') {
+        setPendingRequests([]);
+        setRequestsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('status', 'pending')
+          .is('provider_id', null)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (error) throw error;
+        setPendingRequests(data || []);
+      } catch (err) {
+        console.error('Error fetching pending requests:', err);
+      } finally {
+        setRequestsLoading(false);
+      }
+    };
+
+    fetchPendingRequests();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('provider-requests')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: 'status=eq.pending',
+        },
+        () => {
+          fetchPendingRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [provider]);
+
+  const handleAcceptRequest = async (booking: BookingRow) => {
+    if (!provider) return;
+    
+    const success = await acceptBooking(booking.id, provider.id);
+    if (success) {
+      setPendingRequests(prev => prev.filter(r => r.id !== booking.id));
+      navigate('/provider/requests');
+    }
   };
 
-  const handleDeclineRequest = (requestId: string) => {
+  const handleDeclineRequest = (bookingId: string) => {
     toast.info('Request declined');
-    setRequests(prev => prev.filter(r => r.id !== requestId));
+    setPendingRequests(prev => prev.filter(r => r.id !== bookingId));
   };
+
+  // Calculate metrics
+  const providerBookings = bookings.filter(b => b.provider_id === provider?.id);
+  const todayBookings = providerBookings.filter(b => {
+    const today = new Date().toDateString();
+    return new Date(b.scheduled_date).toDateString() === today;
+  });
+  const completedBookings = providerBookings.filter(b => b.status === 'completed');
+  const todayEarnings = todayBookings.reduce((sum, b) => sum + (b.final_price || 0), 0);
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.final_price || 0), 0);
+  const myDrivers = allDrivers.filter(d => d.provider_id === provider?.id);
+
+  const isLoading = providerLoading || bookingsLoading;
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Provider Dashboard">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Show onboarding message if no provider profile
+  if (!provider) {
+    return (
+      <DashboardLayout title="Provider Dashboard">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <AlertCircle size={48} className="text-warning mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">Complete Your Provider Profile</h2>
+          <p className="text-muted-foreground mb-6">You need to complete onboarding to access the provider dashboard</p>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/onboarding/provider')}
+            className="btn-primary"
+          >
+            Complete Onboarding
+          </motion.button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Show pending verification message
+  if (provider.verification_status !== 'approved') {
+    return (
+      <DashboardLayout title="Provider Dashboard" subtitle={provider.business_name || 'Welcome'}>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Clock size={48} className="text-warning mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">Verification Pending</h2>
+          <p className="text-muted-foreground mb-2">
+            Your provider profile is being reviewed. Status: <span className="font-medium capitalize">{provider.verification_status}</span>
+          </p>
+          <p className="text-sm text-muted-foreground">You'll be able to accept bookings once approved.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout 
       title="Provider Dashboard" 
-      subtitle="FleetMaster Nigeria • Welcome back, Emeka"
+      subtitle={`${provider.business_name || 'Provider'} • Welcome back, ${profile?.name?.split(' ')[0] || 'there'}`}
     >
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard
           title="Today's Bookings"
-          value={metrics.todayBookings}
-          change="+2 from yesterday"
-          changeType="positive"
+          value={todayBookings.length.toString()}
           icon={Car}
         />
         <MetricCard
           title="Today's Earnings"
-          value={`${CURRENCY}${(metrics.todayEarnings / 1000).toFixed(0)}K`}
-          change="+15%"
-          changeType="positive"
+          value={`${CURRENCY}${todayEarnings.toLocaleString()}`}
           icon={Wallet}
           iconColor="bg-success/10 text-success"
         />
         <MetricCard
-          title="Pending Settlement"
-          value={`${CURRENCY}${(metrics.pendingSettlement / 1000000).toFixed(1)}M`}
+          title="Total Earnings"
+          value={`${CURRENCY}${totalEarnings.toLocaleString()}`}
           icon={TrendingUp}
           iconColor="bg-warning/10 text-warning"
         />
         <MetricCard
           title="Acceptance Rate"
-          value={`${metrics.acceptanceRate}%`}
-          change="+2%"
-          changeType="positive"
+          value={`${provider.acceptance_rate || 0}%`}
           icon={CheckCircle2}
         />
       </div>
@@ -107,9 +208,9 @@ export default function ProviderDashboard() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Bell size={20} className="text-foreground" />
-                {requests.length > 0 && (
+                {pendingRequests.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-xs text-white rounded-full flex items-center justify-center">
-                    {requests.length}
+                    {pendingRequests.length}
                   </span>
                 )}
               </div>
@@ -124,12 +225,16 @@ export default function ProviderDashboard() {
           </div>
 
           <div className="space-y-4">
-            {requests.length === 0 ? (
+            {requestsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
+              </div>
+            ) : pendingRequests.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No pending requests
               </div>
             ) : (
-              requests.map((request, index) => (
+              pendingRequests.slice(0, 3).map((request, index) => (
                 <motion.div
                   key={request.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -139,51 +244,32 @@ export default function ProviderDashboard() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="font-medium text-foreground">{request.consumer}</h3>
-                      <p className="text-sm text-muted-foreground">{request.vehicleType}</p>
+                      <h3 className="font-medium text-foreground capitalize">
+                        {request.booking_type.replace('-', ' ')} Booking
+                      </h3>
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {request.vehicle_preference || 'Any'} vehicle
+                      </p>
                     </div>
-                    
-                    {/* Countdown Timer */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-12 h-12">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="16"
-                            fill="none"
-                            stroke="hsl(var(--muted))"
-                            strokeWidth="2"
-                          />
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="16"
-                            fill="none"
-                            stroke="hsl(var(--accent))"
-                            strokeWidth="2"
-                            strokeDasharray={100}
-                            strokeDashoffset={100 - (request.countdown / 60) * 100}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
-                          {request.countdown}
-                        </span>
-                      </div>
-                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(request.created_at).toLocaleTimeString()}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                     <span className="w-2 h-2 rounded-full bg-success" />
-                    <span>{request.pickup}</span>
+                    <span className="truncate">{request.pickup_name || request.pickup_address}</span>
                     <span className="text-muted-foreground/50">→</span>
                     <span className="w-2 h-2 rounded-full bg-destructive" />
-                    <span>{request.dropoff}</span>
+                    <span className="truncate">{request.dropoff_name || request.dropoff_address}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-accent">{request.estimatedPrice}</span>
+                    <span className="font-medium text-accent">
+                      {request.estimated_min_price && request.estimated_max_price
+                        ? `${CURRENCY}${request.estimated_min_price.toLocaleString()} - ${CURRENCY}${request.estimated_max_price.toLocaleString()}`
+                        : 'Price TBD'}
+                    </span>
                     <div className="flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -197,7 +283,7 @@ export default function ProviderDashboard() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAcceptRequest(request.id)}
+                        onClick={() => handleAcceptRequest(request)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors"
                       >
                         <CheckCircle2 size={16} />
@@ -231,26 +317,26 @@ export default function ProviderDashboard() {
             </div>
             
             <div className="space-y-3">
-              {mockVehicles.slice(0, 3).map((vehicle) => (
-                <div key={vehicle.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden">
-                      <img 
-                        src={vehicle.images[0]} 
-                        alt={vehicle.model}
-                        className="w-full h-full object-cover"
-                      />
+              {vehicles.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No vehicles added yet</p>
+              ) : (
+                vehicles.slice(0, 3).map((vehicle) => (
+                  <div key={vehicle.id} className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                        <Car size={18} className="text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {vehicle.make} {vehicle.model}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{vehicle.plate_number}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {vehicle.make} {vehicle.model}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{vehicle.plateNumber}</p>
-                    </div>
+                    <StatusBadge status={vehicle.available ? 'available' : 'unavailable'} />
                   </div>
-                  <StatusBadge status={vehicle.available ? 'available' : 'unavailable'} />
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -267,99 +353,96 @@ export default function ProviderDashboard() {
             </div>
             
             <div className="space-y-3">
-              {mockDrivers.map((driver) => (
-                <div key={driver.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={driver.user.avatar}
-                      alt={driver.user.name}
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{driver.user.name}</p>
-                      <p className="text-xs text-muted-foreground">{driver.totalTrips} trips</p>
+              {myDrivers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No drivers added yet</p>
+              ) : (
+                myDrivers.slice(0, 3).map((driver) => (
+                  <div key={driver.id} className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                        <Users size={18} className="text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Driver</p>
+                        <p className="text-xs text-muted-foreground">{driver.total_trips || 0} trips</p>
+                      </div>
                     </div>
+                    <StatusBadge status={driver.available ? 'available' : 'unavailable'} />
                   </div>
-                  <StatusBadge status={driver.available ? 'available' : 'unavailable'} />
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </motion.div>
       </div>
 
       {/* Recent Bookings */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 bg-card rounded-2xl border border-border overflow-hidden"
-      >
-        <div className="p-6 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">Recent Bookings</h2>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr className="bg-muted/30">
-                <th>Customer</th>
-                <th>Route</th>
-                <th>Vehicle</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={booking.consumer?.avatar}
-                        alt={booking.consumer?.name}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <span className="font-medium text-foreground">{booking.consumer?.name}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="text-sm">
-                      <p className="text-foreground">{booking.pickup.name}</p>
-                      <p className="text-muted-foreground">→ {booking.dropoff.name}</p>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="text-sm text-foreground">
-                      {booking.vehicle?.make} {booking.vehicle?.model}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="text-sm text-foreground">
-                      {new Date(booking.scheduledDate).toLocaleDateString()}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="font-medium text-foreground">
-                      {booking.finalPrice ? `${CURRENCY}${booking.finalPrice.toLocaleString()}` : '-'}
-                    </span>
-                  </td>
-                  <td>
-                    <StatusBadge status={booking.status} />
-                  </td>
-                  <td>
-                    <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                      <MoreHorizontal size={16} className="text-muted-foreground" />
-                    </button>
-                  </td>
+      {providerBookings.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6 bg-card rounded-2xl border border-border overflow-hidden"
+        >
+          <div className="p-6 border-b border-border">
+            <h2 className="text-lg font-semibold text-foreground">Recent Bookings</h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr className="bg-muted/30">
+                  <th>Route</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+              </thead>
+              <tbody>
+                {providerBookings.slice(0, 5).map((booking) => (
+                  <tr key={booking.id}>
+                    <td>
+                      <div className="text-sm">
+                        <p className="text-foreground truncate max-w-[200px]">
+                          {booking.pickup_name || booking.pickup_address}
+                        </p>
+                        <p className="text-muted-foreground truncate max-w-[200px]">
+                          → {booking.dropoff_name || booking.dropoff_address}
+                        </p>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="text-sm text-foreground capitalize">
+                        {booking.booking_type.replace('-', ' ')}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="text-sm text-foreground">
+                        {new Date(booking.scheduled_date).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="font-medium text-foreground">
+                        {booking.final_price ? `${CURRENCY}${booking.final_price.toLocaleString()}` : '-'}
+                      </span>
+                    </td>
+                    <td>
+                      <StatusBadge status={booking.status} />
+                    </td>
+                    <td>
+                      <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                        <MoreHorizontal size={16} className="text-muted-foreground" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
     </DashboardLayout>
   );
 }
