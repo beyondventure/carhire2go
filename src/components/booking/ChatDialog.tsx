@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, DollarSign, Send, Check, AlertCircle, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { useChat } from '@/hooks/useChat';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useBookings } from '@/hooks/useBookings';
 import { CURRENCY } from '@/lib/constants';
-import type { UserRole, ChatMessage } from '@/types';
+import type { UserRole } from '@/types';
 import { toast } from 'sonner';
 
 interface ChatDialogProps {
@@ -17,6 +17,8 @@ interface ChatDialogProps {
   userRole: UserRole;
   isNegotiating?: boolean;
   allowsNegotiation?: boolean;
+  estimatedMinPrice?: number;
+  estimatedMaxPrice?: number;
   onPriceAccepted?: (price: number) => void;
   onBookingConfirmed?: () => void;
 }
@@ -28,22 +30,38 @@ export function ChatDialog({
   userRole,
   isNegotiating = true,
   allowsNegotiation = true,
+  estimatedMinPrice,
+  estimatedMaxPrice,
   onPriceAccepted,
   onBookingConfirmed,
 }: ChatDialogProps) {
   const { user } = useSupabaseAuth();
   const { messages, sendMessage, sendPriceProposal, acceptPrice, isLoading: chatLoading } = useChat(bookingId);
   const { confirmBooking } = useBookings();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [messageInput, setMessageInput] = useState('');
   const [showPriceInput, setShowPriceInput] = useState(false);
   const [proposedPrice, setProposedPrice] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
 
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   // Find if there's an accepted price in the messages
   const acceptedPriceMessage = messages.find(m => m.type === 'price-accepted');
   const agreedPrice = acceptedPriceMessage?.proposedPrice || null;
   const canNegotiate = isNegotiating && allowsNegotiation && !agreedPrice;
+  
+  // Check if there are any price proposals
+  const hasPriceProposal = messages.some(m => m.type === 'price-proposal' || m.type === 'price-accepted');
+  
+  // Calculate suggested prices
+  const suggestedPrice = estimatedMinPrice && estimatedMaxPrice 
+    ? Math.round((estimatedMinPrice + estimatedMaxPrice) / 2)
+    : 45000;
 
   const handleSendMessage = async () => {
     if (!messageInput.trim()) return;
@@ -51,13 +69,13 @@ export function ChatDialog({
     setMessageInput('');
   };
 
-  const handlePriceProposal = async () => {
-    const price = parseFloat(proposedPrice);
-    if (isNaN(price) || price <= 0) {
+  const handlePriceProposal = async (price?: number) => {
+    const priceToPropose = price || parseFloat(proposedPrice);
+    if (isNaN(priceToPropose) || priceToPropose <= 0) {
       toast.error('Please enter a valid price');
       return;
     }
-    await sendPriceProposal(price, userRole);
+    await sendPriceProposal(priceToPropose, userRole);
     setProposedPrice('');
     setShowPriceInput(false);
   };
@@ -143,19 +161,74 @@ export function ChatDialog({
               </Button>
             </div>
 
+            {/* Quick Price Propose Section (when no price proposal yet) */}
+            {canNegotiate && !hasPriceProposal && !showPriceInput && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="p-4 bg-accent/5 border-b border-border"
+              >
+                <p className="text-sm font-medium text-foreground mb-3">
+                  {userRole === 'provider' ? 'Propose your price to the customer:' : 'Make an offer to the provider:'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {estimatedMinPrice && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handlePriceProposal(estimatedMinPrice)}
+                      className="flex-1"
+                    >
+                      {CURRENCY}{estimatedMinPrice.toLocaleString()}
+                      <span className="text-xs text-muted-foreground ml-1">(Min)</span>
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={() => handlePriceProposal(suggestedPrice)}
+                    className="flex-1 bg-accent hover:bg-accent/90"
+                  >
+                    {CURRENCY}{suggestedPrice.toLocaleString()}
+                    <span className="text-xs text-accent-foreground/70 ml-1">(Suggested)</span>
+                  </Button>
+                  {estimatedMaxPrice && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handlePriceProposal(estimatedMaxPrice)}
+                      className="flex-1"
+                    >
+                      {CURRENCY}{estimatedMaxPrice.toLocaleString()}
+                      <span className="text-xs text-muted-foreground ml-1">(Max)</span>
+                    </Button>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPriceInput(true)}
+                  className="w-full mt-2 text-muted-foreground"
+                >
+                  <DollarSign size={14} className="mr-1" />
+                  Enter custom amount
+                </Button>
+              </motion.div>
+            )}
+
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[250px]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px]">
               {chatLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-accent" />
                 </div>
-              ) : messages.length === 0 ? (
+              ) : messages.length === 0 && !canNegotiate ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <MessageSquare size={32} className="mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No messages yet. Start the conversation!</p>
-                  {allowsNegotiation && (
-                    <p className="text-xs mt-1">Use the $ button to propose a price.</p>
-                  )}
+                </div>
+              ) : messages.length === 0 && canNegotiate ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  <p className="text-sm">Use the price buttons above to start negotiating!</p>
                 </div>
               ) : (
                 <AnimatePresence>
@@ -177,7 +250,7 @@ export function ChatDialog({
                           </div>
                         ) : msg.type === 'price-proposal' || msg.type === 'price-accepted' ? (
                           <div
-                            className={`max-w-[80%] ${
+                            className={`max-w-[85%] ${
                               msg.type === 'price-accepted'
                                 ? 'bg-success/10 border-success/30'
                                 : isOwn
@@ -192,13 +265,17 @@ export function ChatDialog({
                                 <DollarSign size={16} className="text-warning" />
                               )}
                               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                {msg.type === 'price-accepted' ? 'Price Accepted' : 'Price Proposal'}
+                                {msg.type === 'price-accepted' 
+                                  ? '✓ Price Accepted' 
+                                  : isOwn 
+                                    ? 'Your Offer' 
+                                    : 'Their Offer'}
                               </span>
                             </div>
                             <p className="text-2xl font-bold text-foreground">
                               {CURRENCY}{msg.proposedPrice?.toLocaleString()}
                             </p>
-                            {msg.content && (
+                            {msg.content && msg.content !== 'Price proposal' && msg.content !== 'Price accepted' && (
                               <p className="text-xs text-muted-foreground mt-1">{msg.content}</p>
                             )}
                             
@@ -219,8 +296,7 @@ export function ChatDialog({
                                   onClick={() => setShowPriceInput(true)}
                                   className="flex-1"
                                 >
-                                  <X size={14} className="mr-1" />
-                                  Counter
+                                  Counter Offer
                                 </Button>
                               </div>
                             )}
@@ -250,9 +326,10 @@ export function ChatDialog({
                   })}
                 </AnimatePresence>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Price Input */}
+            {/* Custom Price Input */}
             <AnimatePresence>
               {showPriceInput && canNegotiate && (
                 <motion.div
@@ -261,11 +338,11 @@ export function ChatDialog({
                   exit={{ height: 0, opacity: 0 }}
                   className="border-t border-border overflow-hidden"
                 >
-                  <div className="p-3 bg-muted/50">
-                    <p className="text-xs text-muted-foreground mb-2">Enter your price proposal:</p>
+                  <div className="p-3 bg-warning/5">
+                    <p className="text-xs text-muted-foreground mb-2">Enter your price offer:</p>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
                           {CURRENCY}
                         </span>
                         <Input
@@ -273,16 +350,19 @@ export function ChatDialog({
                           value={proposedPrice}
                           onChange={(e) => setProposedPrice(e.target.value)}
                           placeholder="Enter amount"
-                          className="pl-10"
+                          className="pl-10 text-lg font-semibold"
                           onKeyDown={(e) => e.key === 'Enter' && handlePriceProposal()}
                           autoFocus
                         />
                       </div>
-                      <Button onClick={handlePriceProposal} className="bg-warning text-warning-foreground hover:bg-warning/90">
-                        Propose
+                      <Button 
+                        onClick={() => handlePriceProposal()} 
+                        className="bg-warning text-warning-foreground hover:bg-warning/90 px-6"
+                      >
+                        Send Offer
                       </Button>
-                      <Button variant="ghost" onClick={() => setShowPriceInput(false)}>
-                        Cancel
+                      <Button variant="ghost" size="icon" onClick={() => setShowPriceInput(false)}>
+                        <X size={18} />
                       </Button>
                     </div>
                   </div>
@@ -290,16 +370,16 @@ export function ChatDialog({
               )}
             </AnimatePresence>
 
-            {/* Message Input (when negotiating or chatting) */}
-            {!showPriceInput && (
+            {/* Message Input */}
+            {!showPriceInput && !agreedPrice && (
               <div className="p-3 border-t border-border">
                 <div className="flex gap-2">
-                  {canNegotiate && (
+                  {canNegotiate && hasPriceProposal && (
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => setShowPriceInput(true)}
-                      className="shrink-0"
+                      className="shrink-0 border-warning/50 text-warning hover:bg-warning/10"
                       title="Propose a price"
                     >
                       <DollarSign size={18} />

@@ -279,6 +279,8 @@ export default function ProviderRequests() {
             userRole="provider"
             isNegotiating={['pending', 'matching', 'matched', 'negotiating'].includes(selectedRequest.status)}
             allowsNegotiation={provider?.allows_negotiation ?? true}
+            estimatedMinPrice={selectedRequest.estimated_min_price || undefined}
+            estimatedMaxPrice={selectedRequest.estimated_max_price || undefined}
             onPriceAccepted={handlePriceAccepted}
             onBookingConfirmed={() => {
               setShowChat(false);
