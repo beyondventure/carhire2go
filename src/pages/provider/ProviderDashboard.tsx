@@ -43,7 +43,14 @@ export default function ProviderDashboard() {
   // Fetch pending bookings available for matching
   useEffect(() => {
     const fetchPendingRequests = async () => {
+      console.log('[ProviderDashboard] Fetching pending requests...', {
+        provider: provider?.id,
+        verification_status: provider?.verification_status,
+        user_id: user?.id
+      });
+      
       if (!provider || provider.verification_status !== 'approved') {
+        console.log('[ProviderDashboard] Provider not approved or missing, skipping fetch');
         setPendingRequests([]);
         setRequestsLoading(false);
         return;
@@ -58,10 +65,12 @@ export default function ProviderDashboard() {
           .order('created_at', { ascending: false })
           .limit(10);
 
+        console.log('[ProviderDashboard] Pending requests result:', { data, error });
+
         if (error) throw error;
         setPendingRequests(data || []);
       } catch (err) {
-        console.error('Error fetching pending requests:', err);
+        console.error('[ProviderDashboard] Error fetching pending requests:', err);
       } finally {
         setRequestsLoading(false);
       }
