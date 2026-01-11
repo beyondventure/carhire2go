@@ -352,7 +352,14 @@ export default function ProviderFleet() {
                 </div>
 
                 <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => {
+                      toast.info('Edit vehicle feature coming soon');
+                    }}
+                  >
                     <Edit size={14} className="mr-1" />
                     Edit
                   </Button>

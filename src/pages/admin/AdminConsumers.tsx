@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Star, MapPin, Eye, MoreVertical, Ban, TrendingUp } from 'lucide-react';
+import { Users, Search, Star, MapPin, Eye, MoreVertical, Ban, TrendingUp, Mail, Phone, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CURRENCY } from '@/lib/constants';
+import { toast } from 'sonner';
 
-const consumers = [
+const initialConsumers = [
   {
     id: 'c1',
     name: 'John Adebayo',
@@ -19,6 +21,10 @@ const consumers = [
     joinedAt: new Date('2024-01-15'),
     lastActive: new Date(),
     status: 'active',
+    recentBookings: [
+      { id: 'b1', type: 'Full Day Hire', date: new Date(), amount: 45000 },
+      { id: 'b2', type: 'Point to Point', date: new Date(Date.now() - 86400000 * 2), amount: 12000 },
+    ]
   },
   {
     id: 'c2',
@@ -31,6 +37,9 @@ const consumers = [
     joinedAt: new Date('2024-02-20'),
     lastActive: new Date(Date.now() - 86400000),
     status: 'active',
+    recentBookings: [
+      { id: 'b3', type: 'Event Hire', date: new Date(Date.now() - 86400000), amount: 85000 },
+    ]
   },
   {
     id: 'c3',
@@ -43,6 +52,7 @@ const consumers = [
     joinedAt: new Date('2024-03-10'),
     lastActive: new Date(Date.now() - 86400000 * 7),
     status: 'inactive',
+    recentBookings: []
   },
   {
     id: 'c4',
@@ -55,12 +65,24 @@ const consumers = [
     joinedAt: new Date('2023-11-05'),
     lastActive: new Date(),
     status: 'active',
+    recentBookings: [
+      { id: 'b4', type: 'Half Day Hire', date: new Date(), amount: 25000 },
+      { id: 'b5', type: 'Full Day Hire', date: new Date(Date.now() - 86400000), amount: 45000 },
+      { id: 'b6', type: 'To and Fro', date: new Date(Date.now() - 86400000 * 3), amount: 35000 },
+    ]
   },
 ];
 
+type Consumer = typeof initialConsumers[0];
+
 export default function AdminConsumers() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'banned'>('all');
+  const [consumers, setConsumers] = useState(initialConsumers);
+  const [selectedConsumer, setSelectedConsumer] = useState<Consumer | null>(null);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [showBanDialog, setShowBanDialog] = useState(false);
+  const [banReason, setBanReason] = useState('');
 
   const filteredConsumers = consumers.filter((c) => {
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
@@ -75,6 +97,40 @@ export default function AdminConsumers() {
   const activeConsumers = consumers.filter(c => c.status === 'active').length;
   const totalBookings = consumers.reduce((sum, c) => sum + c.totalBookings, 0);
   const totalGMV = consumers.reduce((sum, c) => sum + c.totalSpent, 0);
+
+  const handleViewConsumer = (consumer: Consumer) => {
+    setSelectedConsumer(consumer);
+    setShowViewDialog(true);
+  };
+
+  const handleBanClick = (consumer: Consumer) => {
+    setSelectedConsumer(consumer);
+    setShowBanDialog(true);
+  };
+
+  const handleBanConfirm = () => {
+    if (!selectedConsumer) return;
+    
+    setConsumers(prev => prev.map(c => 
+      c.id === selectedConsumer.id ? { ...c, status: 'banned' } : c
+    ));
+    toast.error(`${selectedConsumer.name} has been banned`);
+    setShowBanDialog(false);
+    setSelectedConsumer(null);
+    setBanReason('');
+  };
+
+  const handleUnban = (consumer: Consumer) => {
+    setConsumers(prev => prev.map(c => 
+      c.id === consumer.id ? { ...c, status: 'active' } : c
+    ));
+    toast.success(`${consumer.name} has been unbanned`);
+  };
+
+  const handleContactConsumer = (consumer: Consumer) => {
+    toast.success(`Opening email to ${consumer.email}...`);
+    window.open(`mailto:${consumer.email}`);
+  };
 
   return (
     <DashboardLayout title="Consumers" subtitle="Manage registered consumers">
@@ -117,7 +173,7 @@ export default function AdminConsumers() {
           />
         </div>
         <div className="flex gap-2">
-          {(['all', 'active', 'inactive'] as const).map((status) => (
+          {(['all', 'active', 'inactive', 'banned'] as const).map((status) => (
             <Button
               key={status}
               variant={statusFilter === status ? 'default' : 'outline'}
@@ -186,6 +242,8 @@ export default function AdminConsumers() {
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     consumer.status === 'active'
                       ? 'bg-success/10 text-success'
+                      : consumer.status === 'banned'
+                      ? 'bg-destructive/10 text-destructive'
                       : 'bg-muted text-muted-foreground'
                   }`}>
                     {consumer.status}
@@ -193,12 +251,33 @@ export default function AdminConsumers() {
                 </td>
                 <td className="p-4">
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={() => handleViewConsumer(consumer)}
+                    >
                       <Eye size={16} />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                      <Ban size={16} />
-                    </Button>
+                    {consumer.status === 'banned' ? (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-success"
+                        onClick={() => handleUnban(consumer)}
+                      >
+                        <X size={16} />
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => handleBanClick(consumer)}
+                      >
+                        <Ban size={16} />
+                      </Button>
+                    )}
                   </div>
                 </td>
               </motion.tr>
@@ -206,6 +285,133 @@ export default function AdminConsumers() {
           </tbody>
         </table>
       </div>
+
+      {/* View Consumer Dialog */}
+      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Consumer Details</DialogTitle>
+          </DialogHeader>
+          {selectedConsumer && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                <img
+                  src={selectedConsumer.avatar}
+                  alt={selectedConsumer.name}
+                  className="w-16 h-16 rounded-xl"
+                />
+                <div>
+                  <h4 className="font-semibold text-foreground">{selectedConsumer.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Member since {new Date(selectedConsumer.joinedAt).toLocaleDateString()}
+                  </p>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium mt-1 inline-block ${
+                    selectedConsumer.status === 'active'
+                      ? 'bg-success/10 text-success'
+                      : selectedConsumer.status === 'banned'
+                      ? 'bg-destructive/10 text-destructive'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {selectedConsumer.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Total Bookings</p>
+                  <p className="text-lg font-semibold text-foreground">{selectedConsumer.totalBookings}</p>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Total Spent</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {CURRENCY}{selectedConsumer.totalSpent.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h5 className="font-medium text-foreground mb-2">Contact Information</h5>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail size={14} className="text-muted-foreground" />
+                    <span className="text-foreground">{selectedConsumer.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone size={14} className="text-muted-foreground" />
+                    <span className="text-foreground">{selectedConsumer.phone}</span>
+                  </div>
+                </div>
+              </div>
+
+              {selectedConsumer.recentBookings.length > 0 && (
+                <div>
+                  <h5 className="font-medium text-foreground mb-2">Recent Bookings</h5>
+                  <div className="space-y-2">
+                    {selectedConsumer.recentBookings.map((booking) => (
+                      <div 
+                        key={booking.id}
+                        className="flex items-center justify-between p-2 bg-muted/50 rounded"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{booking.type}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(booking.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">
+                          {CURRENCY}{booking.amount.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowViewDialog(false)}>
+              Close
+            </Button>
+            <Button onClick={() => selectedConsumer && handleContactConsumer(selectedConsumer)}>
+              <Mail size={14} className="mr-1" />
+              Contact
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ban Consumer Dialog */}
+      <Dialog open={showBanDialog} onOpenChange={setShowBanDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ban Consumer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to ban {selectedConsumer?.name}? They will no longer be able to make bookings.
+            </p>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">
+                Reason (optional)
+              </label>
+              <Input
+                placeholder="Enter ban reason..."
+                value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBanDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleBanConfirm}>
+              Ban Consumer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
