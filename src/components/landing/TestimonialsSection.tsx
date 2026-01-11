@@ -1,25 +1,28 @@
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
+import avatarAdebayo from '@/assets/avatar-adebayo.jpg';
+import avatarChioma from '@/assets/avatar-chioma.jpg';
+import avatarIbrahim from '@/assets/avatar-ibrahim.jpg';
 
 const testimonials = [
   {
     name: 'Adebayo Ogundimu',
     role: 'Business Executive',
-    avatar: 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=150&q=80',
+    avatar: avatarAdebayo,
     content: 'The best car hire experience I\'ve had in Nigeria. Professional drivers, clean vehicles, and the price negotiation feature is a game-changer.',
     rating: 5,
   },
   {
     name: 'Chioma Nwosu',
     role: 'Event Planner',
-    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&q=80',
+    avatar: avatarChioma,
     content: 'I use CarHire2Go for all my event transportation needs. The fleet management and coordination is impeccable. Highly recommended!',
     rating: 5,
   },
   {
     name: 'Ibrahim Musa',
     role: 'Fleet Owner',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+    avatar: avatarIbrahim,
     content: 'As a provider, this platform has transformed my business. The driver management tools and automated settlements save me hours every week.',
     rating: 5,
   },
