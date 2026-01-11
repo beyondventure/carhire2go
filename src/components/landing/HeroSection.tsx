@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { PLATFORM_NAME } from '@/lib/constants';
 
 export function HeroSection() {
@@ -102,16 +102,6 @@ export function HeroSection() {
               Get Started
               <ArrowRight size={20} />
             </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/auth/login')}
-              className="inline-flex items-center justify-center gap-2 bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg border border-primary-foreground/20 hover:bg-primary-foreground/20 transition-colors"
-            >
-              <Play size={18} />
-              Watch Demo
-            </motion.button>
           </motion.div>
 
           {/* Stats */}
@@ -124,7 +114,7 @@ export function HeroSection() {
             {[
               { value: '10K+', label: 'Active Users' },
               { value: '500+', label: 'Verified Drivers' },
-              { value: '50+', label: 'Cities Covered' },
+              { value: '5+', label: 'Cities Covered' },
               { value: '4.9★', label: 'User Rating' },
             ].map((stat, index) => (
               <motion.div
