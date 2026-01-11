@@ -1,8 +1,9 @@
 import { useState, ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
+import { DashboardSkeleton } from './DashboardSkeleton';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -10,14 +11,18 @@ interface DashboardLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
+  isLoading?: boolean;
 }
 
-export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
+export function DashboardLayout({ children, title, subtitle, isLoading }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { user } = useSupabaseAuth();
+  const { user, isLoading: authLoading } = useSupabaseAuth();
   const isMobile = useIsMobile();
 
-  if (!user) {
+  // Show skeleton while auth is loading or explicit isLoading prop
+  const showSkeleton = authLoading || isLoading;
+
+  if (!user && !authLoading) {
     return <>{children}</>;
   }
 
@@ -25,15 +30,19 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-20">
-        <Header title={title} subtitle={subtitle} isMobile />
+        <Header title={showSkeleton ? undefined : title} subtitle={showSkeleton ? undefined : subtitle} isMobile />
         <main className="p-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {children}
-          </motion.div>
+          {showSkeleton ? (
+            <DashboardSkeleton />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {children}
+            </motion.div>
+          )}
         </main>
         <MobileNav />
       </div>
@@ -54,15 +63,19 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         transition={{ duration: 0.2, ease: 'easeInOut' }}
         className="min-h-screen flex flex-col"
       >
-        <Header title={title} subtitle={subtitle} />
+        <Header title={showSkeleton ? undefined : title} subtitle={showSkeleton ? undefined : subtitle} />
         <div className="flex-1 p-6">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {children}
-          </motion.div>
+          {showSkeleton ? (
+            <DashboardSkeleton />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {children}
+            </motion.div>
+          )}
         </div>
       </motion.main>
     </div>
