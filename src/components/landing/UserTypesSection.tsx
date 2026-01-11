@@ -13,7 +13,7 @@ const userTypes = [
     cta: 'Start Booking',
     route: '/auth/register?role=consumer',
     gradient: 'from-accent to-secondary',
-    image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80',
   },
   {
     id: 'provider',
@@ -25,7 +25,7 @@ const userTypes = [
     cta: 'Register Fleet',
     route: '/auth/register?role=provider',
     gradient: 'from-warning to-orange-500',
-    image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80',
   },
   {
     id: 'driver',
@@ -37,7 +37,7 @@ const userTypes = [
     cta: 'Become a Driver',
     route: '/auth/register?role=driver',
     gradient: 'from-success to-emerald-500',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=600&q=80',
   },
 ];
 
