@@ -8,7 +8,7 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
   title?: string;
   subtitle?: string;
   isLoading?: boolean;
