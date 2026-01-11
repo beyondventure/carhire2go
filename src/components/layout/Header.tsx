@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Bell, Search, MessageSquare, X, Menu, Car } from 'lucide-react';
+import { Bell, Search, MessageSquare, X, Car } from 'lucide-react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -13,12 +14,6 @@ interface HeaderProps {
   isMobile?: boolean;
 }
 
-const mockNotifications = [
-  { id: '1', title: 'Booking Confirmed', message: 'Your booking for tomorrow has been confirmed', time: '2 min ago', read: false },
-  { id: '2', title: 'Driver Assigned', message: 'Emmanuel has been assigned to your trip', time: '1 hour ago', read: false },
-  { id: '3', title: 'Payment Received', message: 'Your payment of ₦45,000 was successful', time: '3 hours ago', read: true },
-];
-
 const mockMessages = [
   { id: '1', sender: 'Emmanuel (Driver)', message: 'I will arrive in 10 minutes', time: '5 min ago', avatar: 'E' },
   { id: '2', sender: 'FleetMaster Nigeria', message: 'Your booking request has been accepted', time: '1 hour ago', avatar: 'F' },
@@ -30,8 +25,10 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   const role = roles[0];
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [notifications, setNotifications] = useState(mockNotifications);
   const [messages] = useState(mockMessages);
+  
+  // Use real-time notifications hook
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const roleLabels: Record<string, string> = {
     consumer: 'Consumer Portal',
@@ -40,17 +37,24 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
     admin: 'Admin Console',
   };
 
-  const unreadNotifications = notifications.filter(n => !n.read).length;
-
-  const handleNotificationClick = (id: string) => {
-    setNotifications(prev => prev.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
-    toast.info('Opening notification...');
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    markAsRead(notification.id);
+    setShowNotifications(false);
+    
+    // Navigate based on notification type
+    if (notification.relatedBookingId) {
+      if (role === 'consumer') {
+        navigate('/consumer/bookings');
+      } else if (role === 'provider') {
+        navigate('/provider/requests');
+      } else if (role === 'driver') {
+        navigate('/driver/trips');
+      }
+    }
   };
 
   const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    markAllAsRead();
     toast.success('All notifications marked as read');
   };
 
@@ -118,9 +122,9 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                 className="relative p-2 rounded-lg hover:bg-muted transition-colors"
               >
                 <Bell size={20} className="text-muted-foreground" />
-                {unreadNotifications > 0 && (
+                {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-accent rounded-full text-[10px] font-bold text-accent-foreground flex items-center justify-center">
-                    {unreadNotifications}
+                    {unreadCount}
                   </span>
                 )}
               </motion.button>
@@ -184,10 +188,14 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                 </div>
               </div>
               <div className="max-h-64 overflow-y-auto">
-                {notifications.map((notification) => (
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground text-sm">
+                    No notifications yet
+                  </div>
+                ) : notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    onClick={() => handleNotificationClick(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                     className={`p-3 border-b border-border last:border-0 cursor-pointer active:bg-muted/50 transition-colors ${
                       !notification.read ? 'bg-accent/5' : ''
                     }`}
@@ -199,7 +207,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                       <div className={!notification.read ? '' : 'ml-4'}>
                         <p className="text-sm font-medium text-foreground">{notification.title}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
                       </div>
                     </div>
                   </div>
@@ -287,9 +295,9 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
             className="relative p-2.5 rounded-lg hover:bg-muted transition-colors"
           >
             <Bell size={20} className="text-muted-foreground" />
-            {unreadNotifications > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-accent rounded-full text-[10px] font-bold text-accent-foreground flex items-center justify-center">
-                {unreadNotifications}
+                {unreadCount}
               </span>
             )}
           </motion.button>
@@ -317,10 +325,14 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                   </div>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {notifications.map((notification) => (
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground text-sm">
+                      No notifications yet
+                    </div>
+                  ) : notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      onClick={() => handleNotificationClick(notification.id)}
+                      onClick={() => handleNotificationClick(notification)}
                       className={`p-4 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 transition-colors ${
                         !notification.read ? 'bg-accent/5' : ''
                       }`}
@@ -332,7 +344,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                         <div className={!notification.read ? '' : 'ml-5'}>
                           <p className="text-sm font-medium text-foreground">{notification.title}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
                         </div>
                       </div>
                     </div>
