@@ -8,13 +8,16 @@ type Provider = Database['public']['Tables']['providers']['Row'];
 type ProviderUpdate = Database['public']['Tables']['providers']['Update'];
 
 export function useProviders() {
-  const { user } = useSupabaseAuth();
+  const { user, isLoading: authLoading } = useSupabaseAuth();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [allProviders, setAllProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMyProvider = async () => {
-    if (!user) return;
+    if (!user) {
+      setProvider(null);
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -67,11 +70,13 @@ export function useProviders() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (user) {
       fetchMyProvider();
-      fetchAllProviders();
     }
-  }, [user]);
+    fetchAllProviders();
+  }, [user, authLoading]);
 
   return {
     provider,

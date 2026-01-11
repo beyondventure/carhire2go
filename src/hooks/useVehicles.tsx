@@ -10,14 +10,18 @@ type VehicleInsert = Database['public']['Tables']['vehicles']['Insert'];
 type VehicleUpdate = Database['public']['Tables']['vehicles']['Update'];
 
 export function useVehicles() {
-  const { user } = useSupabaseAuth();
-  const { provider } = useProviders();
+  const { user, isLoading: authLoading } = useSupabaseAuth();
+  const { provider, isLoading: providerLoading } = useProviders();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMyVehicles = async () => {
-    if (!provider) return;
+    if (!provider) {
+      setVehicles([]);
+      setIsLoading(false);
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -46,6 +50,8 @@ export function useVehicles() {
       setAllVehicles(data || []);
     } catch (error: any) {
       console.error('Error fetching all vehicles:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,11 +121,15 @@ export function useVehicles() {
   };
 
   useEffect(() => {
+    if (authLoading || providerLoading) return;
+    
     if (provider) {
       fetchMyVehicles();
+    } else {
+      setIsLoading(false);
     }
     fetchAllVehicles();
-  }, [provider]);
+  }, [provider, authLoading, providerLoading]);
 
   return {
     vehicles,
