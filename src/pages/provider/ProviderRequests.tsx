@@ -38,7 +38,7 @@ export default function ProviderRequests() {
         const { data, error } = await supabase
           .from('bookings')
           .select('*')
-          .eq('status', 'pending')
+          .in('status', ['pending', 'matching'])
           .is('provider_id', null)
           .order('created_at', { ascending: false });
 
@@ -277,9 +277,13 @@ export default function ProviderRequests() {
             onClose={() => setShowChat(false)}
             bookingId={selectedRequest.id}
             userRole="provider"
-            isNegotiating={selectedRequest.status === 'negotiating' || selectedRequest.status === 'matched'}
+            isNegotiating={['pending', 'matching', 'matched', 'negotiating'].includes(selectedRequest.status)}
             allowsNegotiation={provider?.allows_negotiation ?? true}
             onPriceAccepted={handlePriceAccepted}
+            onBookingConfirmed={() => {
+              setShowChat(false);
+              toast.success('Booking confirmed successfully!');
+            }}
           />
         )}
       </div>

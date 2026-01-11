@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Check, X, Car, Clock, MapPin, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Search, Check, X, Car, Clock, Star, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { MATCHING_TIMEOUT } from '@/lib/constants';
 
 interface MatchedProvider {
@@ -16,9 +16,10 @@ interface MatchingOverlayProps {
   isVisible: boolean;
   onClose: () => void;
   onMatched?: (provider: MatchedProvider) => void;
+  onTimeout?: () => void;
 }
 
-export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverlayProps) {
+export function MatchingOverlay({ isVisible, onClose, onMatched, onTimeout }: MatchingOverlayProps) {
   const [countdown, setCountdown] = useState(MATCHING_TIMEOUT);
   const [status, setStatus] = useState<'searching' | 'found' | 'timeout'>('searching');
   const [matchedProvider, setMatchedProvider] = useState<MatchedProvider | null>(null);
@@ -35,13 +36,14 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          setStatus('timeout');
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    // Simulate finding a provider after 5 seconds
+    // Simulate finding a provider after 5 seconds (in real app, this would be real-time from DB)
     const matchTimer = setTimeout(() => {
       setStatus('found');
       setMatchedProvider({
@@ -58,6 +60,30 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
       clearTimeout(matchTimer);
     };
   }, [isVisible]);
+
+  const handleClose = () => {
+    setStatus('searching');
+    setMatchedProvider(null);
+    setCountdown(MATCHING_TIMEOUT);
+    onClose();
+  };
+
+  const handleContinue = () => {
+    if (matchedProvider) {
+      onMatched?.(matchedProvider);
+    }
+  };
+
+  const handleRetry = () => {
+    setStatus('searching');
+    setCountdown(MATCHING_TIMEOUT);
+    setMatchedProvider(null);
+  };
+
+  const handleTimeoutClose = () => {
+    onTimeout?.();
+    handleClose();
+  };
 
   const circumference = 2 * Math.PI * 45;
   const progress = ((MATCHING_TIMEOUT - countdown) / MATCHING_TIMEOUT) * circumference;
@@ -133,12 +159,13 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
                   Searching for available providers near you...
                 </p>
 
-                <button
-                  onClick={onClose}
-                  className="btn-secondary w-full"
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  className="w-full"
                 >
                   Cancel
-                </button>
+                </Button>
               </>
             )}
 
@@ -180,18 +207,53 @@ export function MatchingOverlay({ isVisible, onClose, onMatched }: MatchingOverl
                 </div>
 
                 <div className="flex gap-3">
-                  <button
-                    onClick={onClose}
-                    className="btn-secondary flex-1"
+                  <Button
+                    variant="outline"
+                    onClick={handleClose}
+                    className="flex-1"
                   >
                     Cancel
-                  </button>
-                  <button
-                    onClick={() => onMatched?.(matchedProvider)}
-                    className="btn-primary flex-1"
+                  </Button>
+                  <Button
+                    onClick={handleContinue}
+                    className="flex-1 btn-primary"
                   >
-                    Continue
-                  </button>
+                    Continue to Chat
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {status === 'timeout' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning/10 flex items-center justify-center">
+                  <AlertCircle size={32} className="text-warning" />
+                </div>
+
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  No Providers Available
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  We couldn't find a provider at this time. Your booking has been saved and providers will be notified.
+                </p>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleTimeoutClose}
+                    className="flex-1"
+                  >
+                    View My Bookings
+                  </Button>
+                  <Button
+                    onClick={handleRetry}
+                    className="flex-1 btn-primary"
+                  >
+                    Try Again
+                  </Button>
                 </div>
               </motion.div>
             )}
