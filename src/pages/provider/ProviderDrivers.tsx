@@ -20,7 +20,7 @@ type DriverRow = Database['public']['Tables']['drivers']['Row'];
 
 export default function ProviderDrivers() {
   const { provider, isLoading: providerLoading } = useProviders();
-  const { drivers, isLoading: driversLoading, updateDriver } = useDrivers();
+  const { allDrivers: drivers, isLoading: driversLoading, updateDriver } = useDrivers();
   const { vehicles } = useVehicles();
   
   const [selectedDriver, setSelectedDriver] = useState<DriverRow | null>(null);
