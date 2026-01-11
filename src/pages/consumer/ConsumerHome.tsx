@@ -29,12 +29,12 @@ export default function ConsumerHome() {
 
   return (
     <DashboardLayout title={`Welcome back, ${userName}`} subtitle="What would you like to do today?">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 items-stretch">
         {/* Quick Book Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-gradient-to-br from-primary via-slate-800 to-slate-900 rounded-2xl p-5 md:p-8 text-primary-foreground relative overflow-hidden min-h-[180px] md:min-h-[200px]"
+          className="lg:col-span-2 bg-gradient-to-br from-primary via-slate-800 to-slate-900 rounded-2xl p-5 md:p-8 text-primary-foreground relative overflow-hidden flex flex-col justify-center"
         >
           <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-accent/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-secondary/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
@@ -79,9 +79,9 @@ export default function ConsumerHome() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-card rounded-2xl p-5 md:p-6 border border-border"
+          className="bg-card rounded-2xl p-5 md:p-6 border border-border flex flex-col justify-between"
         >
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-success/20 to-success/5 flex items-center justify-center">
               <TrendingUp size={24} className="text-success" />
             </div>
@@ -90,7 +90,7 @@ export default function ConsumerHome() {
               <p className="text-sm text-muted-foreground">Total Trips</p>
             </div>
           </div>
-          <div className="flex items-center justify-between text-sm pt-4 border-t border-border">
+          <div className="flex items-center justify-between text-sm pt-4 mt-4 border-t border-border">
             <span className="text-muted-foreground">Active bookings</span>
             <span className="text-accent font-semibold">{activeBookings.length} active</span>
           </div>
