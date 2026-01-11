@@ -53,7 +53,7 @@ export default function ProviderDashboard() {
         const { data, error } = await supabase
           .from('bookings')
           .select('*')
-          .eq('status', 'pending')
+          .in('status', ['pending', 'matching'])
           .is('provider_id', null)
           .order('created_at', { ascending: false })
           .limit(10);
@@ -78,7 +78,7 @@ export default function ProviderDashboard() {
           event: '*',
           schema: 'public',
           table: 'bookings',
-          filter: 'status=eq.pending',
+          // Listen for any booking changes - we'll filter in the handler
         },
         () => {
           fetchPendingRequests();
