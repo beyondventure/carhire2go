@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Car, MessageSquare, Search, Loader2, DollarSign, AlertCircle } from 'lucide-react';
+import { MapPin, Clock, Car, MessageSquare, Search, Loader2, AlertCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { ChatDialog } from '@/components/booking/ChatDialog';
@@ -166,7 +166,7 @@ export default function ConsumerBookings() {
                           {booking.provider ? (
                             booking.provider.allows_negotiation ? (
                               <span className="flex items-center gap-1 text-success">
-                                <DollarSign size={12} />
+                                <span className="text-xs font-medium">{CURRENCY}</span>
                                 Negotiable
                               </span>
                             ) : (
