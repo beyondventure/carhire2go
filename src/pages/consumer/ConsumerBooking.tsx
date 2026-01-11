@@ -161,6 +161,16 @@ export default function ConsumerBooking() {
     setIsNegotiating(true);
   };
 
+  const handleMatchingClose = () => {
+    setIsMatching(false);
+  };
+
+  const handleMatchingTimeout = () => {
+    setIsMatching(false);
+    toast.info('Your booking is saved. Providers will be notified.');
+    navigate('/consumer/bookings');
+  };
+
   const handleNegotiationClose = () => {
     setIsNegotiating(false);
     setMatchedProvider(null);
@@ -168,6 +178,7 @@ export default function ConsumerBooking() {
 
   const handleBookingConfirmed = (finalPrice: number) => {
     setIsNegotiating(false);
+    setMatchedProvider(null);
     toast.success(`Booking confirmed at ${CURRENCY}${finalPrice.toLocaleString()}!`);
     navigate('/consumer/bookings');
   };
@@ -608,8 +619,9 @@ export default function ConsumerBooking() {
       {/* Matching Overlay */}
       <MatchingOverlay
         isVisible={isMatching}
-        onClose={() => setIsMatching(false)}
+        onClose={handleMatchingClose}
         onMatched={handleMatched}
+        onTimeout={handleMatchingTimeout}
       />
 
       {/* Negotiation Overlay */}
