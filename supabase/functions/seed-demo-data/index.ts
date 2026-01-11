@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
           nin_verified: true,
           cac_number: 'RC123456',
           cac_verified: true,
+          allows_negotiation: true,
         })
         .select()
         .single()
@@ -90,6 +91,55 @@ Deno.serve(async (req) => {
     }
 
     const providerId = provider.id
+
+    // Create additional providers for testing
+    const additionalProviders = [
+      {
+        user_id: providerProfile.id, // Will be created with test users
+        provider_type: 'company' as const,
+        business_name: 'Lagos Executive Cars',
+        business_address: '12 Admiralty Way, Lekki Phase 1, Lagos',
+        service_areas: ['Lagos', 'Ibadan'],
+        verification_status: 'approved' as const,
+        rating: 4.9,
+        total_bookings: 850,
+        acceptance_rate: 95,
+        response_time: 20,
+        allows_negotiation: true,
+        nin_verified: true,
+        cac_verified: true,
+      },
+      {
+        user_id: providerProfile.id,
+        provider_type: 'individual' as const,
+        business_name: 'Abuja Premium Transport',
+        business_address: '78 Wuse 2, Abuja',
+        service_areas: ['Abuja', 'Kaduna'],
+        verification_status: 'approved' as const,
+        rating: 4.5,
+        total_bookings: 320,
+        acceptance_rate: 88,
+        response_time: 45,
+        allows_negotiation: false, // Fixed pricing
+        nin_verified: true,
+        cac_verified: false,
+      },
+      {
+        user_id: providerProfile.id,
+        provider_type: 'company' as const,
+        business_name: 'Port Harcourt Rides',
+        business_address: '5 GRA Phase 2, Port Harcourt',
+        service_areas: ['Port Harcourt', 'Warri', 'Calabar'],
+        verification_status: 'approved' as const,
+        rating: 4.6,
+        total_bookings: 560,
+        acceptance_rate: 91,
+        response_time: 30,
+        allows_negotiation: true,
+        nin_verified: true,
+        cac_verified: true,
+      },
+    ]
 
     // Get or create driver record
     let { data: driver } = await supabase
@@ -380,6 +430,29 @@ Deno.serve(async (req) => {
         estimated_max_price: 30000,
         cancelled_at: new Date(Date.now() - 86400000).toISOString(),
       },
+      // Add a negotiating booking for testing chat
+      {
+        consumer_id: consumerProfile.id,
+        provider_id: providerId,
+        driver_id: null,
+        vehicle_id: null,
+        pickup_lat: 6.4541,
+        pickup_lng: 3.3947,
+        pickup_address: 'Victoria Island, Lagos',
+        pickup_name: 'The Palms Shopping Mall',
+        dropoff_lat: 6.4380,
+        dropoff_lng: 3.4310,
+        dropoff_address: 'Lekki Phase 1, Lagos',
+        dropoff_name: 'Lekki Leisure Lake',
+        booking_type: 'half-day' as const,
+        vehicle_preference: 'suv' as const,
+        scheduled_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        scheduled_time: '11:00',
+        status: 'negotiating' as const,
+        estimated_min_price: 45000,
+        estimated_max_price: 65000,
+        matched_at: new Date().toISOString(),
+      },
     ]
 
     // Check existing bookings count
@@ -389,10 +462,66 @@ Deno.serve(async (req) => {
       .eq('consumer_id', consumerProfile.id)
 
     // Only add bookings if less than expected
-    if ((bookingCount || 0) < 6) {
+    if ((bookingCount || 0) < 7) {
       for (const booking of bookingData) {
         const { error } = await supabase.from('bookings').insert(booking)
         if (error) console.error('Booking insert error:', error)
+      }
+    }
+
+    // Create chat messages for the negotiating booking
+    const { data: negotiatingBooking } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('consumer_id', consumerProfile.id)
+      .eq('status', 'negotiating')
+      .limit(1)
+      .single()
+
+    if (negotiatingBooking) {
+      const negotiationMessages = [
+        {
+          booking_id: negotiatingBooking.id,
+          sender_id: providerProfile.id,
+          sender_role: 'provider' as const,
+          content: 'Thank you for choosing FleetMaster! Here is my quote for your half-day trip:',
+          message_type: 'text',
+        },
+        {
+          booking_id: negotiatingBooking.id,
+          sender_id: providerProfile.id,
+          sender_role: 'provider' as const,
+          content: 'Price proposal for your trip',
+          message_type: 'price-proposal',
+          proposed_price: 60000,
+        },
+        {
+          booking_id: negotiatingBooking.id,
+          sender_id: consumerProfile.id,
+          sender_role: 'consumer' as const,
+          content: 'That seems a bit high. Can you do ₦50,000?',
+          message_type: 'text',
+        },
+        {
+          booking_id: negotiatingBooking.id,
+          sender_id: consumerProfile.id,
+          sender_role: 'consumer' as const,
+          content: 'Counter offer',
+          message_type: 'price-proposal',
+          proposed_price: 50000,
+        },
+      ]
+
+      // Check existing messages
+      const { count: msgCount } = await supabase
+        .from('chat_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('booking_id', negotiatingBooking.id)
+
+      if ((msgCount || 0) < 4) {
+        for (const msg of negotiationMessages) {
+          await supabase.from('chat_messages').insert(msg)
+        }
       }
     }
 

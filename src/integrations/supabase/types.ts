@@ -287,6 +287,7 @@ export type Database = {
           acceptance_rate: number | null
           account_name: string | null
           account_number: string | null
+          allows_negotiation: boolean
           bank_name: string | null
           business_address: string | null
           business_name: string | null
@@ -312,6 +313,7 @@ export type Database = {
           acceptance_rate?: number | null
           account_name?: string | null
           account_number?: string | null
+          allows_negotiation?: boolean
           bank_name?: string | null
           business_address?: string | null
           business_name?: string | null
@@ -337,6 +339,7 @@ export type Database = {
           acceptance_rate?: number | null
           account_name?: string | null
           account_number?: string | null
+          allows_negotiation?: boolean
           bank_name?: string | null
           business_address?: string | null
           business_name?: string | null

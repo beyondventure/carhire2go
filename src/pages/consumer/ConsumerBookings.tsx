@@ -1,33 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Car, MessageSquare, Search, Loader2 } from 'lucide-react';
+import { MapPin, Clock, Car, MessageSquare, Search, Loader2, DollarSign, AlertCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { ChatPanel } from '@/components/chat/ChatPanel';
+import { ChatDialog } from '@/components/booking/ChatDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBookings } from '@/hooks/useBookings';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { CURRENCY, BOOKING_STATUS_LABELS } from '@/lib/constants';
-import type { ChatMessage } from '@/types';
+import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 
 type BookingRow = Database['public']['Tables']['bookings']['Row'];
+type ProviderRow = Database['public']['Tables']['providers']['Row'];
+
+interface BookingWithProvider extends BookingRow {
+  provider?: ProviderRow | null;
+}
 
 export default function ConsumerBookings() {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
   const { bookings, isLoading, cancelBooking } = useBookings();
   
-  const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingWithProvider | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [bookingsWithProviders, setBookingsWithProviders] = useState<BookingWithProvider[]>([]);
 
-  const filteredBookings = bookings.filter((booking) => {
+  // Fetch provider info for bookings
+  useEffect(() => {
+    const fetchProviderInfo = async () => {
+      if (bookings.length === 0) {
+        setBookingsWithProviders([]);
+        return;
+      }
+
+      const providerIds = [...new Set(bookings.filter(b => b.provider_id).map(b => b.provider_id!))];
+      
+      if (providerIds.length === 0) {
+        setBookingsWithProviders(bookings.map(b => ({ ...b, provider: null })));
+        return;
+      }
+
+      const { data: providers } = await supabase
+        .from('providers')
+        .select('*')
+        .in('id', providerIds);
+
+      const providerMap = new Map(providers?.map(p => [p.id, p]) || []);
+      
+      setBookingsWithProviders(bookings.map(b => ({
+        ...b,
+        provider: b.provider_id ? providerMap.get(b.provider_id) || null : null,
+      })));
+    };
+
+    fetchProviderInfo();
+  }, [bookings]);
+
+  const filteredBookings = bookingsWithProviders.filter((booking) => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -39,68 +75,17 @@ export default function ConsumerBookings() {
     return true;
   });
 
-  const handleSendMessage = (content: string) => {
-    if (!user || !selectedBooking) return;
-    
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedBooking.id,
-      senderId: user.id,
-      senderRole: 'consumer',
-      content,
-      type: 'text',
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, newMessage]);
-  };
-
-  const handlePriceProposal = (price: number) => {
-    if (!user || !selectedBooking) return;
-    
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedBooking.id,
-      senderId: user.id,
-      senderRole: 'consumer',
-      content: 'Counter proposal',
-      type: 'price-proposal',
-      proposedPrice: price,
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, newMessage]);
-  };
-
-  const handleAcceptPrice = (messageId: string, price: number) => {
-    if (!user || !selectedBooking) return;
-    
-    const acceptMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedBooking.id,
-      senderId: user.id,
-      senderRole: 'consumer',
-      content: `Price accepted: ${CURRENCY}${price.toLocaleString()}`,
-      type: 'price-accepted',
-      proposedPrice: price,
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, acceptMessage]);
-  };
-
-  const handleRejectPrice = (messageId: string) => {
-    const systemMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedBooking?.id || '',
-      senderId: 'system',
-      senderRole: 'consumer',
-      content: 'Price rejected. Please propose a counter offer.',
-      type: 'system',
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, systemMessage]);
-  };
-
   const handleCancelBooking = async (bookingId: string) => {
     await cancelBooking(bookingId);
+  };
+
+  const handleOpenChat = (booking: BookingWithProvider) => {
+    setSelectedBooking(booking);
+    setShowChat(true);
+  };
+
+  const handlePriceAccepted = (price: number) => {
+    toast.success(`Price agreed at ${CURRENCY}${price.toLocaleString()}!`);
   };
 
   if (isLoading) {
@@ -166,12 +151,7 @@ export default function ConsumerBookings() {
                   className={`booking-card p-5 cursor-pointer ${
                     selectedBooking?.id === booking.id ? 'ring-2 ring-accent' : ''
                   }`}
-                  onClick={() => {
-                    setSelectedBooking(booking);
-                    if (booking.status === 'negotiating' || booking.status === 'matched') {
-                      setShowChat(true);
-                    }
-                  }}
+                  onClick={() => setSelectedBooking(booking)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -182,10 +162,25 @@ export default function ConsumerBookings() {
                         <h4 className="font-semibold text-foreground capitalize">
                           {booking.vehicle_preference || 'Any'} vehicle
                         </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {booking.status === 'pending' ? 'Matching provider...' : 
-                           booking.provider_id ? 'Provider assigned' : 'Pending'}
-                        </p>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          {booking.provider ? (
+                            booking.provider.allows_negotiation ? (
+                              <span className="flex items-center gap-1 text-success">
+                                <DollarSign size={12} />
+                                Negotiable
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-muted-foreground">
+                                <AlertCircle size={12} />
+                                Fixed price
+                              </span>
+                            )
+                          ) : booking.status === 'pending' ? (
+                            'Finding provider...'
+                          ) : (
+                            'Provider assigned'
+                          )}
+                        </div>
                       </div>
                     </div>
                     <StatusBadge status={booking.status} />
@@ -215,18 +210,18 @@ export default function ConsumerBookings() {
                       <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      {(booking.status === 'negotiating' || booking.status === 'matched') && (
+                      {(booking.status === 'negotiating' || booking.status === 'matched') && booking.provider_id && (
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant={booking.provider?.allows_negotiation ? 'default' : 'outline'}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedBooking(booking);
-                            setShowChat(true);
+                            handleOpenChat(booking);
                           }}
+                          className={booking.provider?.allows_negotiation ? 'bg-accent' : ''}
                         >
                           <MessageSquare size={16} className="mr-1" />
-                          Chat
+                          {booking.provider?.allows_negotiation ? 'Negotiate' : 'Chat'}
                         </Button>
                       )}
                       {booking.status === 'pending' && (
@@ -255,25 +250,17 @@ export default function ConsumerBookings() {
           </div>
         </div>
 
-        {/* Chat Panel */}
-        {showChat && selectedBooking && user && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block w-96"
-          >
-            <ChatPanel
-              messages={chatMessages}
-              currentUserId={user.id}
-              currentUserRole="consumer"
-              onSendMessage={handleSendMessage}
-              onPriceProposal={handlePriceProposal}
-              onAcceptPrice={handleAcceptPrice}
-              onRejectPrice={handleRejectPrice}
-              isNegotiating={selectedBooking.status === 'negotiating' || selectedBooking.status === 'matched'}
-              className="h-full"
-            />
-          </motion.div>
+        {/* Chat Dialog */}
+        {selectedBooking && user && (
+          <ChatDialog
+            isOpen={showChat}
+            onClose={() => setShowChat(false)}
+            bookingId={selectedBooking.id}
+            userRole="consumer"
+            isNegotiating={selectedBooking.status === 'negotiating' || selectedBooking.status === 'matched'}
+            allowsNegotiation={selectedBooking.provider?.allows_negotiation ?? true}
+            onPriceAccepted={handlePriceAccepted}
+          />
         )}
       </div>
     </DashboardLayout>
