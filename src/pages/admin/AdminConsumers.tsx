@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CURRENCY } from '@/lib/constants';
+import { openEmail } from '@/lib/platform';
 import { toast } from 'sonner';
 
 const initialConsumers = [
@@ -129,7 +130,7 @@ export default function AdminConsumers() {
 
   const handleContactConsumer = (consumer: Consumer) => {
     toast.success(`Opening email to ${consumer.email}...`);
-    window.open(`mailto:${consumer.email}`);
+    openEmail(consumer.email);
   };
 
   return (
