@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Bell, Search, MessageSquare, X } from 'lucide-react';
+import { Bell, Search, MessageSquare, X, Menu, Car } from 'lucide-react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { PLATFORM_NAME } from '@/lib/constants';
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  isMobile?: boolean;
 }
 
 const mockNotifications = [
@@ -21,7 +23,7 @@ const mockMessages = [
   { id: '2', sender: 'FleetMaster Nigeria', message: 'Your booking request has been accepted', time: '1 hour ago', avatar: 'F' },
 ];
 
-export function Header({ title, subtitle }: HeaderProps) {
+export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   const navigate = useNavigate();
   const { profile, roles } = useSupabaseAuth();
   const role = roles[0];
@@ -54,7 +56,6 @@ export function Header({ title, subtitle }: HeaderProps) {
   const handleMessageClick = (message: typeof mockMessages[0]) => {
     setShowMessages(false);
     toast.info(`Opening chat with ${message.sender}`);
-    // Navigate to bookings page where chat is available
     if (role === 'consumer') {
       navigate('/consumer/bookings');
     } else if (role === 'provider') {
@@ -83,18 +84,180 @@ export function Header({ title, subtitle }: HeaderProps) {
     }
   };
 
+  // Mobile header
+  if (isMobile) {
+    return (
+      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
+              <Car size={16} className="text-white" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base font-semibold text-foreground truncate">
+                {title || PLATFORM_NAME}
+              </h1>
+              {subtitle && (
+                <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* Notifications */}
+            <div className="relative">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowMessages(false);
+                }}
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Bell size={20} className="text-muted-foreground" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-accent rounded-full text-[10px] font-bold text-accent-foreground flex items-center justify-center">
+                    {unreadNotifications}
+                  </span>
+                )}
+              </motion.button>
+            </div>
+
+            {/* Messages */}
+            <div className="relative">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setShowMessages(!showMessages);
+                  setShowNotifications(false);
+                }}
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <MessageSquare size={20} className="text-muted-foreground" />
+                {messages.length > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-warning rounded-full text-[10px] font-bold text-warning-foreground flex items-center justify-center">
+                    {messages.length}
+                  </span>
+                )}
+              </motion.button>
+            </div>
+
+            {/* Profile */}
+            {profile && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleProfileClick}
+                className="p-1 ml-1"
+              >
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm">
+                  {profile.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              </motion.button>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Dropdown Panels */}
+        <AnimatePresence>
+          {showNotifications && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute left-4 right-4 top-full mt-2 bg-card rounded-xl border border-border shadow-xl z-50 overflow-hidden"
+            >
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={handleMarkAllRead}
+                    className="text-xs text-accent hover:underline"
+                  >
+                    Mark all read
+                  </button>
+                  <button onClick={() => setShowNotifications(false)}>
+                    <X size={16} className="text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleNotificationClick(notification.id)}
+                    className={`p-3 border-b border-border last:border-0 cursor-pointer active:bg-muted/50 transition-colors ${
+                      !notification.read ? 'bg-accent/5' : ''
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {!notification.read && (
+                        <span className="w-2 h-2 bg-accent rounded-full mt-1.5 flex-shrink-0" />
+                      )}
+                      <div className={!notification.read ? '' : 'ml-4'}>
+                        <p className="text-sm font-medium text-foreground">{notification.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {showMessages && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute left-4 right-4 top-full mt-2 bg-card rounded-xl border border-border shadow-xl z-50 overflow-hidden"
+            >
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold text-foreground text-sm">Messages</h3>
+                <button onClick={() => setShowMessages(false)}>
+                  <X size={16} className="text-muted-foreground" />
+                </button>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    onClick={() => handleMessageClick(message)}
+                    className="p-3 border-b border-border last:border-0 cursor-pointer active:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm flex-shrink-0">
+                        {message.avatar}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{message.sender}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{message.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{message.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+    );
+  }
+
+  // Desktop header
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 relative">
-      <div>
-        <h1 className="text-lg font-semibold text-foreground">
+      <div className="min-w-0 flex-1">
+        <h1 className="text-lg font-semibold text-foreground truncate">
           {title || (role && roleLabels[role])}
         </h1>
         {subtitle && (
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {/* Search */}
         <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-2 mr-4">
           <Search size={16} className="text-muted-foreground" />

@@ -1,8 +1,10 @@
 import { useState, ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { MobileNav } from './MobileNav';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,11 +15,32 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useSupabaseAuth();
+  const isMobile = useIsMobile();
 
   if (!user) {
     return <>{children}</>;
   }
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <Header title={title} subtitle={subtitle} isMobile />
+        <main className="p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {children}
+          </motion.div>
+        </main>
+        <MobileNav />
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="min-h-screen bg-background">
       <Sidebar
