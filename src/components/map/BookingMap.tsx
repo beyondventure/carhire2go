@@ -1,8 +1,10 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin } from 'lucide-react';
+import { MapPin, Navigation } from 'lucide-react';
 import { MAP_CONFIG } from '@/lib/constants';
 import type { Location } from '@/types';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface BookingMapProps {
   pickup?: Location;
@@ -14,21 +16,47 @@ interface BookingMapProps {
   className?: string;
 }
 
-// Placeholder map component while loading or as fallback
-function MapPlaceholder({ className }: { className?: string }) {
-  return (
-    <div className={`relative rounded-xl overflow-hidden bg-muted ${className}`}>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center">
-          <MapPin size={48} className="text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">Loading map...</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+// Fix Leaflet default marker icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
-// Static map display without react-leaflet to avoid context issues
+// Custom marker icons
+const createCustomIcon = (color: string) => {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div style="
+        width: 32px;
+        height: 32px;
+        background: ${color};
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        border: 3px solid white;
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+  });
+};
+
+const pickupIcon = createCustomIcon('#22c55e'); // green
+const dropoffIcon = createCustomIcon('#ef4444'); // red
+const providerAvailableIcon = createCustomIcon('#f59e0b'); // amber/warning
+const providerUnavailableIcon = createCustomIcon('#6b7280'); // gray
+
 export function BookingMap({
   pickup,
   dropoff,
@@ -38,160 +66,165 @@ export function BookingMap({
   interactive = true,
   className,
 }: BookingMapProps) {
-  const [mapReady, setMapReady] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+  const routeLineRef = useRef<L.Polyline | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
 
+  // Initialize map
   useEffect(() => {
-    // Delay to allow React to fully mount
-    const timer = setTimeout(() => setMapReady(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!mapContainerRef.current || mapRef.current) return;
 
-  // Use a static map image as fallback to avoid react-leaflet context issues
-  const center = pickup 
-    ? `${pickup.lat},${pickup.lng}` 
-    : `${MAP_CONFIG.defaultCenter.lat},${MAP_CONFIG.defaultCenter.lng}`;
-  
-  const markers = [
-    pickup && `color:green|${pickup.lat},${pickup.lng}`,
-    dropoff && `color:red|${dropoff.lat},${dropoff.lng}`,
-    ...providerLocations.map(p => `color:orange|${p.lat},${p.lng}`)
-  ].filter(Boolean).join('&markers=');
+    const map = L.map(mapContainerRef.current, {
+      center: [MAP_CONFIG.defaultCenter.lat, MAP_CONFIG.defaultCenter.lng],
+      zoom: MAP_CONFIG.defaultZoom,
+      zoomControl: false,
+      attributionControl: false,
+    });
+
+    // Use a clean, desaturated map style (CartoDB Positron)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Add zoom control to bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Handle click for location selection
+    if (interactive && onLocationSelect) {
+      map.on('click', (e) => {
+        onLocationSelect({
+          address: `Location at ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`,
+          lat: e.latlng.lat,
+          lng: e.latlng.lng,
+        });
+      });
+    }
+
+    mapRef.current = map;
+    setIsMapReady(true);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [interactive, onLocationSelect]);
+
+  // Update markers and route when locations change
+  useEffect(() => {
+    if (!mapRef.current || !isMapReady) return;
+
+    const map = mapRef.current;
+
+    // Clear existing markers
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    // Clear existing route
+    if (routeLineRef.current) {
+      routeLineRef.current.remove();
+      routeLineRef.current = null;
+    }
+
+    const bounds: L.LatLngBounds | null = L.latLngBounds([]);
+
+    // Add pickup marker
+    if (pickup) {
+      const marker = L.marker([pickup.lat, pickup.lng], { icon: pickupIcon })
+        .addTo(map)
+        .bindPopup(`<strong>Pickup</strong><br/>${pickup.address || 'Pickup location'}`);
+      markersRef.current.push(marker);
+      bounds.extend([pickup.lat, pickup.lng]);
+    }
+
+    // Add dropoff marker
+    if (dropoff) {
+      const marker = L.marker([dropoff.lat, dropoff.lng], { icon: dropoffIcon })
+        .addTo(map)
+        .bindPopup(`<strong>Drop-off</strong><br/>${dropoff.address || 'Drop-off location'}`);
+      markersRef.current.push(marker);
+      bounds.extend([dropoff.lat, dropoff.lng]);
+    }
+
+    // Add provider markers
+    providerLocations.forEach((provider) => {
+      const icon = provider.available ? providerAvailableIcon : providerUnavailableIcon;
+      const marker = L.marker([provider.lat, provider.lng], { icon })
+        .addTo(map)
+        .bindPopup(`Provider ${provider.id}<br/>${provider.available ? 'Available' : 'Busy'}`);
+      markersRef.current.push(marker);
+      bounds.extend([provider.lat, provider.lng]);
+    });
+
+    // Draw route line between pickup and dropoff
+    if (pickup && dropoff && showRoute) {
+      routeLineRef.current = L.polyline(
+        [
+          [pickup.lat, pickup.lng],
+          [dropoff.lat, dropoff.lng],
+        ],
+        {
+          color: '#14b8a6', // teal accent
+          weight: 4,
+          dashArray: '10, 6',
+          opacity: 0.8,
+        }
+      ).addTo(map);
+    }
+
+    // Fit map to bounds if we have markers
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+    }
+  }, [pickup, dropoff, providerLocations, showRoute, isMapReady]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`relative rounded-xl overflow-hidden bg-slate-100 ${className}`}
+      className={`relative rounded-xl overflow-hidden ${className}`}
     >
-      {/* Interactive Map Visualization */}
-      <div className="h-full w-full relative">
-        {/* Map background - using OpenStreetMap static tiles */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/light-v11/static/${MAP_CONFIG.defaultCenter.lng},${MAP_CONFIG.defaultCenter.lat},12,0/800x600?access_token=pk.placeholder)`,
-            backgroundColor: '#e5e7eb',
-          }}
-        />
-        
-        {/* Map Grid Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-slate-300/50">
-          <div className="h-full w-full" style={{
-            backgroundImage: `
-              linear-gradient(rgba(148, 163, 184, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(148, 163, 184, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }} />
-        </div>
-
-        {/* Location Markers */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative w-64 h-64">
-            {/* Pickup marker */}
-            {pickup && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute left-1/4 top-1/3 -translate-x-1/2 -translate-y-full"
-              >
-                <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                  <MapPin size={16} className="text-white" />
-                </div>
-                <div className="w-2 h-2 bg-success rounded-full mx-auto -mt-1" />
-              </motion.div>
-            )}
-
-            {/* Dropoff marker */}
-            {dropoff && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1 }}
-                className="absolute right-1/4 bottom-1/3 -translate-x-1/2 -translate-y-full"
-              >
-                <div className="w-8 h-8 bg-destructive rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                  <MapPin size={16} className="text-white" />
-                </div>
-                <div className="w-2 h-2 bg-destructive rounded-full mx-auto -mt-1" />
-              </motion.div>
-            )}
-
-            {/* Route line */}
-            {pickup && dropoff && showRoute && (
-              <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                <motion.line
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  x1="25%"
-                  y1="33%"
-                  x2="75%"
-                  y2="67%"
-                  stroke="hsl(175, 84%, 40%)"
-                  strokeWidth="3"
-                  strokeDasharray="8 4"
-                  strokeLinecap="round"
-                />
-              </svg>
-            )}
-
-            {/* Provider markers */}
-            {providerLocations.slice(0, 3).map((provider, index) => (
-              <motion.div
-                key={provider.id}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2 + index * 0.1 }}
-                className="absolute"
-                style={{
-                  left: `${30 + index * 20}%`,
-                  top: `${50 + (index % 2) * 15}%`,
-                }}
-              >
-                <div className={`w-6 h-6 ${provider.available ? 'bg-warning' : 'bg-muted-foreground'} rounded-full flex items-center justify-center shadow-md border-2 border-white`}>
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Center marker when no locations */}
-        {!pickup && !dropoff && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <MapPin size={32} className="text-accent drop-shadow-lg" />
-            </motion.div>
-          </div>
-        )}
-      </div>
+      {/* Leaflet Map Container */}
+      <div 
+        ref={mapContainerRef} 
+        className="h-full w-full min-h-[300px]"
+        style={{ background: '#f1f5f9' }}
+      />
 
       {/* Map Legend */}
-      <div className="absolute bottom-4 left-4 glass-card p-3 flex items-center gap-4 text-xs">
+      <div className="absolute bottom-4 left-4 z-[1000] glass-card p-3 flex items-center gap-4 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-success" />
+          <div className="w-3 h-3 rounded-full bg-green-500" />
           <span>Pickup</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-destructive" />
+          <div className="w-3 h-3 rounded-full bg-red-500" />
           <span>Drop-off</span>
         </div>
         {providerLocations.length > 0 && (
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-warning" />
+            <div className="w-3 h-3 rounded-full bg-amber-500" />
             <span>Providers</span>
           </div>
         )}
       </div>
 
-      {/* Interactive hint */}
-      <div className="absolute top-4 right-4 glass-card px-3 py-1.5 text-xs text-muted-foreground">
-        📍 Lagos, Nigeria
+      {/* Location indicator */}
+      <div className="absolute top-4 right-4 z-[1000] glass-card px-3 py-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
+        <Navigation size={12} className="text-accent" />
+        Lagos, Nigeria
       </div>
+
+      {/* Loading overlay */}
+      {!isMapReady && (
+        <div className="absolute inset-0 bg-muted flex items-center justify-center z-[1001]">
+          <div className="text-center">
+            <MapPin size={48} className="text-muted-foreground mx-auto mb-2 animate-bounce" />
+            <p className="text-sm text-muted-foreground">Loading map...</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
