@@ -27,6 +27,11 @@ export default function ConsumerHome() {
     { icon: Sparkles, label: 'Premium Service', color: 'text-accent' },
   ];
 
+  // Pass loading state to layout for proper skeleton
+  if (isLoading) {
+    return <DashboardLayout isLoading={true} />;
+  }
+
   return (
     <DashboardLayout title={`Welcome back, ${userName}`} subtitle="What would you like to do today?">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 items-stretch">

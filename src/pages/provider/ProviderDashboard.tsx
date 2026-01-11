@@ -128,14 +128,9 @@ export default function ProviderDashboard() {
 
   const isLoading = providerLoading || bookingsLoading;
 
+  // Pass loading state to layout for proper skeleton display
   if (isLoading) {
-    return (
-      <DashboardLayout title="Provider Dashboard">
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-accent" />
-        </div>
-      </DashboardLayout>
-    );
+    return <DashboardLayout isLoading={true} />;
   }
 
   // Show onboarding message if no provider profile
