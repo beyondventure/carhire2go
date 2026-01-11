@@ -257,8 +257,10 @@ export default function ConsumerBookings() {
             onClose={() => setShowChat(false)}
             bookingId={selectedBooking.id}
             userRole="consumer"
-            isNegotiating={selectedBooking.status === 'negotiating' || selectedBooking.status === 'matched'}
+            isNegotiating={['matching', 'matched', 'negotiating'].includes(selectedBooking.status)}
             allowsNegotiation={selectedBooking.provider?.allows_negotiation ?? true}
+            estimatedMinPrice={selectedBooking.estimated_min_price || undefined}
+            estimatedMaxPrice={selectedBooking.estimated_max_price || undefined}
             onPriceAccepted={handlePriceAccepted}
           />
         )}
