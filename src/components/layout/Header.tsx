@@ -1,5 +1,5 @@
 import { Bell, Search, MessageSquare } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { motion } from 'framer-motion';
 
 interface HeaderProps {
@@ -8,7 +8,8 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle }: HeaderProps) {
-  const { user, role } = useAuth();
+  const { profile, roles } = useSupabaseAuth();
+  const role = roles[0];
 
   const roleLabels: Record<string, string> = {
     consumer: 'Consumer Portal',
@@ -60,17 +61,15 @@ export function Header({ title, subtitle }: HeaderProps) {
         </motion.button>
 
         {/* User Avatar */}
-        {user && (
+        {profile && (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="ml-2 flex items-center gap-3 p-1.5 rounded-lg hover:bg-muted transition-colors"
           >
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-8 h-8 rounded-full"
-            />
+            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm">
+              {profile.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
           </motion.button>
         )}
       </div>
