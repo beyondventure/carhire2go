@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Car, Briefcase, Users, ArrowRight, Check } from 'lucide-react';
+import riderImage from '@/assets/rider-hero.jpg';
+import fleetOwnerImage from '@/assets/fleet-owner.jpg';
+import driverImage from '@/assets/driver-hero.jpg';
 
 const userTypes = [
   {
@@ -13,7 +16,7 @@ const userTypes = [
     cta: 'Start Booking',
     route: '/auth/register?role=consumer',
     gradient: 'from-accent to-secondary',
-    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80',
+    image: riderImage,
   },
   {
     id: 'provider',
@@ -25,7 +28,7 @@ const userTypes = [
     cta: 'Register Fleet',
     route: '/auth/register?role=provider',
     gradient: 'from-warning to-orange-500',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80',
+    image: fleetOwnerImage,
   },
   {
     id: 'driver',
@@ -37,7 +40,7 @@ const userTypes = [
     cta: 'Become a Driver',
     route: '/auth/register?role=driver',
     gradient: 'from-success to-emerald-500',
-    image: 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=600&q=80',
+    image: driverImage,
   },
 ];
 
