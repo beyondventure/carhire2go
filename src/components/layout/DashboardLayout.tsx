@@ -2,7 +2,7 @@ import { useState, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -12,9 +12,9 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { user } = useSupabaseAuth();
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <>{children}</>;
   }
 

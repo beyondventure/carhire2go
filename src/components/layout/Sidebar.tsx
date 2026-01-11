@@ -24,8 +24,9 @@ import {
   Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import type { UserRole } from '@/types';
+import { useNavigate } from 'react-router-dom';
 import { PLATFORM_NAME } from '@/lib/constants';
 
 interface SidebarProps {
@@ -71,11 +72,20 @@ const roleNavItems: Record<UserRole, Array<{ label: string; path: string; icon: 
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
-  const { user, role, logout } = useAuth();
+  const navigate = useNavigate();
+  const { profile, roles, signOut } = useSupabaseAuth();
+
+  // Get the primary role (first role in array)
+  const role = roles[0] as UserRole | undefined;
 
   if (!role) return null;
 
   const navItems = roleNavItems[role];
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   return (
     <motion.aside
@@ -160,26 +170,24 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* User Section */}
       <div className="p-3 border-t border-sidebar-border">
-        {user && (
+        {profile && (
           <div className={cn('flex items-center gap-3 p-2', collapsed && 'justify-center')}>
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-9 h-9 rounded-full bg-sidebar-accent"
-            />
+            <div className="w-9 h-9 rounded-full bg-sidebar-accent flex items-center justify-center text-sidebar-foreground font-medium">
+              {profile.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
             {!collapsed && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex-1 min-w-0"
               >
-                <p className="text-sm font-medium text-sidebar-foreground truncate">{user.name}</p>
+                <p className="text-sm font-medium text-sidebar-foreground truncate">{profile.name}</p>
                 <p className="text-xs text-sidebar-foreground/60 capitalize">{role}</p>
               </motion.div>
             )}
             {!collapsed && (
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
               >
                 <LogOut size={16} />
