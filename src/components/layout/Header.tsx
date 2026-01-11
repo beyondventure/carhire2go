@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { PLATFORM_NAME } from '@/lib/constants';
+import { DemoAccountSwitcher } from './DemoAccountSwitcher';
 
 interface HeaderProps {
   title?: string;
@@ -104,6 +105,8 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
           </div>
 
           <div className="flex items-center gap-1">
+            {/* Demo Account Switcher */}
+            <DemoAccountSwitcher currentEmail={profile?.email} currentRole={role} />
             {/* Notifications */}
             <div className="relative">
               <motion.button
@@ -258,8 +261,11 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Demo Account Switcher */}
+        <DemoAccountSwitcher currentEmail={profile?.email} currentRole={role} />
+        
         {/* Search */}
-        <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-2 mr-4">
+        <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-2 ml-2">
           <Search size={16} className="text-muted-foreground" />
           <input
             type="text"
