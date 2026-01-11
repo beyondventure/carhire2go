@@ -8,13 +8,16 @@ type Driver = Database['public']['Tables']['drivers']['Row'];
 type DriverUpdate = Database['public']['Tables']['drivers']['Update'];
 
 export function useDrivers() {
-  const { user } = useSupabaseAuth();
+  const { user, isLoading: authLoading } = useSupabaseAuth();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [allDrivers, setAllDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMyDriver = async () => {
-    if (!user) return;
+    if (!user) {
+      setDriver(null);
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -71,11 +74,13 @@ export function useDrivers() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (user) {
       fetchMyDriver();
-      fetchAllDrivers();
     }
-  }, [user]);
+    fetchAllDrivers();
+  }, [user, authLoading]);
 
   return {
     driver,

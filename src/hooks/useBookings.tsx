@@ -9,12 +9,16 @@ type BookingInsert = Database['public']['Tables']['bookings']['Insert'];
 type BookingUpdate = Database['public']['Tables']['bookings']['Update'];
 
 export function useBookings() {
-  const { user, roles } = useSupabaseAuth();
+  const { user, roles, isLoading: authLoading } = useSupabaseAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchBookings = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      setBookings([]);
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -27,6 +31,7 @@ export function useBookings() {
       setBookings(data || []);
     } catch (error: any) {
       console.error('Error fetching bookings:', error);
+      setBookings([]);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +122,14 @@ export function useBookings() {
 
   // Subscribe to realtime updates
   useEffect(() => {
-    if (!user) return;
+    // Wait for auth to finish loading
+    if (authLoading) return;
+    
+    if (!user) {
+      setIsLoading(false);
+      setBookings([]);
+      return;
+    }
 
     fetchBookings();
 
@@ -140,7 +152,7 @@ export function useBookings() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, authLoading]);
 
   return {
     bookings,
