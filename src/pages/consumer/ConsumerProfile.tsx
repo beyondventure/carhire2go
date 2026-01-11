@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Shield, Bell, ChevronRight, Camera, LogOut } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Shield, Bell, ChevronRight, Camera, LogOut, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { mockUsers } from '@/lib/mock-data';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function ConsumerProfile() {
-  const user = mockUsers.consumer1;
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useSupabaseAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone || '',
+    name: '',
+    email: '',
+    phone: '',
   });
 
   const [notifications, setNotifications] = useState({
@@ -22,6 +29,81 @@ export default function ConsumerProfile() {
     priceAlerts: true,
     driverArrival: true,
   });
+
+  const [savedLocations, setSavedLocations] = useState([
+    { label: 'Home', address: 'Lekki Phase 1, Lagos' },
+    { label: 'Work', address: 'Victoria Island, Lagos' },
+  ]);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+      });
+    }
+  }, [profile]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: formData.name,
+          phone: formData.phone,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleToggleEdit = () => {
+    if (isEditing) {
+      handleSaveProfile();
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+      navigate('/login');
+    } catch (error) {
+      toast.error('Failed to sign out');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    toast.error('Account deletion requires contacting support');
+    setShowDeleteDialog(false);
+  };
+
+  const handleNotificationChange = (key: string, checked: boolean) => {
+    setNotifications({ ...notifications, [key]: checked });
+    toast.success(`${key.replace(/([A-Z])/g, ' $1').trim()} notifications ${checked ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleAddLocation = () => {
+    toast.info('Location picker would open here');
+  };
+
+  const handleAvatarChange = () => {
+    toast.info('Photo upload would open here');
+  };
 
   return (
     <DashboardLayout title="Profile" subtitle="Manage your account settings">
@@ -34,17 +116,22 @@ export default function ConsumerProfile() {
               <div className="flex items-end gap-4">
                 <div className="relative">
                   <img
-                    src={user.avatar}
-                    alt={user.name}
+                    src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`}
+                    alt={formData.name}
                     className="w-20 h-20 rounded-xl border-4 border-background"
                   />
-                  <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center text-accent-foreground">
+                  <button 
+                    onClick={handleAvatarChange}
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center text-accent-foreground hover:bg-accent/90 transition-colors"
+                  >
                     <Camera size={14} />
                   </button>
                 </div>
                 <div className="text-primary-foreground pb-1">
-                  <h2 className="text-xl font-bold">{user.name}</h2>
-                  <p className="text-primary-foreground/70 text-sm">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
+                  <h2 className="text-xl font-bold">{formData.name || 'User'}</h2>
+                  <p className="text-primary-foreground/70 text-sm">
+                    Member since {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Recently'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -56,9 +143,10 @@ export default function ConsumerProfile() {
                 <Button
                   variant={isEditing ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
+                  onClick={handleToggleEdit}
+                  disabled={isSaving}
                 >
-                  {isEditing ? 'Save Changes' : 'Edit Profile'}
+                  {isSaving ? 'Saving...' : isEditing ? 'Save Changes' : 'Edit Profile'}
                 </Button>
               </div>
 
@@ -86,8 +174,7 @@ export default function ConsumerProfile() {
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                     <Input
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      disabled={!isEditing}
+                      disabled
                       className="pl-10"
                     />
                   </div>
@@ -103,6 +190,7 @@ export default function ConsumerProfile() {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       disabled={!isEditing}
+                      placeholder="+234 800 000 0000"
                       className="pl-10"
                     />
                   </div>
@@ -120,16 +208,14 @@ export default function ConsumerProfile() {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Saved Locations</h3>
-              <Button variant="ghost" size="sm">Add New</Button>
+              <Button variant="ghost" size="sm" onClick={handleAddLocation}>Add New</Button>
             </div>
             <div className="space-y-3">
-              {[
-                { label: 'Home', address: 'Lekki Phase 1, Lagos' },
-                { label: 'Work', address: 'Victoria Island, Lagos' },
-              ].map((location, index) => (
+              {savedLocations.map((location, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border"
+                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => toast.info(`Editing ${location.label} location`)}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -157,7 +243,7 @@ export default function ConsumerProfile() {
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">Verified Account</h4>
-                <p className="text-sm text-muted-foreground">Email & Phone verified</p>
+                <p className="text-sm text-muted-foreground">Email verified</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -167,7 +253,9 @@ export default function ConsumerProfile() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Phone</span>
-                <span className="text-success">Verified ✓</span>
+                <span className={formData.phone ? 'text-success' : 'text-warning'}>
+                  {formData.phone ? 'Verified ✓' : 'Not added'}
+                </span>
               </div>
             </div>
           </div>
@@ -186,9 +274,7 @@ export default function ConsumerProfile() {
                   </span>
                   <Switch
                     checked={value}
-                    onCheckedChange={(checked) => 
-                      setNotifications({ ...notifications, [key]: checked })
-                    }
+                    onCheckedChange={(checked) => handleNotificationChange(key, checked)}
                   />
                 </div>
               ))}
@@ -199,17 +285,46 @@ export default function ConsumerProfile() {
           <div className="bg-card rounded-xl border border-destructive/20 p-5">
             <h4 className="font-semibold text-foreground mb-3">Account Actions</h4>
             <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start text-foreground">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-foreground"
+                onClick={handleSignOut}
+              >
                 <LogOut size={16} className="mr-2" />
                 Sign Out
               </Button>
-              <Button variant="outline" className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 size={16} className="mr-2" />
                 Delete Account
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Delete Account Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Account</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">
+            Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteAccount}>
+              Delete Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

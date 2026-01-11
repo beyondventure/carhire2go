@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Car, Plus, Edit, Trash2, Eye, Calendar, TrendingUp, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -352,7 +353,14 @@ export default function ProviderFleet() {
                 </div>
 
                 <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => {
+                      toast.info('Edit vehicle feature coming soon');
+                    }}
+                  >
                     <Edit size={14} className="mr-1" />
                     Edit
                   </Button>

@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, Calendar, Clock, ArrowUpRight, Download } from 'lucide-react';
+import { Wallet, TrendingUp, Calendar, Clock, ArrowUpRight, Download, FileText } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { EarningsTrendChart } from '@/components/analytics/AnalyticsCharts';
 import { Button } from '@/components/ui/button';
 import { CURRENCY } from '@/lib/constants';
+import { toast } from 'sonner';
 
 const driverTransactions = [
   { id: 't1', description: 'Full Day Hire Completed', amount: 29400, date: new Date(), tripId: 'T-1234' },
@@ -31,6 +32,38 @@ export default function DriverEarnings() {
   
   const weeklyEarnings = weeklyStats.reduce((sum, d) => sum + d.earnings, 0);
   const totalTrips = weeklyStats.reduce((sum, d) => sum + d.trips, 0);
+
+  const handleExport = () => {
+    // Generate CSV data
+    const headers = ['Date', 'Description', 'Trip ID', 'Amount'];
+    const rows = driverTransactions.map(tx => [
+      new Date(tx.date).toLocaleDateString(),
+      tx.description,
+      tx.tripId,
+      tx.amount.toString()
+    ]);
+    
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `earnings-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    toast.success('Earnings exported successfully!');
+  };
+
+  const handleTransactionClick = (tx: typeof driverTransactions[0]) => {
+    toast.info(`Viewing details for ${tx.tripId}`, {
+      description: `${tx.description} - ${CURRENCY}${tx.amount.toLocaleString()}`,
+    });
+  };
 
   return (
     <DashboardLayout title="My Earnings" subtitle="Track your earnings and payouts">
@@ -76,7 +109,11 @@ export default function DriverEarnings() {
           <h3 className="font-semibold text-foreground mb-4">This Week</h3>
           <div className="space-y-3">
             {weeklyStats.map((day) => (
-              <div key={day.day} className="flex items-center justify-between">
+              <div 
+                key={day.day} 
+                className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => toast.info(`${day.day}: ${day.trips} trips completed`)}
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-foreground w-8">{day.day}</span>
                   <span className="text-xs text-muted-foreground">{day.trips} trips</span>
@@ -105,7 +142,7 @@ export default function DriverEarnings() {
       >
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h3 className="font-semibold text-foreground">Recent Transactions</h3>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download size={14} className="mr-1" />
             Export
           </Button>
@@ -117,7 +154,8 @@ export default function DriverEarnings() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="p-4 hover:bg-muted/50 transition-colors"
+              className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => handleTransactionClick(tx)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -140,6 +178,18 @@ export default function DriverEarnings() {
               </div>
             </motion.div>
           ))}
+        </div>
+        
+        {/* View All Link */}
+        <div className="p-4 border-t border-border text-center">
+          <Button 
+            variant="ghost" 
+            className="text-accent"
+            onClick={() => toast.info('Full transaction history coming soon')}
+          >
+            <FileText size={14} className="mr-1" />
+            View All Transactions
+          </Button>
         </div>
       </motion.div>
     </DashboardLayout>

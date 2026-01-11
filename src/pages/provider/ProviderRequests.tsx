@@ -155,7 +155,20 @@ export default function ProviderRequests() {
     setChatMessages([...chatMessages, acceptMessage]);
   };
 
-  const handleRejectPrice = () => {};
+  const handleRejectPrice = (messageId: string) => {
+    toast.info('Price rejected. Continue negotiating.');
+    
+    const rejectMessage: ChatMessage = {
+      id: Date.now().toString(),
+      bookingId: selectedRequest?.id || '',
+      senderId: user?.id || '',
+      senderRole: 'provider',
+      content: 'I cannot accept this price. Let\'s negotiate further.',
+      type: 'text',
+      createdAt: new Date(),
+    };
+    setChatMessages([...chatMessages, rejectMessage]);
+  };
 
   const isLoading = providerLoading || requestsLoading;
 
