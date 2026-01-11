@@ -5,6 +5,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { EarningsTrendChart } from '@/components/analytics/AnalyticsCharts';
 import { Button } from '@/components/ui/button';
 import { CURRENCY } from '@/lib/constants';
+import { downloadFile } from '@/lib/platform';
 import { toast } from 'sonner';
 
 const driverTransactions = [
@@ -45,16 +46,8 @@ export default function DriverEarnings() {
     
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
     
-    // Create and download file
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `earnings-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    // Create and download file using platform utility
+    downloadFile(csvContent, `earnings-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
     
     toast.success('Earnings exported successfully!');
   };

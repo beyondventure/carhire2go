@@ -16,6 +16,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import { CURRENCY } from '@/lib/constants';
 
 interface ChartCardProps {
   title: string;
@@ -64,14 +65,14 @@ export function RevenueChart() {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `₦${(v/1000000).toFixed(0)}M`} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${CURRENCY}${(v/1000000).toFixed(0)}M`} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => [`₦${value.toLocaleString()}`, 'Revenue']}
+              formatter={(value: number) => [`${CURRENCY}${value.toLocaleString()}`, 'Revenue']}
             />
             <Area
               type="monotone"
@@ -213,14 +214,14 @@ export function EarningsTrendChart() {
           <LineChart data={earningsData}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `₦${(v/1000)}K`} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${CURRENCY}${(v/1000)}K`} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => [`₦${value.toLocaleString()}`]}
+              formatter={(value: number) => [`${CURRENCY}${value.toLocaleString()}`]}
             />
             <Legend />
             <Line type="monotone" dataKey="gross" stroke="hsl(175, 84%, 40%)" strokeWidth={2} name="Gross" />
@@ -339,14 +340,14 @@ export function GMVChart() {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `₦${(v/1000000).toFixed(0)}M`} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${CURRENCY}${(v/1000000).toFixed(0)}M`} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => [`₦${value.toLocaleString()}`]}
+              formatter={(value: number) => [`${CURRENCY}${value.toLocaleString()}`]}
             />
             <Legend />
             <Area

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Car, Menu, X } from 'lucide-react';
 import { PLATFORM_NAME } from '@/lib/constants';
+import { onScroll } from '@/lib/platform';
 
 const navLinks = [
   { label: 'Services', href: '#services' },
@@ -17,11 +18,10 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const cleanup = onScroll((scrollY) => {
+      setScrolled(scrollY > 50);
+    });
+    return cleanup;
   }, []);
 
   return (

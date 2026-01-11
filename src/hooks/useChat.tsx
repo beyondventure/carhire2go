@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from './useSupabaseAuth';
+import { CURRENCY } from '@/lib/constants';
 import type { ChatMessage, UserRole } from '@/types';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -146,7 +147,7 @@ export function useChat(bookingId: string | null) {
             booking_id: bookingId,
             sender_id: user.id,
             sender_role: role,
-            content: `Price accepted: ₦${price.toLocaleString()}`,
+            content: `Price accepted: ${CURRENCY}${price.toLocaleString()}`,
             message_type: 'price-accepted',
             proposed_price: price,
           })
