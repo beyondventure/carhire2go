@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Clock, Check, X, MessageSquare, Loader2, Car } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { ChatPanel } from '@/components/chat/ChatPanel';
+import { ChatDialog } from '@/components/booking/ChatDialog';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/hooks/useBookings';
 import { useProviders } from '@/hooks/useProviders';
@@ -11,7 +11,6 @@ import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { CURRENCY, BOOKING_TYPE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
-import type { ChatMessage } from '@/types';
 import type { Database } from '@/integrations/supabase/types';
 
 type BookingRow = Database['public']['Tables']['bookings']['Row'];
@@ -25,7 +24,6 @@ export default function ProviderRequests() {
   const [requestsLoading, setRequestsLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<BookingRow | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // Get pending requests (unassigned bookings)
   useEffect(() => {
@@ -106,68 +104,15 @@ export default function ProviderRequests() {
     }
   };
 
-  const handleSendMessage = (content: string) => {
-    if (!user || !selectedRequest) return;
-    
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedRequest.id,
-      senderId: user.id,
-      senderRole: 'provider',
-      content,
-      type: 'text',
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, newMessage]);
+  const handleOpenChat = (request: BookingRow) => {
+    setSelectedRequest(request);
+    setShowChat(true);
   };
 
-  const handlePriceProposal = (price: number) => {
-    if (!user || !selectedRequest) return;
-    
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedRequest.id,
-      senderId: user.id,
-      senderRole: 'provider',
-      content: 'My price proposal for this trip:',
-      type: 'price-proposal',
-      proposedPrice: price,
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, newMessage]);
-  };
-
-  const handleAcceptPrice = (messageId: string, price: number) => {
-    if (!selectedRequest) return;
-    
-    handleConfirmBooking(selectedRequest.id, price);
-    
-    const acceptMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedRequest.id,
-      senderId: user?.id || '',
-      senderRole: 'provider',
-      content: `Price agreed: ${CURRENCY}${price.toLocaleString()}`,
-      type: 'price-accepted',
-      proposedPrice: price,
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, acceptMessage]);
-  };
-
-  const handleRejectPrice = (messageId: string) => {
-    toast.info('Price rejected. Continue negotiating.');
-    
-    const rejectMessage: ChatMessage = {
-      id: Date.now().toString(),
-      bookingId: selectedRequest?.id || '',
-      senderId: user?.id || '',
-      senderRole: 'provider',
-      content: 'I cannot accept this price. Let\'s negotiate further.',
-      type: 'text',
-      createdAt: new Date(),
-    };
-    setChatMessages([...chatMessages, rejectMessage]);
+  const handlePriceAccepted = (price: number) => {
+    if (selectedRequest) {
+      handleConfirmBooking(selectedRequest.id, price);
+    }
   };
 
   const isLoading = providerLoading || requestsLoading;
@@ -311,10 +256,7 @@ export default function ProviderRequests() {
                         )}
                         <Button
                           variant="ghost"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            setShowChat(true);
-                          }}
+                          onClick={() => handleOpenChat(request)}
                         >
                           <MessageSquare size={18} className="mr-2" />
                           Chat
@@ -328,25 +270,17 @@ export default function ProviderRequests() {
           </div>
         </div>
 
-        {/* Chat Panel */}
-        {showChat && selectedRequest && user && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block w-96"
-          >
-            <ChatPanel
-              messages={chatMessages}
-              currentUserId={user.id}
-              currentUserRole="provider"
-              onSendMessage={handleSendMessage}
-              onPriceProposal={handlePriceProposal}
-              onAcceptPrice={handleAcceptPrice}
-              onRejectPrice={handleRejectPrice}
-              isNegotiating={selectedRequest.status === 'negotiating' || selectedRequest.status === 'matched'}
-              className="h-full"
-            />
-          </motion.div>
+        {/* Chat Dialog */}
+        {selectedRequest && user && (
+          <ChatDialog
+            isOpen={showChat}
+            onClose={() => setShowChat(false)}
+            bookingId={selectedRequest.id}
+            userRole="provider"
+            isNegotiating={selectedRequest.status === 'negotiating' || selectedRequest.status === 'matched'}
+            allowsNegotiation={provider?.allows_negotiation ?? true}
+            onPriceAccepted={handlePriceAccepted}
+          />
         )}
       </div>
     </DashboardLayout>
