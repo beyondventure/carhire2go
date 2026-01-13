@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => ({
       },
       manifest: false,
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
   ].filter(Boolean),
