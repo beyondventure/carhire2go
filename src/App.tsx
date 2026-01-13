@@ -36,6 +36,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminVerification from "./pages/admin/AdminVerification";
 import AdminSettings from "./pages/admin/AdminSettings";
 import SystemArchitecture from "./pages/admin/SystemArchitecture";
+import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
 
@@ -56,6 +57,10 @@ const App = () => (
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            
+            {/* PWA Install Pages */}
+            <Route path="/install" element={<InstallApp />} />
+            <Route path="/install/:role" element={<InstallApp />} />
             
             {/* Onboarding */}
             <Route path="/onboarding/provider" element={<ProviderOnboarding />} />
