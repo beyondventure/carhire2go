@@ -1,0 +1,28 @@
+{
+  "name": "CarHire2Go - Rider",
+  "short_name": "CH2G Rider",
+  "description": "Book car hires on demand with negotiable pricing",
+  "theme_color": "#14b8a6",
+  "background_color": "#f4f5f7",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/consumer",
+  "start_url": "/consumer",
+  "id": "carhire2go-consumer",
+  "icons": [
+    {
+      "src": "/pwa-icons/consumer-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["transportation", "travel"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

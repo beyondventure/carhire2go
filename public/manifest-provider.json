@@ -1,0 +1,28 @@
+{
+  "name": "CarHire2Go - Provider",
+  "short_name": "CH2G Provider",
+  "description": "Manage your fleet, drivers, and bookings as a service provider",
+  "theme_color": "#14b8a6",
+  "background_color": "#1a1f2c",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/provider",
+  "start_url": "/provider",
+  "id": "carhire2go-provider",
+  "icons": [
+    {
+      "src": "/pwa-icons/provider-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "transportation"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
