@@ -17,10 +17,14 @@ import {
 } from 'lucide-react';
 import { 
   isPushSupported, 
-  requestNotificationPermission, 
   registerServiceWorker,
-  getNotificationPermission
+  getNotificationPermission,
+  subscribeToPush,
+  savePushSubscription,
+  requestNotificationPermission
 } from '@/lib/push-notifications';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 type AppRole = 'consumer' | 'driver' | 'provider';
@@ -103,11 +107,14 @@ interface BeforeInstallPromptEvent extends Event {
 export default function InstallApp() {
   const { role = 'consumer' } = useParams<{ role: AppRole }>();
   const navigate = useNavigate();
+  const { user } = useSupabaseAuth();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [vapidPublicKey, setVapidPublicKey] = useState<string>('');
 
   const config = appConfigs[role as AppRole] || appConfigs.consumer;
   const IconComponent = config.Icon;
@@ -153,7 +160,21 @@ export default function InstallApp() {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     // Register service worker
-    registerServiceWorker();
+    registerServiceWorker().then(reg => {
+      if (reg) setSwRegistration(reg);
+    });
+    // Fetch VAPID public key
+    const fetchVapidKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-vapid-key');
+        if (!error && data?.vapidPublicKey) {
+          setVapidPublicKey(data.vapidPublicKey);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch VAPID key:', err);
+      }
+    };
+    fetchVapidKey();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
@@ -188,7 +209,19 @@ export default function InstallApp() {
       const permission = await requestNotificationPermission();
       if (permission === 'granted') {
         setNotificationsEnabled(true);
-        toast.success('Notifications enabled!');
+        
+        // Subscribe to push notifications if we have a service worker and VAPID key
+        if (swRegistration && vapidPublicKey) {
+          const subscription = await subscribeToPush(swRegistration, vapidPublicKey);
+          if (subscription && user?.id) {
+            await savePushSubscription(user.id, subscription, role as string);
+            toast.success('Push notifications enabled!');
+          } else {
+            toast.success('Notifications enabled! Sign in to receive push notifications.');
+          }
+        } else {
+          toast.success('Notifications enabled!');
+        }
       } else {
         toast.error('Notification permission denied');
       }

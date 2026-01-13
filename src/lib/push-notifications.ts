@@ -80,24 +80,35 @@ export const savePushSubscription = async (
   try {
     const subscriptionJson = subscription.toJSON();
     
-    // Store subscription data locally until types are updated
-    // The edge function will handle fetching subscriptions via direct SQL
     const subscriptionData = {
       user_id: userId,
       endpoint: subscription.endpoint,
       p256dh: subscriptionJson.keys?.p256dh || '',
       auth: subscriptionJson.keys?.auth || '',
       role: role,
-      updated_at: new Date().toISOString(),
     };
     
-    // Store in localStorage as backup
-    const existingSubscriptions = JSON.parse(localStorage.getItem('push_subscriptions') || '[]');
-    const filtered = existingSubscriptions.filter((s: { endpoint: string }) => s.endpoint !== subscription.endpoint);
-    filtered.push(subscriptionData);
-    localStorage.setItem('push_subscriptions', JSON.stringify(filtered));
+    // Upsert to database - delete existing and insert new
+    const { error: deleteError } = await supabase
+      .from('push_subscriptions')
+      .delete()
+      .eq('user_id', userId)
+      .eq('endpoint', subscription.endpoint);
     
-    console.log('Push subscription saved locally');
+    if (deleteError) {
+      console.warn('Error deleting old subscription:', deleteError);
+    }
+    
+    const { error: insertError } = await supabase
+      .from('push_subscriptions')
+      .insert(subscriptionData);
+    
+    if (insertError) {
+      console.error('Error saving push subscription:', insertError);
+      return false;
+    }
+    
+    console.log('Push subscription saved to database');
     return true;
   } catch (error) {
     console.error('Error saving push subscription:', error);
