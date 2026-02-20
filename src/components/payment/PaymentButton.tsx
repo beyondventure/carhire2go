@@ -73,9 +73,9 @@ export function PaymentButton({
           name: profile.name,
         },
         customizations: {
-          title: 'CarHire2Go Payment',
+          title: 'InstantRyde Payment',
           description: `Payment for booking ${bookingId.substring(0, 8)}`,
-          logo: 'https://carhire2go.lovable.app/favicon.ico',
+          logo: 'https://instantryde.lovable.app/favicon.ico',
         },
         callback: async (response: FlutterwaveResponse) => {
           if (response.status === 'successful') {

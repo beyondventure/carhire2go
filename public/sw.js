@@ -1,5 +1,5 @@
-// CarHire2Go Service Worker
-const CACHE_NAME = 'carhire2go-v1';
+// InstantRyde Service Worker
+const CACHE_NAME = 'instantryde-v1';
 
 // Install event - cache essential assets
 self.addEventListener('install', (event) => {
@@ -50,13 +50,13 @@ self.addEventListener('push', (event) => {
         dateOfArrival: Date.now(),
       },
       actions: data.actions || [],
-      tag: data.tag || 'carhire2go-notification',
+      tag: data.tag || 'instantryde-notification',
       renotify: true,
       requireInteraction: data.requireInteraction || false,
     };
 
     event.waitUntil(
-      self.registration.showNotification(data.title || 'CarHire2Go', options)
+      self.registration.showNotification(data.title || 'InstantRyde', options)
     );
   } catch (error) {
     console.error('[SW] Error parsing push data:', error);
@@ -64,7 +64,7 @@ self.addEventListener('push', (event) => {
     // Fallback for text data
     const text = event.data.text();
     event.waitUntil(
-      self.registration.showNotification('CarHire2Go', {
+      self.registration.showNotification('InstantRyde', {
         body: text,
         icon: '/pwa-icons/icon-192.png',
       })

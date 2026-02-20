@@ -44,11 +44,11 @@ interface AppConfig {
 
 const appConfigs: Record<AppRole, AppConfig> = {
   consumer: {
-    name: 'CarHire2Go Rider',
-    shortName: 'CH2G Rider',
-    description: 'Book car hires on demand with negotiable pricing',
+    name: 'InstantRyde Rider',
+    shortName: 'IR Rider',
+    description: 'Book rides on demand with negotiable pricing',
     icon: '/pwa-icons/consumer-icon-512.png',
-    color: '#14b8a6',
+    color: '#18181b',
     bgColor: '#f4f5f7',
     manifestUrl: '/manifest-consumer.json',
     startUrl: '/consumer',
@@ -62,11 +62,11 @@ const appConfigs: Record<AppRole, AppConfig> = {
     Icon: Car
   },
   driver: {
-    name: 'CarHire2Go Driver',
-    shortName: 'CH2G Driver',
+    name: 'InstantRyde Driver',
+    shortName: 'IR Driver',
     description: 'Accept trips and earn as a professional driver',
     icon: '/pwa-icons/driver-icon-512.png',
-    color: '#14b8a6',
+    color: '#18181b',
     bgColor: '#1a1f2c',
     manifestUrl: '/manifest-driver.json',
     startUrl: '/driver',
@@ -80,11 +80,11 @@ const appConfigs: Record<AppRole, AppConfig> = {
     Icon: Users
   },
   provider: {
-    name: 'CarHire2Go Provider',
-    shortName: 'CH2G Provider',
+    name: 'InstantRyde Provider',
+    shortName: 'IR Provider',
     description: 'Manage your fleet and drivers efficiently',
     icon: '/pwa-icons/provider-icon-512.png',
-    color: '#14b8a6',
+    color: '#18181b',
     bgColor: '#1a1f2c',
     manifestUrl: '/manifest-provider.json',
     startUrl: '/provider',
@@ -361,7 +361,7 @@ export default function InstallApp() {
           {/* Role Switcher */}
           <div className="mt-6 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground text-center mb-3">
-              Install other CarHire2Go apps:
+              Install other InstantRyde apps:
             </p>
             <div className="flex justify-center gap-2">
               {Object.entries(appConfigs).map(([key, app]) => (
@@ -384,7 +384,7 @@ export default function InstallApp() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-4">
-          CarHire2Go © {new Date().getFullYear()}
+          InstantRyde © {new Date().getFullYear()}
         </p>
       </motion.div>
     </div>

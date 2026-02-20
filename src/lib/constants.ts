@@ -1,6 +1,6 @@
 // Platform Constants
-export const PLATFORM_NAME = 'CarHire2Go';
-export const PLATFORM_TAGLINE = 'Premium Car Hire, Simplified';
+export const PLATFORM_NAME = 'InstantRyde';
+export const PLATFORM_TAGLINE = 'Rides, Instantly.';
 export const COMMISSION_RATE = 0.10; // 10%
 export const MATCHING_TIMEOUT = 60; // seconds
 export const CURRENCY = '₦';

@@ -16,7 +16,7 @@ const testimonials = [
     name: 'Chioma Nwosu',
     role: 'Event Planner',
     avatar: avatarChioma,
-    content: 'I use CarHire2Go for all my event transportation needs. The fleet management and coordination is impeccable. Highly recommended!',
+    content: 'I use InstantRyde for all my event transportation needs. The fleet management and coordination is impeccable. Highly recommended!',
     rating: 5,
   },
   {

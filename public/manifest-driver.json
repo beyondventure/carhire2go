@@ -1,14 +1,14 @@
 {
-  "name": "CarHire2Go - Driver",
-  "short_name": "CH2G Driver",
-  "description": "Accept and complete car hire trips as a professional driver",
-  "theme_color": "#14b8a6",
-  "background_color": "#1a1f2c",
+  "name": "InstantRyde - Driver",
+  "short_name": "IR Driver",
+  "description": "Accept and complete trips as a professional driver",
+  "theme_color": "#111111",
+  "background_color": "#111111",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/driver",
   "start_url": "/driver",
-  "id": "carhire2go-driver",
+  "id": "instantryde-driver",
   "icons": [
     {
       "src": "/pwa-icons/driver-icon-512.png",

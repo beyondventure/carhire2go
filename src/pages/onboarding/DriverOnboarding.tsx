@@ -85,7 +85,7 @@ export default function DriverOnboarding() {
               <Car size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-lg">CarHire2Go</h1>
+              <h1 className="font-bold text-lg">InstantRyde</h1>
               <p className="text-sm text-muted-foreground">Driver Onboarding</p>
             </div>
           </div>
