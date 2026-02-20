@@ -62,30 +62,38 @@ export function MobileNav() {
   const navItems = roleNavItems[role];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav
+      className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border z-50"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div className="flex items-stretch justify-around h-16">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           const Icon = item.icon;
-          
+
           return (
             <NavLink
               key={item.path}
               to={item.path}
               className={cn(
-                'flex flex-col items-center justify-center flex-1 h-full relative transition-colors',
+                'flex flex-col items-center justify-center flex-1 gap-1 relative transition-colors min-w-0 px-1',
                 isActive ? 'text-accent' : 'text-muted-foreground'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="mobileNavIndicator"
-                  className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-accent rounded-full"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-accent rounded-b-full"
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
-              <Icon size={20} className={cn(isActive && 'text-accent')} />
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+              <div className={cn(
+                'w-10 h-7 rounded-full flex items-center justify-center transition-colors',
+                isActive ? 'bg-accent/15' : ''
+              )}>
+                <Icon size={19} />
+              </div>
+              <span className="text-[10px] font-medium leading-none truncate w-full text-center">{item.label}</span>
             </NavLink>
           );
         })}

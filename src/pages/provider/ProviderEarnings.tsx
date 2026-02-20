@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Download, Filter, Calendar, Loader2 } from 'lucide-react';
+import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Download, Calendar, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { EarningsTrendChart, BookingTypeChart, SettlementStatusChart } from '@/components/analytics/AnalyticsCharts';
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { CURRENCY, COMMISSION_RATE } from '@/lib/constants';
 import { useProviders } from '@/hooks/useProviders';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 
 interface Payment {
   id: string;
@@ -27,26 +26,51 @@ export default function ProviderEarnings() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPayments = async () => {
-      if (!provider) { setIsLoading(false); return; }
-      try {
-        const { data, error } = await supabase
-          .from('payments' as any)
-          .select('*')
-          .eq('provider_id', provider.id)
-          .order('created_at', { ascending: false });
+  const fetchPayments = useCallback(async () => {
+    if (!provider) { setIsLoading(false); return; }
+    try {
+      const { data, error } = await supabase
+        .from('payments' as any)
+        .select('*')
+        .eq('provider_id', provider.id)
+        .order('created_at', { ascending: false });
 
-        if (!error && data) setPayments(data as unknown as Payment[]);
-      } catch (err) {
-        console.error('Error fetching provider payments:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPayments();
+      if (!error && data) setPayments(data as unknown as Payment[]);
+    } catch (err) {
+      console.error('Error fetching provider payments:', err);
+    } finally {
+      setIsLoading(false);
+    }
   }, [provider]);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
+
+  // Realtime subscription: auto-refresh when new payments come in
+  useEffect(() => {
+    if (!provider) return;
+
+    const channel = supabase
+      .channel('provider-earnings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'payments',
+          filter: `provider_id=eq.${provider.id}`,
+        },
+        () => {
+          fetchPayments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [provider, fetchPayments]);
 
   const successfulPayments = payments.filter(p => p.status === 'successful');
   const totalGross = successfulPayments.reduce((sum, p) => sum + p.amount, 0);

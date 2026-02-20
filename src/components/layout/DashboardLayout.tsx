@@ -29,9 +29,9 @@ export function DashboardLayout({ children, title, subtitle, isLoading }: Dashbo
   // Mobile layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
         <Header title={showSkeleton ? undefined : title} subtitle={showSkeleton ? undefined : subtitle} isMobile />
-        <main className="p-4">
+        <main className="flex-1 px-4 pt-4 pb-2 overflow-y-auto">
           {showSkeleton ? (
             <DashboardSkeleton />
           ) : (
