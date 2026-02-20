@@ -103,15 +103,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             exit={{ opacity: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-              <Car size={20} className="text-white" />
+            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center">
+              <Car size={20} className="text-zinc-900" />
             </div>
             <span className="font-semibold text-sidebar-foreground">{PLATFORM_NAME}</span>
           </motion.div>
         )}
         {collapsed && (
-          <div className="w-9 h-9 mx-auto rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-            <Car size={20} className="text-white" />
+          <div className="w-9 h-9 mx-auto rounded-xl bg-white flex items-center justify-center">
+            <Car size={20} className="text-zinc-900" />
           </div>
         )}
         <button
@@ -149,7 +149,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   </motion.span>
                 )}
                 {item.badge && !collapsed && (
-                  <span className="ml-auto bg-accent text-accent-foreground text-xs font-medium px-2 py-0.5 rounded-full">
+                  <span className="ml-auto bg-white text-zinc-900 text-xs font-bold px-2 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 )}

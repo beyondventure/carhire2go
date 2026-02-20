@@ -41,8 +41,8 @@ export function Navbar() {
               className="flex items-center gap-3 cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-                <Car size={20} className="text-white" />
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center">
+                <Car size={20} className="text-zinc-900" />
               </div>
               <span className="text-lg md:text-xl font-bold text-primary-foreground">{PLATFORM_NAME}</span>
             </motion.div>
@@ -66,7 +66,7 @@ export function Navbar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/login')}
-                className="px-5 py-2.5 text-sm font-medium text-primary-foreground hover:text-accent transition-colors"
+                className="px-5 py-2.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
                 Sign In
               </motion.button>
@@ -74,7 +74,7 @@ export function Navbar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/register')}
-                className="px-5 py-2.5 text-sm font-medium bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-colors"
+                className="px-5 py-2.5 text-sm font-medium bg-white text-zinc-900 rounded-xl hover:bg-zinc-100 transition-colors"
               >
                 Get Started
               </motion.button>
@@ -121,7 +121,7 @@ export function Navbar() {
                   </button>
                   <button
                     onClick={() => { navigate('/auth/register'); setMobileMenuOpen(false); }}
-                    className="w-full py-3 text-center font-medium bg-accent text-accent-foreground rounded-xl"
+                    className="w-full py-3 text-center font-medium bg-white text-zinc-900 rounded-xl"
                   >
                     Get Started
                   </button>

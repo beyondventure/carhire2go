@@ -15,7 +15,7 @@ const userTypes = [
     features: ['Real-time price quotes', 'In-app negotiation', 'Live trip tracking', 'Secure payments'],
     cta: 'Start Booking',
     route: '/auth/register?role=consumer',
-    gradient: 'from-accent to-secondary',
+    bgColor: 'bg-zinc-900',
     image: riderImage,
   },
   {
@@ -27,7 +27,7 @@ const userTypes = [
     features: ['Fleet management tools', 'Driver onboarding', 'Earnings analytics', 'Automated settlements'],
     cta: 'Register Fleet',
     route: '/auth/register?role=provider',
-    gradient: 'from-warning to-orange-500',
+    bgColor: 'bg-zinc-700',
     image: fleetOwnerImage,
   },
   {
@@ -39,7 +39,7 @@ const userTypes = [
     features: ['Flexible schedules', 'Instant trip alerts', 'Weekly payouts', 'Performance bonuses'],
     cta: 'Become a Driver',
     route: '/auth/register?role=driver',
-    gradient: 'from-success to-emerald-500',
+    bgColor: 'bg-zinc-600',
     image: driverImage,
   },
 ];
@@ -57,7 +57,7 @@ export function UserTypesSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-accent text-sm font-semibold tracking-wider uppercase">Join Us</span>
+          <span className="text-zinc-500 text-sm font-semibold tracking-wider uppercase">Join Us</span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-6">
             Choose how you want to move
           </h2>
@@ -87,14 +87,14 @@ export function UserTypesSection() {
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.6 }}
                 />
-                <div className={`absolute top-4 left-4 z-20 w-12 h-12 rounded-xl bg-gradient-to-br ${type.gradient} flex items-center justify-center text-white shadow-lg`}>
+                <div className={`absolute top-4 left-4 z-20 w-12 h-12 rounded-xl ${type.bgColor} flex items-center justify-center text-white shadow-lg`}>
                   <type.icon size={24} />
                 </div>
               </div>
 
               {/* Content */}
               <div className="p-6">
-                <p className="text-accent text-sm font-medium mb-1">{type.subtitle}</p>
+                <p className="text-zinc-500 text-sm font-medium mb-1">{type.subtitle}</p>
                 <h3 className="text-2xl font-bold text-foreground mb-3">{type.title}</h3>
                 <p className="text-muted-foreground text-sm mb-6">{type.description}</p>
 
@@ -102,8 +102,8 @@ export function UserTypesSection() {
                 <div className="space-y-3 mb-6">
                   {type.features.map((feature) => (
                     <div key={feature} className="flex items-center gap-3 text-sm">
-                      <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                        <Check size={12} className="text-accent" />
+                      <div className="w-5 h-5 rounded-full bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                        <Check size={12} className="text-zinc-700" />
                       </div>
                       <span className="text-foreground">{feature}</span>
                     </div>
@@ -115,7 +115,7 @@ export function UserTypesSection() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(type.route)}
-                  className={`w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r ${type.gradient} text-white py-3.5 rounded-xl font-semibold transition-all group-hover:shadow-lg`}
+                  className={`w-full inline-flex items-center justify-center gap-2 ${type.bgColor} text-white py-3.5 rounded-xl font-semibold transition-all group-hover:shadow-lg`}
                 >
                   {type.cta}
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

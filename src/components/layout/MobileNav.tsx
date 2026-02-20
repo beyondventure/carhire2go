@@ -77,19 +77,19 @@ export function MobileNav() {
               to={item.path}
               className={cn(
                 'flex flex-col items-center justify-center flex-1 gap-1 relative transition-colors min-w-0 px-1',
-                isActive ? 'text-accent' : 'text-muted-foreground'
+                isActive ? 'text-foreground' : 'text-muted-foreground'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="mobileNavIndicator"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-accent rounded-b-full"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-foreground rounded-b-full"
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
               <div className={cn(
                 'w-10 h-7 rounded-full flex items-center justify-center transition-colors',
-                isActive ? 'bg-accent/15' : ''
+                isActive ? 'bg-foreground/10' : ''
               )}>
                 <Icon size={19} />
               </div>

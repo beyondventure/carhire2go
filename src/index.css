@@ -28,13 +28,13 @@
     --primary-foreground: 0 0% 98%;
 
     /* Secondary - Mid Grey */
-    --secondary: 0 0% 22%;
+    --secondary: 0 0% 30%;
     --secondary-foreground: 0 0% 98%;
 
-    /* Accent - Near-black with slight lift */
-    --accent: 0 0% 10%;
+    /* Accent - Vivid White highlight for interactive elements */
+    --accent: 0 0% 12%;
     --accent-foreground: 0 0% 98%;
-    --accent-glow: 0 0% 20%;
+    --accent-glow: 0 0% 25%;
 
     /* Status Colors */
     --success: 142 72% 29%;

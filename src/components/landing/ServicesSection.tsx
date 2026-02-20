@@ -6,25 +6,25 @@ const services = [
     icon: Car,
     title: 'Full-Day Hire',
     description: 'Book a vehicle with driver for the entire day. Perfect for business trips or special occasions.',
-    color: 'from-accent to-secondary',
+    color: 'bg-zinc-900',
   },
   {
     icon: MapPin,
     title: 'Point-to-Point',
     description: 'Quick rides from one location to another. Airport transfers, city commutes, and more.',
-    color: 'from-secondary to-accent',
+    color: 'bg-zinc-700',
   },
   {
     icon: Calendar,
     title: 'Event Transport',
     description: 'Weddings, conferences, and special events. Multiple vehicles, coordinated service.',
-    color: 'from-warning to-orange-500',
+    color: 'bg-zinc-600',
   },
   {
     icon: Users,
     title: 'Group Travel',
     description: 'SUVs, vans, and buses for group trips. Family outings, corporate retreats, tours.',
-    color: 'from-success to-emerald-500',
+    color: 'bg-zinc-500',
   },
 ];
 
@@ -50,7 +50,7 @@ export function ServicesSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-accent text-sm font-semibold tracking-wider uppercase">Our Services</span>
+          <span className="text-zinc-500 text-sm font-semibold tracking-wider uppercase">Our Services</span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-6">
             Every journey, perfectly planned
           </h2>
@@ -71,7 +71,7 @@ export function ServicesSection() {
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
               className="group bg-card rounded-2xl p-6 border border-border hover:border-accent/30 transition-all cursor-pointer"
             >
-              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${service.color} flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform`}>
+              <div className={`w-14 h-14 rounded-xl ${service.color} flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform`}>
                 <service.icon size={26} />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">{service.title}</h3>
@@ -97,8 +97,8 @@ export function ServicesSection() {
                 transition={{ delay: 0.2 + index * 0.1 }}
                 className="flex flex-col items-center text-center"
               >
-                <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-3">
-                  <feature.icon size={22} className="text-accent" />
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-3">
+                  <feature.icon size={22} className="text-white" />
                 </div>
                 <span className="text-primary-foreground font-medium text-sm">{feature.label}</span>
               </motion.div>

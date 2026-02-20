@@ -95,8 +95,8 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-              <Car size={16} className="text-white" />
+            <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
+              <Car size={16} className="text-background" />
             </div>
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-foreground truncate">
@@ -123,7 +123,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
               >
                 <Bell size={20} className="text-muted-foreground" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-accent rounded-full text-[10px] font-bold text-accent-foreground flex items-center justify-center">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-foreground rounded-full text-[10px] font-bold text-background flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
@@ -156,7 +156,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                 onClick={handleProfileClick}
                 className="p-1 ml-1"
               >
-                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm">
+                <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-background font-medium text-sm">
                   {profile.name?.charAt(0).toUpperCase() || 'U'}
                 </div>
               </motion.button>
@@ -296,7 +296,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
           >
             <Bell size={20} className="text-muted-foreground" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-accent rounded-full text-[10px] font-bold text-accent-foreground flex items-center justify-center">
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-foreground rounded-full text-[10px] font-bold text-background flex items-center justify-center">
                 {unreadCount}
               </span>
             )}
@@ -407,7 +407,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                       className="p-4 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground font-medium text-sm flex-shrink-0">
                           {message.avatar}
                         </div>
                         <div className="flex-1 min-w-0">
