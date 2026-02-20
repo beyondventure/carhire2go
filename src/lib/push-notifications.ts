@@ -59,7 +59,9 @@ export const subscribeToPush = async (
   vapidPublicKey: string
 ): Promise<PushSubscription | null> => {
   try {
-    const subscription = await registration.pushManager.subscribe({
+    const pm = (registration as any).pushManager;
+    if (!pm) return null;
+    const subscription = await pm.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
@@ -121,7 +123,9 @@ export const unsubscribeFromPush = async (
   registration: ServiceWorkerRegistration
 ): Promise<boolean> => {
   try {
-    const subscription = await registration.pushManager.getSubscription();
+    const pm = (registration as any).pushManager;
+    if (!pm) return false;
+    const subscription = await pm.getSubscription();
     if (subscription) {
       await subscription.unsubscribe();
       console.log('Unsubscribed from push notifications');
@@ -139,7 +143,9 @@ export const getExistingSubscription = async (
   registration: ServiceWorkerRegistration
 ): Promise<PushSubscription | null> => {
   try {
-    return await registration.pushManager.getSubscription();
+    const pm = (registration as any).pushManager;
+    if (!pm) return null;
+    return await pm.getSubscription();
   } catch (error) {
     console.error('Error getting subscription:', error);
     return null;

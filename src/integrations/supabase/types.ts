@@ -293,6 +293,71 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          consumer_id: string
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          flutterwave_ref: string | null
+          flutterwave_tx_id: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          provider_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          consumer_id: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          flutterwave_ref?: string | null
+          flutterwave_tx_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          provider_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          consumer_id?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          flutterwave_ref?: string | null
+          flutterwave_tx_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          provider_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

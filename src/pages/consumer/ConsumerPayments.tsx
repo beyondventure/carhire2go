@@ -1,61 +1,35 @@
 import { motion } from 'framer-motion';
-import { CreditCard, Download, Receipt, Plus, ChevronRight, Wallet, TrendingUp } from 'lucide-react';
+import { CreditCard, Download, Receipt, Plus, ChevronRight, Wallet, TrendingUp, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
 import { Button } from '@/components/ui/button';
 import { CURRENCY } from '@/lib/constants';
-
-const paymentHistory = [
-  {
-    id: 'p1',
-    type: 'booking',
-    description: 'Full Day Hire - Toyota Camry',
-    amount: 42000,
-    status: 'completed',
-    date: new Date(),
-    provider: 'FleetMaster Nigeria',
-  },
-  {
-    id: 'p2',
-    type: 'booking',
-    description: 'Point-to-Point - Toyota Land Cruiser',
-    amount: 28000,
-    status: 'completed',
-    date: new Date(Date.now() - 86400000 * 3),
-    provider: 'Lagos Elite Cars',
-  },
-  {
-    id: 'p3',
-    type: 'refund',
-    description: 'Cancelled Booking Refund',
-    amount: 15000,
-    status: 'completed',
-    date: new Date(Date.now() - 86400000 * 7),
-    provider: 'FleetMaster Nigeria',
-  },
-  {
-    id: 'p4',
-    type: 'booking',
-    description: 'Half Day Hire - Mercedes S-Class',
-    amount: 75000,
-    status: 'pending',
-    date: new Date(Date.now() - 86400000 * 10),
-    provider: 'Premium Rides NG',
-  },
-];
+import { usePayments } from '@/hooks/usePayments';
 
 const paymentMethods = [
   { id: 'card1', type: 'card', name: 'Visa ending in 4532', expiry: '12/26', isDefault: true },
   { id: 'card2', type: 'card', name: 'Mastercard ending in 8721', expiry: '08/25', isDefault: false },
 ];
 
-export default function ConsumerPayments() {
-  const totalSpent = paymentHistory
-    .filter(p => p.type === 'booking' && p.status === 'completed')
-    .reduce((sum, p) => sum + p.amount, 0);
+const statusConfig: Record<string, { label: string; icon: any; className: string }> = {
+  successful: { label: 'Successful', icon: CheckCircle2, className: 'text-success bg-success/10' },
+  pending: { label: 'Pending', icon: Clock, className: 'text-warning bg-warning/10' },
+  failed: { label: 'Failed', icon: XCircle, className: 'text-destructive bg-destructive/10' },
+};
 
-  const pendingAmount = paymentHistory
-    .filter(p => p.status === 'pending')
+export default function ConsumerPayments() {
+  const { payments, isLoading, totalPaid, pendingAmount } = usePayments();
+
+  const thisMonthTotal = payments
+    .filter(p => {
+      const paymentDate = new Date(p.created_at);
+      const now = new Date();
+      return (
+        p.status === 'successful' &&
+        paymentDate.getMonth() === now.getMonth() &&
+        paymentDate.getFullYear() === now.getFullYear()
+      );
+    })
     .reduce((sum, p) => sum + p.amount, 0);
 
   return (
@@ -63,8 +37,8 @@ export default function ConsumerPayments() {
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <MetricCard
-          title="Total Spent"
-          value={`${CURRENCY}${totalSpent.toLocaleString()}`}
+          title="Total Paid"
+          value={`${CURRENCY}${totalPaid.toLocaleString()}`}
           icon={Wallet}
           trend={{ value: 12, isPositive: true }}
         />
@@ -76,7 +50,7 @@ export default function ConsumerPayments() {
         />
         <MetricCard
           title="This Month"
-          value={`${CURRENCY}70,000`}
+          value={`${CURRENCY}${thisMonthTotal.toLocaleString()}`}
           icon={TrendingUp}
           trend={{ value: 8, isPositive: true }}
         />
@@ -93,45 +67,83 @@ export default function ConsumerPayments() {
                 Export
               </Button>
             </div>
-            <div className="divide-y divide-border">
-              {paymentHistory.map((payment, index) => (
-                <motion.div
-                  key={payment.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        payment.type === 'refund' 
-                          ? 'bg-success/10' 
-                          : 'bg-accent/10'
-                      }`}>
-                        <Receipt size={20} className={
-                          payment.type === 'refund' ? 'text-success' : 'text-accent'
-                        } />
+
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-accent" />
+              </div>
+            ) : payments.length === 0 ? (
+              <div className="text-center py-16">
+                <Receipt size={40} className="text-muted-foreground mx-auto mb-3" />
+                <h4 className="font-semibold text-foreground mb-1">No payments yet</h4>
+                <p className="text-sm text-muted-foreground">Your payment history will appear here after your first booking payment.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {payments.map((payment, index) => {
+                  const cfg = statusConfig[payment.status] || statusConfig.pending;
+                  const StatusIcon = cfg.icon;
+                  return (
+                    <motion.div
+                      key={payment.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.04 }}
+                      className="p-4 hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cfg.className}`}>
+                            <StatusIcon size={20} />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">
+                              Booking #{payment.booking_id.substring(0, 8).toUpperCase()}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm text-muted-foreground capitalize">
+                                {payment.payment_method?.replace('_', ' ') || 'Card payment'}
+                              </p>
+                              {payment.flutterwave_ref && (
+                                <span className="text-xs text-muted-foreground">
+                                  • Ref: {payment.flutterwave_ref.substring(0, 16)}...
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-semibold ${payment.status === 'successful' ? 'text-success' : payment.status === 'failed' ? 'text-destructive' : 'text-foreground'}`}>
+                            {CURRENCY}{payment.amount.toLocaleString()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(payment.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">{payment.description}</p>
-                        <p className="text-sm text-muted-foreground">{payment.provider}</p>
+
+                      {/* Detailed info */}
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-2">
+                        <div>
+                          <span className="font-medium text-foreground/70">Status</span>
+                          <p className={`font-medium capitalize ${cfg.className.split(' ')[0]}`}>{cfg.label}</p>
+                        </div>
+                        {payment.flutterwave_tx_id && (
+                          <div>
+                            <span className="font-medium text-foreground/70">Tx ID</span>
+                            <p>{payment.flutterwave_tx_id}</p>
+                          </div>
+                        )}
+                        <div>
+                          <span className="font-medium text-foreground/70">Currency</span>
+                          <p>{payment.currency}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-semibold ${
-                        payment.type === 'refund' ? 'text-success' : 'text-foreground'
-                      }`}>
-                        {payment.type === 'refund' ? '+' : '-'}{CURRENCY}{payment.amount.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(payment.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -187,6 +199,25 @@ export default function ConsumerPayments() {
                   <ChevronRight size={16} className="text-muted-foreground" />
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Payment Summary Box */}
+          <div className="mt-4 bg-accent/5 border border-accent/20 rounded-xl p-4">
+            <h4 className="font-medium text-foreground mb-3">Payment Summary</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Successful</span>
+                <span className="text-success font-medium">{payments.filter(p => p.status === 'successful').length} payments</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Pending</span>
+                <span className="text-warning font-medium">{payments.filter(p => p.status === 'pending').length} payments</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Failed</span>
+                <span className="text-destructive font-medium">{payments.filter(p => p.status === 'failed').length} payments</span>
+              </div>
             </div>
           </div>
         </div>

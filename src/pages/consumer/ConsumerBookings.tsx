@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Car, MessageSquare, Search, Loader2, AlertCircle } from 'lucide-react';
+import { MapPin, Clock, Car, MessageSquare, Search, Loader2, AlertCircle, CreditCard } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { ChatDialog } from '@/components/booking/ChatDialog';
+import { PaymentButton } from '@/components/payment/PaymentButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBookings } from '@/hooks/useBookings';
@@ -85,7 +86,7 @@ export default function ConsumerBookings() {
   };
 
   const handlePriceAccepted = (price: number) => {
-    toast.success(`Price agreed at ${CURRENCY}${price.toLocaleString()}!`);
+    toast.success(`Price agreed at ${CURRENCY}${price.toLocaleString()}! Please proceed with payment.`);
   };
 
   if (isLoading) {
@@ -114,8 +115,8 @@ export default function ConsumerBookings() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              {['all', 'pending', 'in-progress', 'completed'].map((status) => (
+            <div className="flex gap-2 flex-wrap">
+              {['all', 'pending', 'confirmed', 'in-progress', 'completed'].map((status) => (
                 <Button
                   key={status}
                   variant={statusFilter === status ? 'default' : 'outline'}
@@ -123,23 +124,30 @@ export default function ConsumerBookings() {
                   onClick={() => setStatusFilter(status)}
                   className="capitalize"
                 >
-                  {status === 'all' ? 'All' : BOOKING_STATUS_LABELS[status as keyof typeof BOOKING_STATUS_LABELS]}
+                  {status === 'all' ? 'All' : BOOKING_STATUS_LABELS[status as keyof typeof BOOKING_STATUS_LABELS] || status}
                 </Button>
               ))}
             </div>
           </div>
 
           {/* Bookings */}
-          <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="flex-1 overflow-y-auto space-y-4 pb-4">
             {filteredBookings.length === 0 ? (
-              <div className="text-center py-12">
-                <Car size={48} className="text-muted-foreground mx-auto mb-4" />
+              <div className="text-center py-16">
+                <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                  <Car size={36} className="text-muted-foreground" />
+                </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">No bookings found</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-4">
                   {statusFilter === 'all' 
                     ? "You haven't made any bookings yet" 
                     : `No ${statusFilter} bookings found`}
                 </p>
+                {statusFilter === 'all' && (
+                  <Button onClick={() => navigate('/consumer/book')}>
+                    Book Your First Ride
+                  </Button>
+                )}
               </div>
             ) : (
               filteredBookings.map((booking, index) => (
@@ -148,15 +156,15 @@ export default function ConsumerBookings() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`booking-card p-5 cursor-pointer ${
-                    selectedBooking?.id === booking.id ? 'ring-2 ring-accent' : ''
+                  className={`bg-card rounded-xl border p-5 cursor-pointer hover:border-accent/40 transition-all ${
+                    selectedBooking?.id === booking.id ? 'ring-2 ring-accent border-accent' : 'border-border'
                   }`}
                   onClick={() => setSelectedBooking(booking)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
-                        <Car size={24} className="text-muted-foreground" />
+                      <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center">
+                        <Car size={24} className="text-accent" />
                       </div>
                       <div>
                         <h4 className="font-semibold text-foreground capitalize">
@@ -164,19 +172,14 @@ export default function ConsumerBookings() {
                         </h4>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           {booking.provider ? (
-                            booking.provider.allows_negotiation ? (
-                              <span className="flex items-center gap-1 text-success">
-                                <span className="text-xs font-medium">{CURRENCY}</span>
-                                Negotiable
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-muted-foreground">
-                                <AlertCircle size={12} />
-                                Fixed price
-                              </span>
-                            )
-                          ) : booking.status === 'pending' ? (
-                            'Finding provider...'
+                            <span className="text-foreground font-medium">
+                              {booking.provider.business_name || 'Provider'}
+                            </span>
+                          ) : booking.status === 'pending' || booking.status === 'matching' ? (
+                            <span className="flex items-center gap-1.5">
+                              <Loader2 size={12} className="animate-spin" />
+                              Finding provider...
+                            </span>
                           ) : (
                             'Provider assigned'
                           )}
@@ -188,13 +191,13 @@ export default function ConsumerBookings() {
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-success" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-success flex-shrink-0" />
                       <p className="text-sm text-foreground truncate">
                         {booking.pickup_name || booking.pickup_address}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-destructive" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-destructive flex-shrink-0" />
                       <p className="text-sm text-foreground truncate">
                         {booking.dropoff_name || booking.dropoff_address}
                       </p>
@@ -209,7 +212,8 @@ export default function ConsumerBookings() {
                       </span>
                       <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {/* Chat/Negotiate button */}
                       {(booking.status === 'negotiating' || booking.status === 'matched') && booking.provider_id && (
                         <Button
                           size="sm"
@@ -218,13 +222,28 @@ export default function ConsumerBookings() {
                             e.stopPropagation();
                             handleOpenChat(booking);
                           }}
-                          className={booking.provider?.allows_negotiation ? 'bg-accent' : ''}
+                          className={booking.provider?.allows_negotiation ? 'bg-accent hover:bg-accent/90' : ''}
                         >
                           <MessageSquare size={16} className="mr-1" />
                           {booking.provider?.allows_negotiation ? 'Negotiate' : 'Chat'}
                         </Button>
                       )}
-                      {booking.status === 'pending' && (
+
+                      {/* Pay button for confirmed bookings */}
+                      {booking.status === 'confirmed' && booking.final_price && (
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <PaymentButton
+                            bookingId={booking.id}
+                            providerId={booking.provider_id}
+                            amount={booking.final_price}
+                            onSuccess={() => {}}
+                            className="bg-success hover:bg-success/90 text-white"
+                          />
+                        </div>
+                      )}
+
+                      {/* Cancel button */}
+                      {(booking.status === 'pending' || booking.status === 'matching') && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -232,14 +251,21 @@ export default function ConsumerBookings() {
                             e.stopPropagation();
                             handleCancelBooking(booking.id);
                           }}
-                          className="text-destructive"
+                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
                         >
                           Cancel
                         </Button>
                       )}
-                      {booking.final_price && (
+
+                      {/* Price display */}
+                      {booking.final_price && booking.status !== 'confirmed' && (
                         <p className="font-semibold text-foreground">
                           {CURRENCY}{booking.final_price.toLocaleString()}
+                        </p>
+                      )}
+                      {!booking.final_price && booking.estimated_max_price && (
+                        <p className="text-sm text-muted-foreground">
+                          est. {CURRENCY}{booking.estimated_min_price?.toLocaleString()} – {CURRENCY}{booking.estimated_max_price?.toLocaleString()}
                         </p>
                       )}
                     </div>
