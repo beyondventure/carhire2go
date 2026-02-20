@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from './useSupabaseAuth';
-import { toast } from 'sonner';
 
 export interface Payment {
   id: string;
@@ -27,7 +26,7 @@ export function usePayments(bookingId?: string) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     if (!user) { setIsLoading(false); return; }
     setIsLoading(true);
     try {
@@ -48,7 +47,7 @@ export function usePayments(bookingId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, bookingId]);
 
   const createPayment = async (payment: {
     booking_id: string;
@@ -76,7 +75,8 @@ export function usePayments(bookingId?: string) {
         .single();
 
       if (error) throw error;
-      await fetchPayments();
+      // Immediately update local state
+      setPayments(prev => [data as unknown as Payment, ...prev]);
       return data as unknown as Payment;
     } catch (err: any) {
       console.error('Error creating payment:', err);
@@ -91,7 +91,7 @@ export function usePayments(bookingId?: string) {
     paymentMethod?: string
   ) => {
     try {
-      const updates: any = { status };
+      const updates: any = { status, updated_at: new Date().toISOString() };
       if (txId) updates.flutterwave_tx_id = txId;
       if (paymentMethod) updates.payment_method = paymentMethod;
 
@@ -101,7 +101,15 @@ export function usePayments(bookingId?: string) {
         .eq('flutterwave_ref', flutterwaveRef);
 
       if (error) throw error;
-      await fetchPayments();
+
+      // Update local state immediately
+      setPayments(prev =>
+        prev.map(p =>
+          p.flutterwave_ref === flutterwaveRef
+            ? { ...p, ...updates }
+            : p
+        )
+      );
       return true;
     } catch (err: any) {
       console.error('Error updating payment:', err);
@@ -111,7 +119,32 @@ export function usePayments(bookingId?: string) {
 
   useEffect(() => {
     fetchPayments();
-  }, [user, bookingId]);
+  }, [fetchPayments]);
+
+  // Real-time subscription for payment updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('payments-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'payments',
+          filter: `consumer_id=eq.${user.id}`,
+        },
+        () => {
+          fetchPayments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchPayments]);
 
   const totalPaid = payments
     .filter(p => p.status === 'successful')

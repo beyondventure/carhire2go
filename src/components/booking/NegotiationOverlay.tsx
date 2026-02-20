@@ -217,13 +217,15 @@ export function NegotiationOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-primary/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-primary/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-card rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg max-h-[92vh] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-border">

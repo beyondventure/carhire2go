@@ -129,9 +129,9 @@ export default function ProviderRequests() {
 
   return (
     <DashboardLayout title="Booking Requests" subtitle="Manage incoming booking requests">
-      <div className="flex gap-6 h-[calc(100vh-180px)]">
+      <div className="flex flex-col gap-4">
         {/* Requests List */}
-        <div className={`flex-1 ${showChat ? 'lg:w-1/2' : 'w-full'}`}>
+        <div className="w-full">
           <div className="space-y-4">
             <AnimatePresence>
               {allRequests.length === 0 ? (
@@ -225,22 +225,24 @@ export default function ProviderRequests() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center gap-3 pt-4 border-t border-border">
+                      <div className="flex items-center gap-2 pt-4 border-t border-border flex-wrap">
                         {request.status === 'pending' && (
                           <>
                             <Button
                               onClick={() => handleAcceptRequest(request)}
-                              className="flex-1 bg-success hover:bg-success/90"
+                              className="flex-1 bg-success hover:bg-success/90 min-w-[100px]"
+                              size="sm"
                             >
-                              <Check size={18} className="mr-2" />
+                              <Check size={16} className="mr-1.5" />
                               Accept
                             </Button>
                             <Button
                               variant="outline"
                               onClick={() => handleDeclineRequest(request.id)}
-                              className="flex-1"
+                              className="flex-1 min-w-[100px]"
+                              size="sm"
                             >
-                              <X size={18} className="mr-2" />
+                              <X size={16} className="mr-1.5" />
                               Decline
                             </Button>
                           </>
@@ -248,17 +250,20 @@ export default function ProviderRequests() {
                         {request.status === 'matched' && (
                           <Button
                             onClick={() => handleConfirmBooking(request.id, request.estimated_max_price || 50000)}
-                            className="flex-1 bg-success hover:bg-success/90"
+                            className="flex-1 bg-success hover:bg-success/90 min-w-[100px]"
+                            size="sm"
                           >
-                            <Check size={18} className="mr-2" />
-                            Confirm Booking
+                            <Check size={16} className="mr-1.5" />
+                            Confirm
                           </Button>
                         )}
                         <Button
                           variant="ghost"
                           onClick={() => handleOpenChat(request)}
+                          size="sm"
+                          className="flex-shrink-0"
                         >
-                          <MessageSquare size={18} className="mr-2" />
+                          <MessageSquare size={16} className="mr-1.5" />
                           Chat
                         </Button>
                       </div>
@@ -269,26 +274,26 @@ export default function ProviderRequests() {
             </AnimatePresence>
           </div>
         </div>
-
-        {/* Chat Dialog */}
-        {selectedRequest && user && (
-          <ChatDialog
-            isOpen={showChat}
-            onClose={() => setShowChat(false)}
-            bookingId={selectedRequest.id}
-            userRole="provider"
-            isNegotiating={['pending', 'matching', 'matched', 'negotiating'].includes(selectedRequest.status)}
-            allowsNegotiation={provider?.allows_negotiation ?? true}
-            estimatedMinPrice={selectedRequest.estimated_min_price || undefined}
-            estimatedMaxPrice={selectedRequest.estimated_max_price || undefined}
-            onPriceAccepted={handlePriceAccepted}
-            onBookingConfirmed={() => {
-              setShowChat(false);
-              toast.success('Booking confirmed successfully!');
-            }}
-          />
-        )}
       </div>
+
+      {/* Chat Dialog */}
+      {selectedRequest && user && (
+        <ChatDialog
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+          bookingId={selectedRequest.id}
+          userRole="provider"
+          isNegotiating={['pending', 'matching', 'matched', 'negotiating'].includes(selectedRequest.status)}
+          allowsNegotiation={provider?.allows_negotiation ?? true}
+          estimatedMinPrice={selectedRequest.estimated_min_price || undefined}
+          estimatedMaxPrice={selectedRequest.estimated_max_price || undefined}
+          onPriceAccepted={handlePriceAccepted}
+          onBookingConfirmed={() => {
+            setShowChat(false);
+            toast.success('Booking confirmed successfully!');
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

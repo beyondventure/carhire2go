@@ -1,18 +1,12 @@
 import { motion } from 'framer-motion';
-import { CreditCard, Download, Receipt, Plus, ChevronRight, Wallet, TrendingUp, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { CreditCard, Download, Receipt, Wallet, TrendingUp, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { MetricCard } from '@/components/ui/metric-card';
 import { Button } from '@/components/ui/button';
 import { CURRENCY } from '@/lib/constants';
 import { usePayments } from '@/hooks/usePayments';
 
-const paymentMethods = [
-  { id: 'card1', type: 'card', name: 'Visa ending in 4532', expiry: '12/26', isDefault: true },
-  { id: 'card2', type: 'card', name: 'Mastercard ending in 8721', expiry: '08/25', isDefault: false },
-];
-
 const statusConfig: Record<string, { label: string; icon: any; className: string }> = {
-  successful: { label: 'Successful', icon: CheckCircle2, className: 'text-success bg-success/10' },
+  successful: { label: 'Paid', icon: CheckCircle2, className: 'text-success bg-success/10' },
   pending: { label: 'Pending', icon: Clock, className: 'text-warning bg-warning/10' },
   failed: { label: 'Failed', icon: XCircle, className: 'text-destructive bg-destructive/10' },
 };
@@ -32,195 +26,137 @@ export default function ConsumerPayments() {
     })
     .reduce((sum, p) => sum + p.amount, 0);
 
+  const successfulCount = payments.filter(p => p.status === 'successful').length;
+  const pendingCount = payments.filter(p => p.status === 'pending').length;
+  const failedCount = payments.filter(p => p.status === 'failed').length;
+
   return (
-    <DashboardLayout title="Payments" subtitle="Manage your payment methods and view transaction history">
-      {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <MetricCard
-          title="Total Paid"
-          value={`${CURRENCY}${totalPaid.toLocaleString()}`}
-          icon={Wallet}
-          trend={{ value: 12, isPositive: true }}
-        />
-        <MetricCard
-          title="Pending Payments"
-          value={`${CURRENCY}${pendingAmount.toLocaleString()}`}
-          icon={Receipt}
-          variant="warning"
-        />
-        <MetricCard
-          title="This Month"
-          value={`${CURRENCY}${thisMonthTotal.toLocaleString()}`}
-          icon={TrendingUp}
-          trend={{ value: 8, isPositive: true }}
-        />
+    <DashboardLayout title="Payments" subtitle="Your payment history & transactions">
+      {/* Summary Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {[
+          { label: 'Total Paid', value: `${CURRENCY}${totalPaid.toLocaleString()}`, icon: Wallet, color: 'text-success', bg: 'bg-success/10' },
+          { label: 'Pending', value: `${CURRENCY}${pendingAmount.toLocaleString()}`, icon: Clock, color: 'text-warning', bg: 'bg-warning/10' },
+          { label: 'This Month', value: `${CURRENCY}${thisMonthTotal.toLocaleString()}`, icon: TrendingUp, color: 'text-accent', bg: 'bg-accent/10' },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-card rounded-xl border border-border p-3">
+            <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center mb-2`}>
+              <stat.icon size={16} className={stat.color} />
+            </div>
+            <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <p className={`font-bold text-sm mt-0.5 ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Payment History */}
-        <div className="lg:col-span-2">
-          <div className="bg-card rounded-xl border border-border">
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <h3 className="font-semibold text-foreground">Payment History</h3>
-              <Button variant="outline" size="sm">
-                <Download size={16} className="mr-1" />
-                Export
-              </Button>
-            </div>
-
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-accent" />
-              </div>
-            ) : payments.length === 0 ? (
-              <div className="text-center py-16">
-                <Receipt size={40} className="text-muted-foreground mx-auto mb-3" />
-                <h4 className="font-semibold text-foreground mb-1">No payments yet</h4>
-                <p className="text-sm text-muted-foreground">Your payment history will appear here after your first booking payment.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {payments.map((payment, index) => {
-                  const cfg = statusConfig[payment.status] || statusConfig.pending;
-                  const StatusIcon = cfg.icon;
-                  return (
-                    <motion.div
-                      key={payment.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
-                      className="p-4 hover:bg-muted/40 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cfg.className}`}>
-                            <StatusIcon size={20} />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">
-                              Booking #{payment.booking_id.substring(0, 8).toUpperCase()}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-muted-foreground capitalize">
-                                {payment.payment_method?.replace('_', ' ') || 'Card payment'}
-                              </p>
-                              {payment.flutterwave_ref && (
-                                <span className="text-xs text-muted-foreground">
-                                  • Ref: {payment.flutterwave_ref.substring(0, 16)}...
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={`font-semibold ${payment.status === 'successful' ? 'text-success' : payment.status === 'failed' ? 'text-destructive' : 'text-foreground'}`}>
-                            {CURRENCY}{payment.amount.toLocaleString()}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(payment.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Detailed info */}
-                      <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-2">
-                        <div>
-                          <span className="font-medium text-foreground/70">Status</span>
-                          <p className={`font-medium capitalize ${cfg.className.split(' ')[0]}`}>{cfg.label}</p>
-                        </div>
-                        {payment.flutterwave_tx_id && (
-                          <div>
-                            <span className="font-medium text-foreground/70">Tx ID</span>
-                            <p>{payment.flutterwave_tx_id}</p>
-                          </div>
-                        )}
-                        <div>
-                          <span className="font-medium text-foreground/70">Currency</span>
-                          <p>{payment.currency}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
+      {/* Quick Counts */}
+      {payments.length > 0 && (
+        <div className="flex gap-3 mb-5 p-3 bg-muted/40 rounded-xl">
+          <div className="flex-1 text-center">
+            <p className="text-lg font-bold text-success">{successfulCount}</p>
+            <p className="text-xs text-muted-foreground">Successful</p>
+          </div>
+          <div className="w-px bg-border" />
+          <div className="flex-1 text-center">
+            <p className="text-lg font-bold text-warning">{pendingCount}</p>
+            <p className="text-xs text-muted-foreground">Pending</p>
+          </div>
+          <div className="w-px bg-border" />
+          <div className="flex-1 text-center">
+            <p className="text-lg font-bold text-destructive">{failedCount}</p>
+            <p className="text-xs text-muted-foreground">Failed</p>
           </div>
         </div>
+      )}
 
-        {/* Payment Methods */}
-        <div>
-          <div className="bg-card rounded-xl border border-border">
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <h3 className="font-semibold text-foreground">Payment Methods</h3>
-              <Button variant="ghost" size="sm">
-                <Plus size={16} />
-              </Button>
+      {/* Payment History */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h3 className="font-semibold text-foreground text-sm">Transaction History</h3>
+          <Button variant="ghost" size="sm" className="h-8 text-xs">
+            <Download size={14} className="mr-1" />
+            Export
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-7 h-7 animate-spin text-accent" />
+          </div>
+        ) : payments.length === 0 ? (
+          <div className="text-center py-12 px-4">
+            <div className="w-14 h-14 rounded-full bg-muted mx-auto mb-3 flex items-center justify-center">
+              <Receipt size={28} className="text-muted-foreground" />
             </div>
-            <div className="p-4 space-y-3">
-              {paymentMethods.map((method) => (
+            <h4 className="font-semibold text-foreground mb-1 text-sm">No payments yet</h4>
+            <p className="text-xs text-muted-foreground">
+              Payment history will appear here after your first booking payment.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {payments.map((payment, index) => {
+              const cfg = statusConfig[payment.status] || statusConfig.pending;
+              const StatusIcon = cfg.icon;
+              return (
                 <motion.div
-                  key={method.id}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border hover:border-accent/50 transition-colors cursor-pointer"
+                  key={payment.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.04 }}
+                  className="p-4"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                      <CreditCard size={20} className="text-muted-foreground" />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.className}`}>
+                        <StatusIcon size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm">
+                          Booking #{payment.booking_id.substring(0, 8).toUpperCase()}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                          {payment.payment_method?.replace('_', ' ') || 'Online payment'}
+                        </p>
+                        {payment.flutterwave_ref && (
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate max-w-[180px]">
+                            Ref: {payment.flutterwave_ref}
+                          </p>
+                        )}
+                        {payment.flutterwave_tx_id && (
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                            Tx: {payment.flutterwave_tx_id}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{method.name}</p>
-                      <p className="text-xs text-muted-foreground">Expires {method.expiry}</p>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`font-bold text-sm ${
+                        payment.status === 'successful'
+                          ? 'text-success'
+                          : payment.status === 'failed'
+                          ? 'text-destructive'
+                          : 'text-foreground'
+                      }`}>
+                        {CURRENCY}{payment.amount.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(payment.created_at).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </p>
+                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.className}`}>
+                        {cfg.label}
+                      </span>
                     </div>
                   </div>
-                  {method.isDefault && (
-                    <span className="px-2 py-0.5 bg-accent/10 text-accent text-xs rounded-full">
-                      Default
-                    </span>
-                  )}
                 </motion.div>
-              ))}
-              <Button variant="outline" className="w-full mt-2">
-                <Plus size={16} className="mr-2" />
-                Add New Card
-              </Button>
-            </div>
+              );
+            })}
           </div>
-
-          {/* Quick Actions */}
-          <div className="mt-4 bg-card rounded-xl border border-border p-4">
-            <h4 className="font-medium text-foreground mb-3">Quick Actions</h4>
-            <div className="space-y-2">
-              {['Download Invoices', 'Request Receipt', 'Billing Settings'].map((action) => (
-                <button
-                  key={action}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors text-sm"
-                >
-                  <span className="text-foreground">{action}</span>
-                  <ChevronRight size={16} className="text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Payment Summary Box */}
-          <div className="mt-4 bg-accent/5 border border-accent/20 rounded-xl p-4">
-            <h4 className="font-medium text-foreground mb-3">Payment Summary</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Successful</span>
-                <span className="text-success font-medium">{payments.filter(p => p.status === 'successful').length} payments</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Pending</span>
-                <span className="text-warning font-medium">{payments.filter(p => p.status === 'pending').length} payments</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Failed</span>
-                <span className="text-destructive font-medium">{payments.filter(p => p.status === 'failed').length} payments</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

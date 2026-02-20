@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Loader2, Shield, CheckCircle2, XCircle } from 'lucide-react';
+import { CreditCard, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CURRENCY } from '@/lib/constants';
 import { FLUTTERWAVE_PUBLIC_KEY, openFlutterwavePayment, generateTxRef, type FlutterwaveResponse } from '@/lib/flutterwave';
@@ -17,6 +17,7 @@ interface PaymentButtonProps {
   onClose?: () => void;
   disabled?: boolean;
   className?: string;
+  size?: 'sm' | 'default' | 'lg';
 }
 
 export function PaymentButton({
@@ -27,6 +28,7 @@ export function PaymentButton({
   onClose,
   disabled,
   className,
+  size = 'default',
 }: PaymentButtonProps) {
   const { user, profile } = useSupabaseAuth();
   const { createPayment, updatePaymentStatus } = usePayments();
@@ -76,39 +78,44 @@ export function PaymentButton({
           logo: 'https://carhire2go.lovable.app/favicon.ico',
         },
         callback: async (response: FlutterwaveResponse) => {
-          console.log('Flutterwave response:', response);
           if (response.status === 'successful') {
-            // Update payment record
+            // Update payment to successful with tx details
             await updatePaymentStatus(
               txRef,
               'successful',
               String(response.transaction_id),
               response.payment_type
             );
-            // Confirm booking: set final_price and status
-            await supabase
+
+            // Update booking: confirmed + final_price
+            const { error: bookingError } = await supabase
               .from('bookings')
-              .update({ 
-                status: 'confirmed', 
+              .update({
+                status: 'confirmed',
                 confirmed_at: new Date().toISOString(),
                 final_price: amount,
               })
-              .eq('id', bookingId)
-              .in('status', ['matched', 'negotiating', 'confirmed']);
+              .eq('id', bookingId);
+
+            if (bookingError) {
+              console.error('Booking update error:', bookingError);
+            }
 
             setPaymentStatus('success');
-            toast.success('Payment successful! Your booking is confirmed.');
             setIsProcessing(false);
+            toast.success('🎉 Payment successful! Booking confirmed.');
             onSuccess?.(txRef);
           } else {
             await updatePaymentStatus(txRef, 'failed');
             setPaymentStatus('failed');
-            toast.error('Payment failed. Please try again.');
             setIsProcessing(false);
+            toast.error('Payment failed. Please try again.');
           }
         },
         onclose: () => {
-          setIsProcessing(false);
+          if (isProcessing) {
+            setIsProcessing(false);
+          }
           onClose?.();
         },
       });
@@ -124,22 +131,19 @@ export function PaymentButton({
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="flex items-center gap-2 text-success font-medium"
+        className="flex items-center gap-1.5 text-success font-medium text-sm"
       >
-        <CheckCircle2 size={18} />
-        Payment Confirmed
+        <CheckCircle2 size={16} />
+        Paid
       </motion.div>
     );
   }
 
   if (paymentStatus === 'failed') {
     return (
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 text-destructive text-sm">
-          <XCircle size={16} />
-          Payment failed
-        </div>
-        <Button size="sm" onClick={handlePay} disabled={disabled || isProcessing}>
+      <div className="flex items-center gap-1.5">
+        <XCircle size={14} className="text-destructive" />
+        <Button size={size} onClick={handlePay} disabled={disabled || isProcessing} className={className}>
           Retry
         </Button>
       </div>
@@ -148,18 +152,19 @@ export function PaymentButton({
 
   return (
     <Button
+      size={size}
       onClick={handlePay}
       disabled={disabled || isProcessing}
       className={className}
     >
       {isProcessing ? (
         <>
-          <Loader2 size={16} className="mr-2 animate-spin" />
+          <Loader2 size={14} className="mr-1.5 animate-spin" />
           Processing...
         </>
       ) : (
         <>
-          <CreditCard size={16} className="mr-2" />
+          <CreditCard size={14} className="mr-1.5" />
           Pay {CURRENCY}{amount.toLocaleString()}
         </>
       )}
