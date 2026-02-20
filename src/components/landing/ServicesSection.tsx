@@ -6,25 +6,29 @@ const services = [
     icon: Car,
     title: 'Full-Day Hire',
     description: 'Book a vehicle with driver for the entire day. Perfect for business trips or special occasions.',
-    color: 'bg-zinc-900',
+    iconColor: 'text-blue-400',
+    bgColor: 'bg-primary',
   },
   {
     icon: MapPin,
     title: 'Point-to-Point',
     description: 'Quick rides from one location to another. Airport transfers, city commutes, and more.',
-    color: 'bg-zinc-700',
+    iconColor: 'text-emerald-400',
+    bgColor: 'bg-primary',
   },
   {
     icon: Calendar,
     title: 'Event Transport',
     description: 'Weddings, conferences, and special events. Multiple vehicles, coordinated service.',
-    color: 'bg-zinc-600',
+    iconColor: 'text-amber-400',
+    bgColor: 'bg-primary',
   },
   {
     icon: Users,
     title: 'Group Travel',
     description: 'SUVs, vans, and buses for group trips. Family outings, corporate retreats, tours.',
-    color: 'bg-zinc-500',
+    iconColor: 'text-rose-400',
+    bgColor: 'bg-primary',
   },
 ];
 
@@ -50,7 +54,7 @@ export function ServicesSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-zinc-500 text-sm font-semibold tracking-wider uppercase">Our Services</span>
+          <span className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">Our Services</span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-6">
             Every journey, perfectly planned
           </h2>
@@ -69,10 +73,10 @@ export function ServicesSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="group bg-card rounded-2xl p-6 border border-border hover:border-accent/30 transition-all cursor-pointer"
+              className="group bg-card rounded-2xl p-6 border border-border hover:border-border/0 hover:shadow-lg transition-all cursor-pointer"
             >
-              <div className={`w-14 h-14 rounded-xl ${service.color} flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform`}>
-                <service.icon size={26} />
+              <div className={`w-14 h-14 rounded-xl ${service.bgColor} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                <service.icon size={26} className={service.iconColor} />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">{service.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>

@@ -43,20 +43,19 @@ export default function ConsumerHome() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-gradient-to-br from-primary via-slate-800 to-slate-900 rounded-2xl p-5 md:p-8 text-primary-foreground relative overflow-hidden flex flex-col justify-center"
+          className="lg:col-span-2 bg-foreground rounded-2xl p-5 md:p-8 text-background relative overflow-hidden flex flex-col justify-center"
         >
-          <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-accent/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-secondary/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
-          <div className="absolute top-1/2 right-8 w-20 h-20 bg-accent/10 rounded-full blur-xl hidden md:block" />
+          <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
           
           <div className="relative z-10">
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/20 flex items-center justify-center backdrop-blur-sm">
-                <Car size={24} className="text-accent" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                <Car size={24} className="text-white" />
               </div>
               <div>
-                <h2 className="text-xl md:text-2xl font-bold">Book Your Next Ride</h2>
-                <p className="text-primary-foreground/60 text-sm md:text-base mt-1 max-w-md">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Book Your Next Ride</h2>
+                <p className="text-white/60 text-sm md:text-base mt-1 max-w-md">
                   Find verified providers and travel with confidence across Nigeria.
                 </p>
               </div>
@@ -66,7 +65,7 @@ export default function ConsumerHome() {
               {features.map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
                   <feature.icon size={14} className={feature.color} />
-                  <span className="text-xs font-medium text-primary-foreground/90">{feature.label}</span>
+                  <span className="text-xs font-medium text-white/90">{feature.label}</span>
                 </div>
               ))}
             </div>
@@ -75,7 +74,7 @@ export default function ConsumerHome() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate('/consumer/book')}
-              className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-5 md:px-6 py-2.5 md:py-3 rounded-xl font-medium hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20"
+              className="inline-flex items-center gap-2 bg-white text-foreground px-5 md:px-6 py-2.5 md:py-3 rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-lg"
             >
               <Plus size={18} />
               New Booking
@@ -91,7 +90,7 @@ export default function ConsumerHome() {
           className="bg-card rounded-2xl p-5 md:p-6 border border-border flex flex-col justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-success/20 to-success/5 flex items-center justify-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-success/10 flex items-center justify-center">
               <TrendingUp size={24} className="text-success" />
             </div>
             <div>
@@ -101,7 +100,7 @@ export default function ConsumerHome() {
           </div>
           <div className="flex items-center justify-between text-sm pt-4 mt-4 border-t border-border">
             <span className="text-muted-foreground">Active bookings</span>
-            <span className="text-accent font-semibold">{activeBookings.length} active</span>
+            <span className="text-foreground font-semibold">{activeBookings.length} active</span>
           </div>
         </motion.div>
       </div>
@@ -271,7 +270,7 @@ export default function ConsumerHome() {
           transition={{ delay: 0.2 }}
           className="mt-6"
         >
-          <div className="bg-gradient-to-br from-card via-card to-muted/30 rounded-2xl border border-border overflow-hidden">
+          <div className="bg-card rounded-2xl border border-border overflow-hidden">
             <div className="p-6 md:p-10 text-center">
               {/* Animated Car Icon */}
               <motion.div
@@ -280,10 +279,9 @@ export default function ConsumerHome() {
                 transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
                 className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-6"
               >
-                <div className="absolute inset-0 bg-accent/20 rounded-full animate-pulse" />
-                <div className="absolute inset-2 bg-accent/10 rounded-full" />
+                <div className="absolute inset-0 bg-muted rounded-full animate-pulse" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Car size={40} className="text-accent" />
+                  <Car size={40} className="text-foreground" />
                 </div>
               </motion.div>
 
@@ -304,7 +302,7 @@ export default function ConsumerHome() {
                   <Star size={12} />
                   Best Prices
                 </div>
-                <div className="flex items-center gap-1.5 bg-accent/10 text-accent px-3 py-1.5 rounded-full text-xs font-medium">
+                <div className="flex items-center gap-1.5 bg-muted text-muted-foreground px-3 py-1.5 rounded-full text-xs font-medium">
                   <Sparkles size={12} />
                   24/7 Support
                 </div>
@@ -314,7 +312,7 @@ export default function ConsumerHome() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/consumer/book')}
-                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold hover:bg-accent/90 transition-colors shadow-lg shadow-accent/25 text-base"
+                className="inline-flex items-center gap-2 bg-foreground text-background px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold hover:bg-foreground/90 transition-colors shadow-lg text-base"
               >
                 <Plus size={20} />
                 Create Your First Booking

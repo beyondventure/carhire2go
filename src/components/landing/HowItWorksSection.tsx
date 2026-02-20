@@ -39,7 +39,7 @@ export function HowItWorksSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-accent text-sm font-semibold tracking-wider uppercase">How It Works</span>
+          <span className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">How It Works</span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-6">
             Book in 4 simple steps
           </h2>
@@ -48,7 +48,7 @@ export function HowItWorksSection() {
         {/* Steps */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
           {/* Connection Line - Desktop */}
-          <div className="hidden lg:block absolute top-20 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-accent/50 via-accent to-accent/50" />
+          <div className="hidden lg:block absolute top-20 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {steps.map((step, index) => (
             <motion.div
@@ -60,19 +60,19 @@ export function HowItWorksSection() {
               className="relative"
             >
               {/* Step Number */}
-              <div className="relative z-10 w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary flex items-center justify-center">
-                <span className="text-accent font-bold text-xl">{step.number}</span>
+              <div className="relative z-10 w-16 h-16 mx-auto mb-6 rounded-2xl bg-foreground flex items-center justify-center">
+                <span className="text-background font-bold text-xl">{step.number}</span>
                 {/* Pulse Effect */}
                 <motion.div
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
                   transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
-                  className="absolute inset-0 rounded-2xl bg-accent/20"
+                  className="absolute inset-0 rounded-2xl bg-foreground/20"
                 />
               </div>
 
               <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-accent/10 flex items-center justify-center">
-                  <step.icon size={24} className="text-accent" />
+                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center">
+                  <step.icon size={24} className="text-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3">{step.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>

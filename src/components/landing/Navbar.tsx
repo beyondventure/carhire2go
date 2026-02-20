@@ -42,7 +42,7 @@ export function Navbar() {
               onClick={() => navigate('/')}
             >
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center">
-                <Car size={20} className="text-zinc-900" />
+                <Car size={20} className="text-foreground" />
               </div>
               <span className="text-lg md:text-xl font-bold text-primary-foreground">{PLATFORM_NAME}</span>
             </motion.div>
@@ -74,7 +74,7 @@ export function Navbar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/register')}
-                className="px-5 py-2.5 text-sm font-medium bg-white text-zinc-900 rounded-xl hover:bg-zinc-100 transition-colors"
+                className="px-5 py-2.5 text-sm font-medium bg-white text-foreground rounded-xl hover:bg-white/90 transition-colors"
               >
                 Get Started
               </motion.button>
@@ -121,7 +121,7 @@ export function Navbar() {
                   </button>
                   <button
                     onClick={() => { navigate('/auth/register'); setMobileMenuOpen(false); }}
-                    className="w-full py-3 text-center font-medium bg-white text-zinc-900 rounded-xl"
+                    className="w-full py-3 text-center font-medium bg-white text-foreground rounded-xl"
                   >
                     Get Started
                   </button>
