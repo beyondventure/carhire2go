@@ -75,7 +75,7 @@ export default function SystemArchitecture() {
         pdf.rect(0, 0, pageWidth, 12, 'F');
         pdf.setTextColor(255, 255, 255);
         pdf.setFontSize(10);
-        pdf.text('CarHire2Go - System Architecture', margin, 8);
+        pdf.text('InstantRyde - System Architecture', margin, 8);
         pdf.text(`${tabContents[i].charAt(0).toUpperCase() + tabContents[i].slice(1)}`, pageWidth - margin, 8, { align: 'right' });
         
         // Calculate dimensions - fit width and center
@@ -126,11 +126,11 @@ export default function SystemArchitecture() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold">
                 System Architecture
               </h1>
               <p className="text-sm text-muted-foreground">
-                CarHire2Go Platform Technical Documentation
+                InstantRyde Platform Technical Documentation
               </p>
             </div>
           </div>
