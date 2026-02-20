@@ -212,7 +212,7 @@ export default function ConsumerBookings() {
                       </span>
                       <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {/* Chat/Negotiate button */}
                       {(booking.status === 'negotiating' || booking.status === 'matched') && booking.provider_id && (
                         <Button
@@ -229,7 +229,20 @@ export default function ConsumerBookings() {
                         </Button>
                       )}
 
-                      {/* Pay button for confirmed bookings */}
+                      {/* Pay button: show for matched/negotiating with agreed price OR confirmed */}
+                      {(['matched', 'negotiating'].includes(booking.status) && (booking.negotiated_price || booking.final_price)) && (
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <PaymentButton
+                            bookingId={booking.id}
+                            providerId={booking.provider_id}
+                            amount={booking.final_price || booking.negotiated_price!}
+                            onSuccess={() => {}}
+                            className="bg-success hover:bg-success/90 text-success-foreground"
+                          />
+                        </div>
+                      )}
+
+                      {/* Pay button for confirmed bookings without payment yet */}
                       {booking.status === 'confirmed' && booking.final_price && (
                         <div onClick={(e) => e.stopPropagation()}>
                           <PaymentButton
@@ -237,7 +250,7 @@ export default function ConsumerBookings() {
                             providerId={booking.provider_id}
                             amount={booking.final_price}
                             onSuccess={() => {}}
-                            className="bg-success hover:bg-success/90 text-white"
+                            className="bg-success hover:bg-success/90 text-success-foreground"
                           />
                         </div>
                       )}
@@ -258,12 +271,13 @@ export default function ConsumerBookings() {
                       )}
 
                       {/* Price display */}
-                      {booking.final_price && booking.status !== 'confirmed' && (
+                      {(booking.final_price || booking.negotiated_price) && 
+                       !['matched', 'negotiating', 'confirmed'].includes(booking.status) && (
                         <p className="font-semibold text-foreground">
-                          {CURRENCY}{booking.final_price.toLocaleString()}
+                          {CURRENCY}{(booking.final_price || booking.negotiated_price)!.toLocaleString()}
                         </p>
                       )}
-                      {!booking.final_price && booking.estimated_max_price && (
+                      {!booking.final_price && !booking.negotiated_price && booking.estimated_max_price && (
                         <p className="text-sm text-muted-foreground">
                           est. {CURRENCY}{booking.estimated_min_price?.toLocaleString()} – {CURRENCY}{booking.estimated_max_price?.toLocaleString()}
                         </p>

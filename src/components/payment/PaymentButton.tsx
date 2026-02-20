@@ -85,12 +85,16 @@ export function PaymentButton({
               String(response.transaction_id),
               response.payment_type
             );
-            // Update booking status to confirmed if not already
+            // Confirm booking: set final_price and status
             await supabase
               .from('bookings')
-              .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
+              .update({ 
+                status: 'confirmed', 
+                confirmed_at: new Date().toISOString(),
+                final_price: amount,
+              })
               .eq('id', bookingId)
-              .in('status', ['matched', 'negotiating']);
+              .in('status', ['matched', 'negotiating', 'confirmed']);
 
             setPaymentStatus('success');
             toast.success('Payment successful! Your booking is confirmed.');

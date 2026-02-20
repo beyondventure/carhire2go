@@ -22,6 +22,7 @@ interface MatchedProvider {
   rating: number;
   distance: string;
   vehicle: string;
+  providerId?: string; // DB provider id
 }
 
 type BookingStep = 'pickup' | 'type' | 'details' | 'confirm';
@@ -630,6 +631,7 @@ export default function ConsumerBooking() {
         provider={matchedProvider}
         basePrice={basePrice}
         bookingId={currentBookingId}
+        providerId={matchedProvider?.providerId || null}
         onClose={handleNegotiationClose}
         onConfirm={handleBookingConfirmed}
       />
