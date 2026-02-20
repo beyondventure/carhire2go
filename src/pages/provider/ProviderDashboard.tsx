@@ -213,7 +213,7 @@ export default function ProviderDashboard() {
               <div className="relative">
                 <Bell size={20} className="text-foreground" />
                 {pendingRequests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-xs text-white rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-foreground text-background text-xs rounded-full flex items-center justify-center font-bold">
                     {pendingRequests.length}
                   </span>
                 )}
@@ -222,7 +222,7 @@ export default function ProviderDashboard() {
             </div>
             <button 
               onClick={() => navigate('/provider/requests')}
-              className="text-sm text-accent hover:underline"
+              className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors"
             >
               View all
             </button>
@@ -269,9 +269,9 @@ export default function ProviderDashboard() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-accent">
+                  <span className="font-medium text-foreground">
                       {request.estimated_min_price && request.estimated_max_price
-                        ? `${CURRENCY}${request.estimated_min_price.toLocaleString()} - ${CURRENCY}${request.estimated_max_price.toLocaleString()}`
+                        ? `${CURRENCY}${request.estimated_min_price.toLocaleString()} – ${CURRENCY}${request.estimated_max_price.toLocaleString()}`
                         : 'Price TBD'}
                     </span>
                     <div className="flex gap-2">
@@ -314,7 +314,7 @@ export default function ProviderDashboard() {
               <h3 className="font-semibold text-foreground">Fleet Status</h3>
               <button 
                 onClick={() => navigate('/provider/fleet')}
-                className="text-sm text-accent hover:underline"
+                className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors"
               >
                 View all
               </button>
@@ -350,7 +350,7 @@ export default function ProviderDashboard() {
               <h3 className="font-semibold text-foreground">Drivers</h3>
               <button 
                 onClick={() => navigate('/provider/drivers')}
-                className="text-sm text-accent hover:underline"
+                className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors"
               >
                 View all
               </button>
@@ -363,8 +363,8 @@ export default function ProviderDashboard() {
                 myDrivers.slice(0, 3).map((driver) => (
                   <div key={driver.id} className="flex items-center justify-between py-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                        <Users size={18} className="text-accent" />
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                        <Users size={18} className="text-muted-foreground" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">Driver</p>

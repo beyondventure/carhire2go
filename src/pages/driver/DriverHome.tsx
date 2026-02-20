@@ -151,14 +151,14 @@ export default function DriverHome() {
                   {activeTrip.booking_type.replace('-', ' ')}
                 </p>
                 {activeTrip.final_price && (
-                  <p className="text-lg font-bold text-accent mt-1">
+                  <p className="text-lg font-bold text-foreground mt-1">
                     {CURRENCY}{activeTrip.final_price.toLocaleString()}
                   </p>
                 )}
               </div>
               <button 
                 onClick={handleCall} 
-                className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent/90 transition-colors"
+                className="w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/90 transition-colors"
               >
                 <Phone size={20} />
               </button>

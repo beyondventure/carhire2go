@@ -13,11 +13,11 @@ export function CTASection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative bg-gradient-to-br from-primary via-slate-800 to-slate-900 rounded-3xl p-8 md:p-16 overflow-hidden"
+          className="relative bg-foreground rounded-3xl p-8 md:p-16 overflow-hidden"
         >
           {/* Background Elements */}
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-3xl" />
           
           {/* Car Icon */}
           <motion.div
@@ -25,8 +25,8 @@ export function CTASection() {
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block"
           >
-            <div className="w-32 h-32 rounded-full bg-accent/10 flex items-center justify-center">
-              <Car size={64} className="text-accent/40" />
+            <div className="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center">
+              <Car size={64} className="text-white/40" />
             </div>
           </motion.div>
 
@@ -35,7 +35,7 @@ export function CTASection() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-bold text-primary-foreground mb-6"
+              className="text-3xl md:text-5xl font-bold text-white mb-6"
             >
               Ready to experience the future of car hire?
             </motion.h2>
@@ -45,7 +45,7 @@ export function CTASection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-lg text-primary-foreground/60 mb-8"
+              className="text-lg text-white/60 mb-8"
             >
               Join thousands of satisfied users across Nigeria. Book your first ride in under 60 seconds.
             </motion.p>
@@ -61,7 +61,7 @@ export function CTASection() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/register')}
-                className="inline-flex items-center justify-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-accent/25 hover:bg-accent/90 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-foreground px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/90 transition-colors shadow-lg"
               >
                 Get Started Free
                 <ArrowRight size={20} />
@@ -71,7 +71,7 @@ export function CTASection() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/login')}
-                className="inline-flex items-center justify-center gap-2 bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg border border-primary-foreground/20 hover:bg-primary-foreground/20 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-4 rounded-xl font-semibold text-lg border border-white/20 hover:bg-white/20 transition-colors"
               >
                 Sign In
               </motion.button>
