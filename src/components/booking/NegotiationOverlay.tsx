@@ -7,12 +7,12 @@ import {
   Car, 
   Star, 
   Send,
-  MessageSquare,
   CheckCircle2,
   ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PaymentButton } from '@/components/payment/PaymentButton';
 import { CURRENCY } from '@/lib/constants';
 import type { ChatMessage } from '@/types';
 
@@ -28,6 +28,7 @@ interface NegotiationOverlayProps {
   isVisible: boolean;
   provider: Provider | null;
   basePrice: number;
+  bookingId?: string | null;
   onClose: () => void;
   onConfirm: (finalPrice: number) => void;
 }
@@ -36,6 +37,7 @@ export function NegotiationOverlay({
   isVisible,
   provider,
   basePrice,
+  bookingId,
   onClose,
   onConfirm,
 }: NegotiationOverlayProps) {
@@ -388,19 +390,31 @@ export function NegotiationOverlay({
               {agreedPrice ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-success/10 rounded-xl">
-                    <span className="text-sm font-medium text-foreground">Final Price</span>
+                    <span className="text-sm font-medium text-foreground">Final Price Agreed</span>
                     <span className="text-xl font-bold text-success">
                       {CURRENCY}{agreedPrice.toLocaleString()}
                     </span>
                   </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Confirm your booking and pay securely via Flutterwave
+                  </p>
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={onClose} className="flex-1">
-                      Cancel Booking
+                      Cancel
                     </Button>
-                    <Button onClick={() => onConfirm(agreedPrice)} className="flex-1 btn-primary">
-                      Confirm Booking
-                      <ArrowRight size={18} className="ml-2" />
-                    </Button>
+                    {bookingId ? (
+                      <PaymentButton
+                        bookingId={bookingId}
+                        amount={agreedPrice}
+                        onSuccess={() => onConfirm(agreedPrice)}
+                        className="flex-1 bg-success hover:bg-success/90 text-white"
+                      />
+                    ) : (
+                      <Button onClick={() => onConfirm(agreedPrice)} className="flex-1 btn-primary">
+                        Confirm Booking
+                        <ArrowRight size={18} className="ml-2" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : (

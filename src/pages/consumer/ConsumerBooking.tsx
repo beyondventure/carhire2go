@@ -467,7 +467,7 @@ export default function ConsumerBooking() {
                     {/* Pickup */}
                     <div className="bg-muted/30 rounded-xl p-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-3 h-3 rounded-full bg-green-500 mt-1.5" />
+                        <div className="w-3 h-3 rounded-full bg-success mt-1.5" />
                         <div>
                           <p className="text-xs text-muted-foreground uppercase font-medium">Pickup</p>
                           <p className="font-medium text-foreground">{pickup?.name || pickup?.address}</p>
@@ -479,7 +479,7 @@ export default function ConsumerBooking() {
                     {needsDropoff && dropoff && (
                       <div className="bg-muted/30 rounded-xl p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-3 h-3 rounded-full bg-red-500 mt-1.5" />
+                          <div className="w-3 h-3 rounded-full bg-destructive mt-1.5" />
                           <div>
                             <p className="text-xs text-muted-foreground uppercase font-medium">Drop-off</p>
                             <p className="font-medium text-foreground">{dropoff?.name || dropoff?.address}</p>
@@ -629,6 +629,7 @@ export default function ConsumerBooking() {
         isVisible={isNegotiating}
         provider={matchedProvider}
         basePrice={basePrice}
+        bookingId={currentBookingId}
         onClose={handleNegotiationClose}
         onConfirm={handleBookingConfirmed}
       />
