@@ -50,7 +50,7 @@ export function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-primary-foreground/60">
                 <Mail size={16} className="text-accent" />
-                <span>support@carhire2go.com</span>
+                <span>support@instantryde.com</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-primary-foreground/60">
                 <Phone size={16} className="text-accent" />

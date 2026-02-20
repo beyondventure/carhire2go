@@ -127,7 +127,7 @@ export default function ProviderOnboarding() {
               <Car size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-lg">CarHire2Go</h1>
+              <h1 className="font-bold text-lg">InstantRyde</h1>
               <p className="text-sm text-muted-foreground">Provider Onboarding</p>
             </div>
           </div>

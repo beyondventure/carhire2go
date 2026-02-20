@@ -1,142 +1,142 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CarHire2Go Design System
-   Calm Futurism - Premium Mobility Platform
-   Deep Graphite + Electric Teal + Muted Neon Accents
+/* InstantRyde Design System
+   Bold Monochrome — Black, White & Grey
+   High contrast. Clean. Premium.
 */
 
 @layer base {
   :root {
-    /* Core Palette - Calm Futurism */
-    --background: 220 14% 96%;
-    --foreground: 220 20% 10%;
+    /* Core Palette - Pure Monochrome */
+    --background: 0 0% 97%;
+    --foreground: 0 0% 6%;
 
     /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 0 0% 6%;
     --card-elevated: 0 0% 100%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 0 0% 6%;
 
-    /* Primary - Deep Graphite */
-    --primary: 220 20% 12%;
+    /* Primary - Pure Black */
+    --primary: 0 0% 8%;
     --primary-foreground: 0 0% 98%;
 
-    /* Secondary - Soft Electric Teal */
-    --secondary: 180 60% 45%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Mid Grey */
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 98%;
 
-    /* Accent - Electric Teal for Actions */
-    --accent: 175 84% 40%;
-    --accent-foreground: 0 0% 100%;
-    --accent-glow: 175 84% 50%;
+    /* Accent - Near-black with slight lift */
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 98%;
+    --accent-glow: 0 0% 20%;
 
-    /* Status Colors - Muted */
-    --success: 152 50% 42%;
+    /* Status Colors */
+    --success: 142 72% 29%;
     --success-foreground: 0 0% 100%;
-    
-    --warning: 38 80% 55%;
-    --warning-foreground: 220 20% 10%;
-    
-    --destructive: 0 55% 50%;
+
+    --warning: 38 95% 48%;
+    --warning-foreground: 0 0% 8%;
+
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
     /* Muted & Borders */
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 45%;
 
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 175 84% 40%;
+    --border: 0 0% 86%;
+    --input: 0 0% 86%;
+    --ring: 0 0% 10%;
 
     --radius: 0.75rem;
 
     /* Map Colors */
-    --map-pickup: 152 50% 42%;
-    --map-dropoff: 0 55% 50%;
-    --map-route: 175 84% 40%;
-    --map-provider: 38 80% 55%;
+    --map-pickup: 142 72% 29%;
+    --map-dropoff: 0 72% 45%;
+    --map-route: 0 0% 10%;
+    --map-provider: 38 95% 48%;
 
     /* Status Indicators */
-    --status-active: 152 50% 42%;
-    --status-pending: 38 80% 55%;
-    --status-inactive: 220 10% 60%;
-    --status-error: 0 55% 50%;
+    --status-active: 142 72% 29%;
+    --status-pending: 38 95% 48%;
+    --status-inactive: 0 0% 60%;
+    --status-error: 0 72% 45%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(175 84% 40%) 0%, hsl(180 60% 45%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(220 20% 12%) 0%, hsl(220 25% 8%) 100%);
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 25% 16%) 50%, hsl(175 60% 20%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 18%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 6%) 0%, hsl(0 0% 3%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 4%) 0%, hsl(0 0% 10%) 50%, hsl(0 0% 16%) 100%);
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(220 20% 10% / 0.03);
-    --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.05), 0 2px 4px -2px hsl(220 20% 10% / 0.03);
-    --shadow-lg: 0 10px 15px -3px hsl(220 20% 10% / 0.05), 0 4px 6px -4px hsl(220 20% 10% / 0.03);
-    --shadow-xl: 0 20px 25px -5px hsl(220 20% 10% / 0.08), 0 8px 10px -6px hsl(220 20% 10% / 0.03);
-    --shadow-glow: 0 0 20px hsl(175 84% 40% / 0.25);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.08), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.08), 0 4px 6px -4px hsl(0 0% 0% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.12), 0 8px 10px -6px hsl(0 0% 0% / 0.06);
+    --shadow-glow: 0 0 24px hsl(0 0% 0% / 0.15);
 
     /* Sidebar */
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 220 14% 85%;
-    --sidebar-primary: 175 84% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 16%;
-    --sidebar-accent-foreground: 220 14% 90%;
-    --sidebar-border: 220 20% 18%;
-    --sidebar-ring: 175 84% 40%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 0 0% 60%;
 
     /* Chart Colors */
-    --chart-1: 175 84% 40%;
-    --chart-2: 152 50% 42%;
-    --chart-3: 38 80% 55%;
-    --chart-4: 220 20% 50%;
-    --chart-5: 280 60% 50%;
+    --chart-1: 0 0% 10%;
+    --chart-2: 0 0% 35%;
+    --chart-3: 0 0% 55%;
+    --chart-4: 0 0% 70%;
+    --chart-5: 0 0% 85%;
   }
 
   .dark {
-    --background: 220 25% 6%;
-    --foreground: 220 14% 92%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
 
-    --card: 220 22% 10%;
-    --card-foreground: 220 14% 92%;
-    --card-elevated: 220 20% 14%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 93%;
+    --card-elevated: 0 0% 12%;
 
-    --popover: 220 22% 10%;
-    --popover-foreground: 220 14% 92%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 93%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 220 20% 10%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 6%;
 
-    --secondary: 175 84% 40%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 93%;
 
-    --accent: 175 84% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 0 0% 6%;
 
-    --muted: 220 20% 16%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
 
-    --destructive: 0 55% 50%;
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 175 84% 45%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
 
-    --sidebar-background: 220 25% 5%;
-    --sidebar-foreground: 220 14% 85%;
-    --sidebar-primary: 175 84% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 12%;
-    --sidebar-accent-foreground: 220 14% 90%;
-    --sidebar-border: 220 20% 12%;
-    --sidebar-ring: 175 84% 45%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 0 0% 95%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 0 0% 60%;
   }
 }
 
