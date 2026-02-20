@@ -37,6 +37,7 @@ import AdminVerification from "./pages/admin/AdminVerification";
 import AdminSettings from "./pages/admin/AdminSettings";
 import SystemArchitecture from "./pages/admin/SystemArchitecture";
 import MobileDocs from "./pages/MobileDocs";
+import PitchDeck from "./pages/PitchDeck";
 import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
@@ -104,6 +105,9 @@ const App = () => (
             
             {/* Mobile Developer Documentation */}
             <Route path="/docs/mobile" element={<MobileDocs />} />
+            
+            {/* Investor Pitch Deck */}
+            <Route path="/pitch" element={<PitchDeck />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
