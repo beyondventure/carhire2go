@@ -36,6 +36,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminVerification from "./pages/admin/AdminVerification";
 import AdminSettings from "./pages/admin/AdminSettings";
 import SystemArchitecture from "./pages/admin/SystemArchitecture";
+import MobileDocs from "./pages/MobileDocs";
 import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
@@ -100,6 +101,9 @@ const App = () => (
             
             {/* Architecture - Public */}
             <Route path="/architecture" element={<SystemArchitecture />} />
+            
+            {/* Mobile Developer Documentation */}
+            <Route path="/docs/mobile" element={<MobileDocs />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
