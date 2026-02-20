@@ -7,12 +7,12 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-primary">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
       {/* Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-slate-900" />
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
         
         {/* Animated Grid Lines */}
         <div className="absolute inset-0 opacity-[0.03]">
@@ -59,8 +59,8 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
             className="mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
               Nigeria's #1 Car Hire Platform
             </span>
           </motion.div>
@@ -69,10 +69,10 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-[1.1] mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6"
           >
             Move with{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary">
+            <span className="text-zinc-400">
               confidence
             </span>
             , arrive in style
@@ -82,7 +82,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-primary-foreground/60 mb-10 max-w-xl"
+            className="text-lg md:text-xl text-zinc-400 mb-10 max-w-xl"
           >
             Connect with verified drivers and premium vehicles. Book instantly, negotiate prices, and travel safely across Nigeria.
           </motion.p>
@@ -97,7 +97,7 @@ export function HeroSection() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate('/auth/register')}
-              className="inline-flex items-center justify-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-accent/25 hover:bg-accent/90 transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-zinc-950 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-zinc-100 transition-colors"
             >
               Get Started
               <ArrowRight size={20} />
@@ -109,7 +109,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-wrap gap-8 md:gap-12 mt-16 pt-8 border-t border-primary-foreground/10"
+            className="flex flex-wrap gap-8 md:gap-12 mt-16 pt-8 border-t border-white/10"
           >
             {[
               { value: '10K+', label: 'Active Users' },
@@ -123,8 +123,8 @@ export function HeroSection() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
               >
-                <p className="text-2xl md:text-3xl font-bold text-primary-foreground">{stat.value}</p>
-                <p className="text-sm text-primary-foreground/50">{stat.label}</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-zinc-400">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>

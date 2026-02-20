@@ -10,10 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const testAccounts = [
-  { email: 'user@carhire2go.ng', role: 'consumer', label: 'Consumer', icon: User, color: 'from-accent to-secondary' },
-  { email: 'provider@carhire2go.ng', role: 'provider', label: 'Provider', icon: Briefcase, color: 'from-warning to-orange-500' },
-  { email: 'driver@carhire2go.ng', role: 'driver', label: 'Driver', icon: Users, color: 'from-success to-emerald-500' },
-  { email: 'admin@carhire2go.ng', role: 'admin', label: 'Admin', icon: Shield, color: 'from-primary to-slate-700' },
+  { email: 'user@carhire2go.ng', role: 'consumer', label: 'Consumer', icon: User, color: 'bg-zinc-800' },
+  { email: 'provider@carhire2go.ng', role: 'provider', label: 'Provider', icon: Briefcase, color: 'bg-zinc-600' },
+  { email: 'driver@carhire2go.ng', role: 'driver', label: 'Driver', icon: Users, color: 'bg-zinc-700' },
+  { email: 'admin@carhire2go.ng', role: 'admin', label: 'Admin', icon: Shield, color: 'bg-zinc-900' },
 ];
 
 export default function Login() {
@@ -89,9 +89,9 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 hero-gradient items-center justify-center p-12">
         <div className="text-center text-white space-y-6">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 mx-auto rounded-2xl bg-accent flex items-center justify-center"
+            className="w-20 h-20 mx-auto rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center"
           >
             <Car size={40} />
           </motion.div>
@@ -101,7 +101,7 @@ export default function Login() {
             transition={{ delay: 0.1 }}
             className="text-4xl font-bold"
           >
-            CarHire2Go
+            InstantRyde
           </motion.h1>
           <motion.p
             initial={{ y: 20, opacity: 0 }}
@@ -123,10 +123,10 @@ export default function Login() {
         >
           <div className="text-center lg:text-left">
             <div className="lg:hidden flex items-center justify-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-                <Car size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
+                <Car size={20} className="text-background" />
               </div>
-              <span className="text-xl font-bold">CarHire2Go</span>
+              <span className="text-xl font-bold">InstantRyde</span>
             </div>
             <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
             <p className="text-muted-foreground mt-2">Sign in to your account to continue</p>
@@ -147,7 +147,7 @@ export default function Login() {
                     disabled={isLoading}
                     className="flex items-center gap-2 p-3 rounded-xl border border-border hover:border-accent/30 bg-card text-left transition-all disabled:opacity-50"
                   >
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${account.color} flex items-center justify-center text-white`}>
+                    <div className={`w-8 h-8 rounded-lg ${account.color} flex items-center justify-center text-white`}>
                       <IconComponent size={16} />
                     </div>
                     <div>
@@ -217,7 +217,7 @@ export default function Login() {
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">
               Don't have an account?{' '}
-              <Link to="/register" className="text-accent hover:underline font-medium">
+              <Link to="/register" className="text-foreground font-semibold hover:underline">
                 Sign up
               </Link>
             </p>
