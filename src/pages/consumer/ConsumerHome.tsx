@@ -16,6 +16,10 @@ export default function ConsumerHome() {
     ['pending', 'matching', 'matched', 'negotiating', 'confirmed', 'in-progress'].includes(b.status)
   );
 
+  const handleActiveBookingClick = () => {
+    navigate('/consumer/bookings');
+  };
+
   const completedBookings = bookings.filter(b => b.status === 'completed');
   const recentBookings = bookings.slice(0, 3);
 
@@ -127,7 +131,10 @@ export default function ConsumerHome() {
             </button>
           </div>
 
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div 
+            className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer hover:border-accent/40 transition-all group"
+            onClick={handleActiveBookingClick}
+          >
             {activeBookings.slice(0, 1).map((booking) => (
               <div key={booking.id} className="p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
@@ -171,20 +178,25 @@ export default function ConsumerHome() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-border">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <Clock size={14} />
-                      {booking.scheduled_time}
-                    </span>
-                    <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-border">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <Clock size={14} />
+                        {booking.scheduled_time}
+                      </span>
+                      <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {(booking.final_price || booking.negotiated_price) && (
+                        <p className="font-semibold text-foreground">
+                          {CURRENCY}{(booking.final_price || booking.negotiated_price)!.toLocaleString()}
+                        </p>
+                      )}
+                      <span className="text-sm text-accent font-medium group-hover:underline flex items-center gap-1">
+                        {['matched', 'negotiating', 'confirmed'].includes(booking.status) ? 'View & Pay →' : 'View details →'}
+                      </span>
+                    </div>
                   </div>
-                  {booking.final_price && (
-                    <p className="font-semibold text-foreground">
-                      {CURRENCY}{booking.final_price.toLocaleString()}
-                    </p>
-                  )}
-                </div>
               </div>
             ))}
           </div>

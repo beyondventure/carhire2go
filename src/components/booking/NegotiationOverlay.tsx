@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PaymentButton } from '@/components/payment/PaymentButton';
 import { CURRENCY } from '@/lib/constants';
+import { supabase } from '@/integrations/supabase/client';
 import type { ChatMessage } from '@/types';
 
 interface Provider {
@@ -29,6 +30,7 @@ interface NegotiationOverlayProps {
   provider: Provider | null;
   basePrice: number;
   bookingId?: string | null;
+  providerId?: string | null;
   onClose: () => void;
   onConfirm: (finalPrice: number) => void;
 }
@@ -38,6 +40,7 @@ export function NegotiationOverlay({
   provider,
   basePrice,
   bookingId,
+  providerId,
   onClose,
   onConfirm,
 }: NegotiationOverlayProps) {
@@ -47,6 +50,15 @@ export function NegotiationOverlay({
   const [proposedPrice, setProposedPrice] = useState('');
   const [agreedPrice, setAgreedPrice] = useState<number | null>(null);
   const [isNegotiating, setIsNegotiating] = useState(true);
+
+  // Save negotiated price to DB when agreed
+  const saveAgreedPrice = async (price: number) => {
+    if (!bookingId) return;
+    await supabase
+      .from('bookings')
+      .update({ negotiated_price: price, status: 'negotiating' })
+      .eq('id', bookingId);
+  };
 
   useEffect(() => {
     if (isVisible && provider) {
@@ -172,6 +184,7 @@ export function NegotiationOverlay({
     setMessages(prev => [...prev, acceptMessage]);
     setAgreedPrice(price);
     setIsNegotiating(false);
+    saveAgreedPrice(price);
   };
 
   const handleRejectPrice = () => {
@@ -405,9 +418,10 @@ export function NegotiationOverlay({
                     {bookingId ? (
                       <PaymentButton
                         bookingId={bookingId}
+                        providerId={providerId}
                         amount={agreedPrice}
                         onSuccess={() => onConfirm(agreedPrice)}
-                        className="flex-1 bg-success hover:bg-success/90 text-white"
+                        className="flex-1 bg-success hover:bg-success/90 text-success-foreground"
                       />
                     ) : (
                       <Button onClick={() => onConfirm(agreedPrice)} className="flex-1 btn-primary">
