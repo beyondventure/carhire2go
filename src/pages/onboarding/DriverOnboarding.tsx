@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, FileText, CreditCard, CheckCircle2, ArrowRight, ArrowLeft, Car, Calendar } from 'lucide-react';
+import { User, FileText, CreditCard, CheckCircle2, ArrowRight, ArrowLeft, Calendar } from 'lucide-react';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -81,11 +82,8 @@ export default function DriverOnboarding() {
       <div className="border-b border-border bg-card">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-              <Car size={20} className="text-white" />
-            </div>
+            <img src={logoAltBlack} alt="InstantRyde" className="h-7" />
             <div>
-              <h1 className="font-bold text-lg">InstantRyde</h1>
               <p className="text-sm text-muted-foreground">Driver Onboarding</p>
             </div>
           </div>

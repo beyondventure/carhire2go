@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Car, User, Phone, Building2, UserCircle, Truck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Phone, Building2, UserCircle, Truck } from 'lucide-react';
+import logoWhite from '@/assets/logo-white.png';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -82,18 +84,9 @@ export default function Register() {
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 mx-auto rounded-2xl bg-accent flex items-center justify-center"
           >
-            <Car size={40} />
+            <img src={logoWhite} alt="InstantRyde" className="h-24 mx-auto" />
           </motion.div>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl font-bold"
-          >
-            Join CarHire2Go
-          </motion.h1>
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -113,11 +106,8 @@ export default function Register() {
           className="w-full max-w-md space-y-8"
         >
           <div className="text-center lg:text-left">
-            <div className="lg:hidden flex items-center justify-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-                <Car size={20} className="text-white" />
-              </div>
-              <span className="text-xl font-bold">CarHire2Go</span>
+            <div className="lg:hidden flex items-center justify-center mb-6">
+              <img src={logoAltBlack} alt="InstantRyde" className="h-7" />
             </div>
             <h2 className="text-2xl font-bold text-foreground">
               {step === 'role' ? 'Choose your role' : 'Create your account'}
