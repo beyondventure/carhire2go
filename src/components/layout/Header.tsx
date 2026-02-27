@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Bell, Search, MessageSquare, X, Car } from 'lucide-react';
+import { Bell, Search, MessageSquare, X } from 'lucide-react';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -95,9 +96,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-              <Car size={16} className="text-background" />
-            </div>
+            <img src={logoAltBlack} alt="InstantRyde" className="h-5" />
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-foreground truncate">
                 {title || PLATFORM_NAME}

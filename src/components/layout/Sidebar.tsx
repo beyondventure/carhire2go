@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { motion } from 'framer-motion';
 import { 
   Home, 
@@ -102,18 +103,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="flex items-center gap-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center">
-              <Car size={20} className="text-foreground" />
-            </div>
-            <span className="font-semibold text-sidebar-foreground">{PLATFORM_NAME}</span>
-          </motion.div>
-        )}
-        {collapsed && (
-          <div className="w-9 h-9 mx-auto rounded-xl bg-white flex items-center justify-center">
-            <Car size={20} className="text-foreground" />
-          </div>
-        )}
+           >
+             <img src={logoAltBlack} alt="InstantRyde" className="h-6" />
+           </motion.div>
+         )}
+         {collapsed && (
+           <div className="mx-auto">
+             <img src={logoAltBlack} alt="InstantRyde" className="h-6" />
+           </div>
+         )}
         <button
           onClick={onToggle}
           className="p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"

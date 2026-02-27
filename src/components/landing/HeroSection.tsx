@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { PLATFORM_NAME } from '@/lib/constants';
+import logoWhite from '@/assets/logo-white.png';
 
 export function HeroSection() {
   const navigate = useNavigate();
@@ -59,10 +59,7 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
             className="mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              Nigeria's #1 Car Hire Platform
-            </span>
+            <img src={logoWhite} alt="InstantRyde" className="h-14 md:h-16 mb-2" />
           </motion.div>
 
           <motion.h1

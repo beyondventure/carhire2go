@@ -6,6 +6,7 @@ import {
   ArrowRight, Target, BarChart3, Smartphone, Star, CheckCircle,
   MapPin, Clock, Percent, Award, Building2, Layers
 } from 'lucide-react';
+import logoAltWhite from '@/assets/logo-alt-white.png';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -112,10 +113,7 @@ function SlideCover() {
         className="relative z-10 flex flex-col items-center text-center px-16">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center">
-            <Car className="w-6 h-6 text-black" />
-          </div>
-          <span className="text-3xl font-black text-white tracking-tight">InstantRyde</span>
+          <img src={logoAltWhite} alt="InstantRyde" className="h-10" />
         </div>
         <div className="w-24 h-px bg-white/20 mb-10" />
         <h1 className="text-7xl font-black text-white leading-[1.05] mb-6">
@@ -733,10 +731,7 @@ export default function PitchDeck() {
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             className="flex items-center justify-between px-6 py-3 bg-black/90 border-b border-white/10 z-50 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
-                <Car className="w-4 h-4 text-black" />
-              </div>
-              <span className="text-sm font-black text-white">InstantRyde</span>
+              <img src={logoAltWhite} alt="InstantRyde" className="h-5" />
               <span className="text-white/20 text-sm">•</span>
               <span className="text-xs text-white/40">Investor Pitch Deck 2026</span>
             </div>
