@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Car, User, Briefcase, Users, Shield } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Briefcase, Users, Shield } from 'lucide-react';
+import logoWhite from '@/assets/logo-white.png';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -89,20 +91,11 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 hero-gradient items-center justify-center p-12">
         <div className="text-center text-white space-y-6">
           <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 mx-auto rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center"
           >
-            <Car size={40} />
+            <img src={logoWhite} alt="InstantRyde" className="h-24 mx-auto" />
           </motion.div>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl font-bold"
-          >
-            InstantRyde
-          </motion.h1>
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -122,11 +115,8 @@ export default function Login() {
           className="w-full max-w-md space-y-6"
         >
           <div className="text-center lg:text-left">
-            <div className="lg:hidden flex items-center justify-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
-                <Car size={20} className="text-background" />
-              </div>
-              <span className="text-xl font-bold">InstantRyde</span>
+            <div className="lg:hidden flex items-center justify-center mb-6">
+              <img src={logoAltBlack} alt="InstantRyde" className="h-7" />
             </div>
             <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
             <p className="text-muted-foreground mt-2">Sign in to your account to continue</p>
