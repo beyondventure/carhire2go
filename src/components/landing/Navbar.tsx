@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Car, Menu, X } from 'lucide-react';
-import { PLATFORM_NAME } from '@/lib/constants';
+import { Menu, X } from 'lucide-react';
 import { onScroll } from '@/lib/platform';
+import logoAltWhite from '@/assets/logo-alt-white.png';
 
 const navLinks = [
   { label: 'Services', href: '#services' },
@@ -38,13 +38,10 @@ export function Navbar() {
             {/* Logo */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="flex items-center gap-3 cursor-pointer"
+              className="flex items-center cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center">
-                <Car size={20} className="text-foreground" />
-              </div>
-              <span className="text-lg md:text-xl font-bold text-primary-foreground">{PLATFORM_NAME}</span>
+              <img src={logoAltWhite} alt="InstantRyde" className="h-7 md:h-8" />
             </motion.div>
 
             {/* Desktop Navigation */}

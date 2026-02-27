@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Car, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { PLATFORM_NAME } from '@/lib/constants';
+import logoAltWhite from '@/assets/logo-alt-white.png';
 
 const footerLinks = {
   company: [
@@ -38,11 +39,8 @@ export function Footer() {
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-                <Car size={22} className="text-white" />
-              </div>
-              <span className="text-xl font-bold">{PLATFORM_NAME}</span>
+            <div className="mb-6">
+              <img src={logoAltWhite} alt="InstantRyde" className="h-8" />
             </div>
             <p className="text-primary-foreground/60 mb-6 max-w-sm">
               Nigeria's premier car hire aggregation platform. Connecting riders with verified drivers since 2024.
