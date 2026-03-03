@@ -35,7 +35,7 @@ interface WebhookPayload {
 // VAPID keys for web push authentication
 const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY") || "";
-const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:support@carhire2go.com";
+const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:support@instantryde.com";
 
 // Simple base64url encoding
 function base64urlEncode(data: Uint8Array): string {
@@ -98,7 +98,7 @@ async function sendPushNotification(
       bookingId: payload.bookingId,
       type: payload.type,
       requireInteraction: payload.requireInteraction || false,
-      tag: `carhire2go-${payload.type || "notification"}`,
+      tag: `instantryde-${payload.type || "notification"}`,
     });
 
     // Create authorization header
