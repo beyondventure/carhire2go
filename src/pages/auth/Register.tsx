@@ -114,7 +114,7 @@ export default function Register() {
             </h2>
             <p className="text-muted-foreground mt-2">
               {step === 'role' 
-                ? 'Select how you want to use CarHire2Go' 
+                ? 'Select how you want to use InstantRyde' 
                 : `Signing up as a ${selectedRole}`}
             </p>
           </div>

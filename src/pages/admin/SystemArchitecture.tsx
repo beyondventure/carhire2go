@@ -106,7 +106,7 @@ export default function SystemArchitecture() {
       
       // Reset to overview
       setActiveSection('overview');
-      pdf.save('CarHire2Go-System-Architecture.pdf');
+      pdf.save('InstantRyde-System-Architecture.pdf');
     } catch (error) {
       console.error('PDF export failed:', error);
     } finally {
@@ -209,7 +209,7 @@ function OverviewSection() {
       <div className="text-center space-y-4">
         <h2 className="text-3xl font-bold">Executive Summary</h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          CarHire2Go is an enterprise-grade vehicle hire marketplace platform connecting consumers 
+          InstantRyde is an enterprise-grade vehicle hire marketplace platform connecting consumers 
           with car hire providers and professional drivers. The platform enables seamless booking, 
           real-time matching, price negotiation, and comprehensive fleet management.
         </p>

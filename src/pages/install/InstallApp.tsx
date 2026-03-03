@@ -26,6 +26,8 @@ import {
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logoWhite from '@/assets/logo-white.png';
+import logoBlack from '@/assets/logo-black.png';
 
 type AppRole = 'consumer' | 'driver' | 'provider';
 
@@ -253,13 +255,13 @@ export default function InstallApp() {
               initial={{ scale: 0.5 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-              className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg"
+              className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg flex items-center justify-center p-4"
               style={{ background: config.color }}
             >
               <img 
-                src={config.icon} 
+                src={logoWhite} 
                 alt={config.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </motion.div>
           </div>

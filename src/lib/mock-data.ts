@@ -34,7 +34,7 @@ export const mockUsers: Record<string, User> = {
   },
   admin1: {
     id: 'admin1',
-    email: 'admin@carhire2go.com',
+    email: 'admin@instantryde.com',
     name: 'Sarah Oke',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
     role: 'admin',
