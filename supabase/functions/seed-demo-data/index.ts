@@ -25,21 +25,21 @@ Deno.serve(async (req) => {
     const { data: providerProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', 'provider@carhire2go.ng')
+      .eq('email', 'provider@instantryde.ng')
       .single()
 
     // Get consumer user
     const { data: consumerProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', 'user@carhire2go.ng')
+      .eq('email', 'user@instantryde.ng')
       .single()
 
     // Get driver user
     const { data: driverProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', 'driver@carhire2go.ng')
+      .eq('email', 'driver@instantryde.ng')
       .single()
 
     if (!providerProfile || !consumerProfile || !driverProfile) {

@@ -6,10 +6,10 @@ const corsHeaders = {
 }
 
 const testUsers = [
-  { email: 'user@carhire2go.ng', password: 'testtest123', name: 'Test User', role: 'consumer' },
-  { email: 'admin@carhire2go.ng', password: 'testtest123', name: 'Test Admin', role: 'admin' },
-  { email: 'provider@carhire2go.ng', password: 'testtest123', name: 'Test Provider', role: 'provider' },
-  { email: 'driver@carhire2go.ng', password: 'testtest123', name: 'Test Driver', role: 'driver' },
+  { email: 'user@instantryde.ng', password: 'testtest123', name: 'Test User', role: 'consumer' },
+  { email: 'admin@instantryde.ng', password: 'testtest123', name: 'Test Admin', role: 'admin' },
+  { email: 'provider@instantryde.ng', password: 'testtest123', name: 'Test Provider', role: 'provider' },
+  { email: 'driver@instantryde.ng', password: 'testtest123', name: 'Test Driver', role: 'driver' },
 ]
 
 Deno.serve(async (req) => {
