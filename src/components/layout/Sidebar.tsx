@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import logoAltBlack from '@/assets/logo-alt-black.png';
+import logoAltWhite from '@/assets/logo-alt-white.png';
 import { motion } from 'framer-motion';
 import { 
   Home, 
@@ -104,12 +104,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             exit={{ opacity: 0 }}
             className="flex items-center gap-3"
            >
-             <img src={logoAltBlack} alt="InstantRyde" className="h-6" />
+             <img src={logoAltWhite} alt="InstantRyde" className="h-6" />
            </motion.div>
-         )}
-         {collapsed && (
-           <div className="mx-auto">
-             <img src={logoAltBlack} alt="InstantRyde" className="h-6" />
+          )}
+          {collapsed && (
+            <div className="mx-auto">
+              <img src={logoAltWhite} alt="InstantRyde" className="h-6" />
            </div>
          )}
         <button

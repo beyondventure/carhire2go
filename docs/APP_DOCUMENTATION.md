@@ -1,4 +1,4 @@
-# RideConnect Nigeria - Complete App Documentation
+# InstantRyde - Complete App Documentation
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -16,7 +16,7 @@
 
 ## Overview
 
-RideConnect Nigeria is a ride-hailing and vehicle rental platform connecting consumers with transport providers and drivers across Nigeria. The app supports multiple user roles with distinct dashboards and functionality.
+InstantRyde is a ride-hailing and vehicle rental platform connecting consumers with transport providers and drivers across Nigeria. The app supports multiple user roles with distinct dashboards and functionality.
 
 ### Key Features
 - **Multi-role system**: Consumer, Provider, Driver, Admin
@@ -767,5 +767,5 @@ src/
 
 ---
 
-*Documentation generated for RideConnect Nigeria v1.0*
-*Last updated: January 2026*
+*Documentation generated for InstantRyde v1.0*
+*Last updated: March 2026*

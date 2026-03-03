@@ -1,4 +1,4 @@
-// Push notification utilities for CarHire2Go
+// Push notification utilities for InstantRyde
 import { supabase } from "@/integrations/supabase/client";
 
 // Check if push notifications are supported

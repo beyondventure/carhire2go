@@ -1,4 +1,4 @@
-// Core Types for CarHire2Go Platform
+// Core Types for InstantRyde Platform
 // Designed for React Native compatibility
 
 export type UserRole = 'consumer' | 'provider' | 'driver' | 'admin';

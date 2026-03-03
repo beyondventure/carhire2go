@@ -173,9 +173,9 @@ export default function AdminSettings() {
             <div className="p-5">
               <div className="space-y-3">
                 {[
-                  { name: 'Sarah Oke', email: 'sarah@carhire2go.com', role: 'Super Admin' },
-                  { name: 'Michael Ade', email: 'michael@carhire2go.com', role: 'Admin' },
-                  { name: 'Blessing Nwankwo', email: 'blessing@carhire2go.com', role: 'Support' },
+                  { name: 'Sarah Oke', email: 'sarah@instantryde.com', role: 'Super Admin' },
+                  { name: 'Michael Ade', email: 'michael@instantryde.com', role: 'Admin' },
+                  { name: 'Blessing Nwankwo', email: 'blessing@instantryde.com', role: 'Support' },
                 ].map((admin) => (
                   <div
                     key={admin.email}
