@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, Search, MessageSquare, X } from 'lucide-react';
-import logoAltBlack from '@/assets/logo-alt-black.png';
+import logoAltWhite from '@/assets/logo-alt-white.png';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -96,7 +96,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoAltBlack} alt="InstantRyde" className="h-5" />
+            <img src={logoAltWhite} alt="InstantRyde" className="h-5" />
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-foreground truncate">
                 {title || PLATFORM_NAME}
