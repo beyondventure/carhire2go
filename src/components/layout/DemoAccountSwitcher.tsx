@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 const demoAccounts = [
-  { email: 'user@instantryde.ng', password: 'testtest123', role: 'consumer', label: 'Consumer', color: 'bg-blue-500' },
-  { email: 'provider@instantryde.ng', password: 'testtest123', role: 'provider', label: 'Provider', color: 'bg-green-500' },
-  { email: 'driver@instantryde.ng', password: 'testtest123', role: 'driver', label: 'Driver', color: 'bg-amber-500' },
-  { email: 'admin@instantryde.ng', password: 'testtest123', role: 'admin', label: 'Admin', color: 'bg-purple-500' },
+  { email: 'user@carhire2go.ng', password: 'testtest123', role: 'consumer', label: 'Consumer', color: 'bg-blue-500' },
+  { email: 'provider@carhire2go.ng', password: 'testtest123', role: 'provider', label: 'Provider', color: 'bg-green-500' },
+  { email: 'driver@carhire2go.ng', password: 'testtest123', role: 'driver', label: 'Driver', color: 'bg-amber-500' },
+  { email: 'admin@carhire2go.ng', password: 'testtest123', role: 'admin', label: 'Admin', color: 'bg-purple-500' },
 ];
 
 interface DemoAccountSwitcherProps {
