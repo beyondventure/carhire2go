@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Bell, Search, MessageSquare, X } from 'lucide-react';
 import logoAltWhite from '@/assets/logo-alt-white.png';
+import logoAltBlack from '@/assets/logo-alt-black.png';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useStandaloneMode } from '@/hooks/useStandaloneMode';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
