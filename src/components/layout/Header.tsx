@@ -26,6 +26,9 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   const navigate = useNavigate();
   const { profile, roles } = useSupabaseAuth();
   const role = roles[0];
+  const isStandalone = useStandaloneMode();
+  const headerLogo = isStandalone ? logoAltBlack : logoAltWhite;
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [messages] = useState(mockMessages);
