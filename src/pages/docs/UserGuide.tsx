@@ -535,15 +535,18 @@ export default function UserGuide() {
               <p className="text-muted-foreground mt-1">
                 What the product owner needs to set up before going live. Each item lists the exact steps, API providers, and costs.
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning/10 text-warning text-xs font-medium">
-                  <AlertTriangle size={12} /> Required = Must have before launch
+              <div className="mt-4 grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold border border-destructive/20">
+                  <AlertTriangle size={14} /> {integrationChecklist.filter(i => i.status === 'required').length} Required — Must do before launch
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                  <Circle size={12} /> Optional = Can launch without, add later
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 text-success text-xs font-semibold border border-success/20">
+                  <CheckCircle2 size={14} /> {integrationChecklist.filter(i => i.status === 'done').length} Done
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 text-success text-xs font-medium">
-                  <CheckCircle2 size={12} /> Done = Already configured
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted text-muted-foreground text-xs font-semibold border border-border">
+                  <Circle size={14} /> {integrationChecklist.filter(i => i.status === 'optional').length} Optional
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 text-muted-foreground/70 text-xs font-semibold border border-border/50">
+                  <Clock size={14} /> {integrationChecklist.filter(i => i.status === 'future').length} Future
                 </div>
               </div>
             </div>
