@@ -116,7 +116,7 @@ function SlideCover() {
           <img src={logoAltWhite} alt="InstantRyde" className="h-10" />
         </div>
         <div className="w-24 h-px bg-white/20 mb-10" />
-        <h1 className="text-7xl font-black text-white leading-[1.05] mb-6">
+        <h1 className="text-6xl font-black text-white leading-[1.05] mb-5">
           Africa's Premium<br />
           <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.3)' }}>
             Ride Platform
