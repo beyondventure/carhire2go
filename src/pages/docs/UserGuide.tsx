@@ -46,11 +46,11 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Consumer Features',
     icon: Users,
     features: [
-      { name: 'Booking Creation', description: 'Full booking form with pickup/dropoff, date, time, vehicle type', working: true, details: ['5 booking types: Full Day, Half Day, To & Fro, Point-to-Point, Event', '5 vehicle types: Sedan, SUV, Luxury, Van, Bus', 'Location search via OpenStreetMap/Nominatim', 'Interactive map with pickup/dropoff markers', 'Estimated price range calculation'] },
+      { name: 'Booking Creation', description: 'Full booking form with pickup/dropoff, date, time, vehicle type', working: true, details: ['5 booking types: Full Day, Half Day, To & Fro, Point-to-Point, Event', '5 vehicle types: Sedan, SUV, Luxury, Van, Bus', 'Location search via OpenStreetMap/Nominatim (Google Maps not yet connected)', 'Interactive map with pickup/dropoff markers', 'Estimated price range calculation'] },
       { name: 'My Bookings', description: 'View all bookings with status filters and search', working: true, details: ['Filter by status (pending, matching, matched, confirmed, etc.)', 'Real-time status updates via WebSocket', 'Click to view details, negotiate, or pay'] },
       { name: 'Real-Time Matching', description: 'Animated overlay while system finds providers', working: true },
       { name: 'Price Negotiation Chat', description: 'In-app chat with provider to agree on price', working: true, details: ['Text messages', 'Price proposal/counter/accept flows', 'Real-time message delivery'] },
-      { name: 'Payments', description: 'Pay for confirmed bookings', working: true, details: ['Flutterwave integration (needs API key)', 'Payment history with status tracking', 'Receipt generation'] },
+      { name: 'Payments (Flutterwave)', description: 'UI built but Flutterwave API keys NOT connected yet', working: false, details: ['Payment UI and flow built', 'Flutterwave integration code ready', '❌ Needs Flutterwave API keys to process real payments', 'Payment history with status tracking', 'Receipt generation'] },
       { name: 'Consumer Dashboard', description: 'Home page with active booking, trip stats, recent bookings', working: true },
       { name: 'Consumer Profile', description: 'Edit personal details', working: true },
     ],
@@ -59,7 +59,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Provider Features',
     icon: Truck,
     features: [
-      { name: 'Provider Onboarding', description: '3-step onboarding: business info → verification → bank details', working: true, details: ['Individual or Company provider types', 'NIN input (individual) or CAC number (company)', 'Service area selection from Nigerian cities', 'Bank details for settlements'] },
+      { name: 'Provider Onboarding', description: '3-step onboarding: business info → verification → bank details', working: true, details: ['Individual or Company provider types', 'NIN input (individual) or CAC number (company)', '❌ NIN/CAC verification API not yet connected — captures data only', 'Service area selection from Nigerian cities', 'Bank details for settlements'] },
       { name: 'Provider Dashboard', description: 'Metrics, incoming requests, fleet status, driver status', working: true, details: ['Today\'s bookings & earnings', 'Total earnings & acceptance rate', 'Real-time incoming booking requests', 'Quick accept/decline actions'] },
       { name: 'Fleet Management (CRUD)', description: 'Add, edit, delete vehicles with full details', working: true, details: ['Vehicle make, model, year, color, plate number', 'Vehicle type and seating capacity', 'Daily rate setting', 'Availability toggle', 'Vehicle count metrics'] },
       { name: 'Driver Management', description: 'View drivers linked to your provider account', working: true },
@@ -72,7 +72,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Driver Features',
     icon: Car,
     features: [
-      { name: 'Driver Onboarding', description: 'License details and NIN verification submission', working: true },
+      { name: 'Driver Onboarding', description: 'License details and NIN submission (NIN API not connected)', working: true, details: ['License number and expiry captured', 'NIN number captured', '❌ NIN verification API not yet connected'] },
       { name: 'Driver Dashboard', description: 'Assigned trips, availability toggle, quick stats', working: true },
       { name: 'Trip Management', description: 'Start trip → navigate → complete trip lifecycle', working: true },
       { name: 'Trip History', description: 'View all past trips with details', working: true },
@@ -85,7 +85,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     icon: Shield,
     features: [
       { name: 'Admin Dashboard', description: 'Platform-wide metrics and overview', working: true, details: ['Total bookings, revenue, users', 'Real-time data from all tables'] },
-      { name: 'Provider Verification', description: 'Review and approve/reject provider applications', working: true },
+      { name: 'Provider Verification', description: 'Manual review only — NIN/CAC API verification not connected', working: true, details: ['Admin can approve/reject providers manually', '❌ Automated NIN/CAC verification pending API integration'] },
       { name: 'Booking Management', description: 'View and manage all bookings platform-wide', working: true },
       { name: 'Consumer Management', description: 'View all consumers and their activity', working: true },
       { name: 'Provider Management', description: 'View all providers, their fleets, and status', working: true },
@@ -114,6 +114,9 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
       { name: 'Landing Page', description: 'Marketing page with hero, services, testimonials, CTA', working: true },
       { name: 'Pitch Deck', description: 'Investor presentation at /pitch', working: true },
       { name: 'Developer Documentation', description: 'Mobile dev guide at /docs/mobile', working: true },
+      { name: 'Native Mobile Apps (iOS/Android)', description: 'React Native apps — NOT YET BUILT, in development', working: false, details: ['❌ Not started — planned for future development', 'Documentation and architecture ready at /docs/mobile', 'PWAs serve as interim mobile solution'] },
+      { name: 'Custom Domain & Hosting', description: 'Production domain not yet configured', working: false, details: ['❌ Not deployed to custom domain yet', 'Currently on Lovable staging URL only', 'Need to purchase domain and configure DNS'] },
+      { name: 'Google Maps Integration', description: 'Using free OpenStreetMap — Google Maps API not connected', working: false, details: ['❌ Google Maps API key not yet obtained', 'Currently using Leaflet + Nominatim (free, less accurate)', 'Google Maps needed for production-quality autocomplete and routing'] },
     ],
   },
 ];
