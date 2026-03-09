@@ -377,9 +377,9 @@ function SlideTraction() {
         ))}
       </div>
       {/* Growth chart */}
-      <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-6">
-        <p className="text-xs text-white/40 uppercase tracking-widest mb-4">Projected Monthly Bookings — Year 1</p>
-        <ResponsiveContainer width="100%" height={120}>
+      <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-5">
+        <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Projected Monthly Bookings — Year 1</p>
+        <ResponsiveContainer width="100%" height={100}>
           <AreaChart data={monthlyGrowth}>
             <defs>
               <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
