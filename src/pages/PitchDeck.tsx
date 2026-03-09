@@ -181,15 +181,15 @@ function SlideProblem() {
 // Slide 3 — Solution
 function SlideSolution() {
   const features = [
-    { icon: <Target className="w-5 h-5 text-blue-400" />, title: 'Smart Matching', desc: 'AI-powered provider matching based on location, vehicle type, and rating' },
-    { icon: <DollarSign className="w-5 h-5 text-emerald-400" />, title: 'Price Negotiation', desc: 'Real-time chat-based negotiation between consumers and providers' },
-    { icon: <Building2 className="w-5 h-5 text-amber-400" />, title: 'Fleet Management', desc: 'Complete toolkit for vehicle owners to manage fleets and drivers' },
-    { icon: <Shield className="w-5 h-5 text-violet-400" />, title: 'Trust Layer', desc: 'NIN/CAC verification, star ratings, and trip insurance options' },
-    { icon: <Smartphone className="w-5 h-5 text-rose-400" />, title: 'Offline Ready', desc: 'Queue bookings offline, sync when connected — works on 2G' },
-    { icon: <Layers className="w-5 h-5 text-cyan-400" />, title: 'Multi-Role', desc: 'Consumer, Provider, Driver, and Corporate admin dashboards' },
+    { icon: <Target className="w-4 h-4 text-blue-400" />, title: 'Smart Matching', desc: 'AI-powered provider matching by location, vehicle, rating' },
+    { icon: <DollarSign className="w-4 h-4 text-emerald-400" />, title: 'Price Negotiation', desc: 'Real-time chat-based negotiation between parties' },
+    { icon: <Building2 className="w-4 h-4 text-amber-400" />, title: 'Fleet Management', desc: 'Complete toolkit for fleet owners and drivers' },
+    { icon: <Shield className="w-4 h-4 text-violet-400" />, title: 'Trust Layer', desc: 'NIN/CAC verification, ratings, insurance' },
+    { icon: <Smartphone className="w-4 h-4 text-rose-400" />, title: 'Offline Ready', desc: 'Queue bookings offline, sync on 2G' },
+    { icon: <Layers className="w-4 h-4 text-cyan-400" />, title: 'Multi-Role', desc: 'Consumer, Provider, Driver, Admin dashboards' },
   ];
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>The Solution</SlideTag>
       <div className="flex gap-20 items-center">
         <div className="flex-1">
