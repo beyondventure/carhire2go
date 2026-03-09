@@ -191,10 +191,10 @@ function SlideSolution() {
   return (
     <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>The Solution</SlideTag>
-      <div className="flex gap-20 items-center">
+      <div className="flex gap-14 items-center">
         <div className="flex-1">
-          <h2 className="text-5xl font-black text-white mb-5 leading-tight">One platform.<br />Every stakeholder.</h2>
-          <p className="text-lg text-white/50 mb-10 leading-relaxed">InstantRyde is Nigeria's first multi-sided transport marketplace that gives power back to consumers, fleet owners, and drivers simultaneously.</p>
+          <h2 className="text-4xl font-black text-white mb-4 leading-tight">One platform.<br />Every stakeholder.</h2>
+          <p className="text-base text-white/50 mb-8 leading-relaxed">InstantRyde is Nigeria's first multi-sided transport marketplace that gives power back to consumers, fleet owners, and drivers.</p>
           <div className="grid grid-cols-2 gap-4">
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
