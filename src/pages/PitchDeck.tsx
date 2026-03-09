@@ -566,8 +566,8 @@ function SlideUseOfFunds() {
             { pct: '10%', label: 'Legal & Admin', amount: '$200K', items: ['Regulatory compliance', 'Legal structure', 'Insurance partnerships'], color: 'bg-amber-500', text: 'text-black' },
           ].map((u, i) => (
             <div key={i} className="flex gap-4 items-start border-b border-white/8 pb-4">
-              <div className={`w-12 h-12 rounded-xl ${u.color} flex items-center justify-center flex-shrink-0`}>
-                <span className={`text-sm font-black ${u.text}`}>{u.pct}</span>
+              <div className={`w-10 h-10 rounded-xl ${u.color} flex items-center justify-center flex-shrink-0`}>
+                <span className={`text-xs font-black ${u.text}`}>{u.pct}</span>
               </div>
               <div className="flex-1">
                 <div className="flex items-baseline gap-3 mb-2">
