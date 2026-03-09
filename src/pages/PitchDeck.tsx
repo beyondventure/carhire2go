@@ -210,7 +210,7 @@ function SlideSolution() {
         </div>
         {/* Phone mockup */}
         <div className="w-64 flex-shrink-0">
-          <div className="relative bg-white/5 border border-white/10 rounded-[2.5rem] p-4 h-[520px] flex flex-col gap-3 overflow-hidden">
+          <div className="relative bg-white/5 border border-white/10 rounded-[2.5rem] p-3 h-[440px] flex flex-col gap-2 overflow-hidden">
             <div className="h-2 w-20 bg-white/20 rounded-full mx-auto mb-1" />
             <div className="bg-white/10 rounded-2xl p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
