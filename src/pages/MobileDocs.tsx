@@ -783,6 +783,9 @@ function ScreensSection() {
             { route: '/register', screen: 'Register', desc: 'Signup form with role selector (consumer/provider/driver)', data: 'auth' },
             { route: '/onboarding/provider', screen: 'Provider Onboarding', desc: 'Multi-step: business info → NIN → CAC → bank details', data: 'providers (create)' },
             { route: '/onboarding/driver', screen: 'Driver Onboarding', desc: 'License details, NIN, provider link', data: 'drivers (create)' },
+            { route: '/install/:role', screen: 'PWA Install', desc: 'Role-specific PWA install page with feature list and notification setup', data: 'push_subscriptions' },
+            { route: '/docs/guide', screen: 'User Guide', desc: 'Integration checklist, FAQ, and step-by-step onboarding guides per role', data: 'none' },
+            { route: '/docs/mobile', screen: 'Mobile Docs', desc: 'This page — BRD, PRD, Architecture, API, and React Native guide', data: 'none' },
           ]
         },
       ].map(role => (
