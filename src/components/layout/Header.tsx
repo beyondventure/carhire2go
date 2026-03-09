@@ -98,19 +98,17 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   // Mobile header
   if (isMobile) {
     return (
-      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3">
+      <header
+        className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border px-4 py-3"
+        style={isStandalone ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoAltWhite} alt="InstantRyde" className="h-5" />
+            <img src={headerLogo} alt="InstantRyde" className="h-5" />
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-foreground truncate">
                 {title || PLATFORM_NAME}
               </h1>
-              {subtitle && (
-                <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
-              )}
-            </div>
-          </div>
 
           <div className="flex items-center gap-1">
             {/* Demo Account Switcher */}
