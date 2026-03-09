@@ -122,10 +122,10 @@ export default function ProviderFleet() {
         {/* Vehicles List */}
         <div className="lg:col-span-2">
           <div className="bg-card rounded-xl border border-border">
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 border-b border-border gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h3 className="font-semibold text-foreground">Vehicles</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 flex-wrap">
                   {['all', 'available', 'unavailable'].map((f) => (
                     <Button
                       key={f}
