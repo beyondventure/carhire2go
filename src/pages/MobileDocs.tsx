@@ -847,6 +847,9 @@ function MobileGuideSection() {
               <li>· Replace Framer Motion animations with <code className="bg-muted px-1 rounded">react-native-reanimated</code></li>
               <li>· Use <code className="bg-muted px-1 rounded">@react-navigation/bottom-tabs</code> for role-specific bottom navigation</li>
               <li>· Flutterwave: use <code className="bg-muted px-1 rounded">flutterwave-react-native</code> SDK instead of WebView redirect</li>
+              <li>· Auth gate: wrap navigation with auth check — redirect to Login screen if no session</li>
+              <li>· Splash screen: use <code className="bg-muted px-1 rounded">expo-splash-screen</code> with black bg + white logo asset</li>
+              <li>· App icons: use original InstantRyde logo (white on #111111) for iOS/Android app icons</li>
             </ul>
           </div>
         </div>
