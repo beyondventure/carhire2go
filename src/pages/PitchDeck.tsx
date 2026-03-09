@@ -600,16 +600,16 @@ function SlideAsk() {
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
         className="relative z-10 flex flex-col items-center text-center px-16">
         <SlideTag>The Ask</SlideTag>
-        <h2 className="text-7xl font-black text-white mb-6 leading-tight">
+        <h2 className="text-5xl font-black text-white mb-5 leading-tight">
           Join us in building<br />
           <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.25)' }}>
             Africa's #1 Ride Platform.
           </span>
         </h2>
-        <p className="text-xl text-white/50 max-w-2xl mb-14 leading-relaxed">
+        <p className="text-lg text-white/50 max-w-2xl mb-10 leading-relaxed">
           We're raising $2M at a $10M pre-money valuation to launch in Lagos, scale to 3 cities, and prove the model ahead of a Series A.
         </p>
-        <div className="grid grid-cols-3 gap-6 w-full max-w-3xl mb-14">
+        <div className="grid grid-cols-3 gap-5 w-full max-w-3xl mb-10">
           {[
             { label: 'Round Size', value: '$2M', sub: 'SAFE / Equity', color: 'border-white/20' },
             { label: 'Pre-Money Val.', value: '$10M', sub: 'Based on comps', color: 'border-blue-500/40' },
