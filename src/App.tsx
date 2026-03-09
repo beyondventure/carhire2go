@@ -40,6 +40,7 @@ import MobileDocs from "./pages/MobileDocs";
 import PitchDeck from "./pages/PitchDeck";
 import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
+import UserGuide from "./pages/docs/UserGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -102,9 +103,13 @@ const App = () => (
             
             {/* Architecture - Public */}
             <Route path="/architecture" element={<SystemArchitecture />} />
+            <Route path="/admin/architecture" element={<SystemArchitecture />} />
             
             {/* Mobile Developer Documentation */}
             <Route path="/docs/mobile" element={<MobileDocs />} />
+            
+            {/* User Guides & Integration Docs */}
+            <Route path="/docs/guide" element={<UserGuide />} />
             
             {/* Investor Pitch Deck */}
             <Route path="/pitch" element={<PitchDeck />} />
