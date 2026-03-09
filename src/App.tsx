@@ -102,9 +102,13 @@ const App = () => (
             
             {/* Architecture - Public */}
             <Route path="/architecture" element={<SystemArchitecture />} />
+            <Route path="/admin/architecture" element={<SystemArchitecture />} />
             
             {/* Mobile Developer Documentation */}
             <Route path="/docs/mobile" element={<MobileDocs />} />
+            
+            {/* User Guides & Integration Docs */}
+            <Route path="/docs/guide" element={<UserGuide />} />
             
             {/* Investor Pitch Deck */}
             <Route path="/pitch" element={<PitchDeck />} />
