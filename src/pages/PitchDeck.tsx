@@ -594,11 +594,11 @@ function SlideAsk() {
     <div className="relative w-full h-full bg-[#080808] flex flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-10"
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] rounded-full opacity-10"
         style={{ background: 'radial-gradient(ellipse, #10b981 0%, transparent 70%)' }} />
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-        className="relative z-10 flex flex-col items-center text-center px-20">
+        className="relative z-10 flex flex-col items-center text-center px-16">
         <SlideTag>The Ask</SlideTag>
         <h2 className="text-7xl font-black text-white mb-6 leading-tight">
           Join us in building<br />
