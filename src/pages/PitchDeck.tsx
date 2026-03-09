@@ -544,10 +544,10 @@ function SlideTeam() {
 // Slide 10 — Use of Funds
 function SlideUseOfFunds() {
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Use of Funds</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">$2M Seed Round —<br />deployed in 18 months.</h2>
-      <div className="flex gap-14 items-center">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">$2M Seed Round —<br />deployed in 18 months.</h2>
+      <div className="flex gap-10 items-center">
         <div className="flex-1">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
