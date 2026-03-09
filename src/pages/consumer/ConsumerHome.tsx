@@ -7,17 +7,26 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { useBookings } from '@/hooks/useBookings';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { CURRENCY, PLATFORM_NAME } from '@/lib/constants';
+import { storage } from '@/lib/platform';
 import logoWhite from '@/assets/logo-white.png';
+
+const SPLASH_SEEN_KEY = 'ir_consumer_splash_seen';
 
 export default function ConsumerHome() {
   const navigate = useNavigate();
   const { profile } = useSupabaseAuth();
   const { bookings, isLoading } = useBookings();
-  const [showSplash, setShowSplash] = useState(() => window.matchMedia('(display-mode: standalone)').matches);
+  const [showSplash, setShowSplash] = useState(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    return isStandalone && storage.getItem(SPLASH_SEEN_KEY) !== '1';
+  });
 
   useEffect(() => {
     if (!showSplash) return;
-    const timer = window.setTimeout(() => setShowSplash(false), 1300);
+    const timer = window.setTimeout(() => {
+      storage.setItem(SPLASH_SEEN_KEY, '1');
+      setShowSplash(false);
+    }, 1250);
     return () => window.clearTimeout(timer);
   }, [showSplash]);
 
