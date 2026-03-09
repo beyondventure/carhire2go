@@ -116,13 +116,13 @@ function SlideCover() {
           <img src={logoAltWhite} alt="InstantRyde" className="h-10" />
         </div>
         <div className="w-24 h-px bg-white/20 mb-10" />
-        <h1 className="text-7xl font-black text-white leading-[1.05] mb-6">
+        <h1 className="text-6xl font-black text-white leading-[1.05] mb-5">
           Africa's Premium<br />
           <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.3)' }}>
             Ride Platform
           </span>
         </h1>
-        <p className="text-xl text-white/50 max-w-xl leading-relaxed mb-14">
+        <p className="text-lg text-white/50 max-w-xl leading-relaxed mb-10">
           Connecting Nigeria's 220M people to professional vehicles, fleet owners, and drivers — built for negotiation, built for scale.
         </p>
         <div className="flex items-center gap-8">
@@ -152,25 +152,25 @@ function SlideCover() {
 // Slide 2 — Problem
 function SlideProblem() {
   const problems = [
-    { icon: '😤', title: 'No Transparency', desc: 'Fixed surge pricing with no consumer recourse — prices spike 3–5× during peak hours' },
-    { icon: '🚗', title: 'Fleet Owners Ignored', desc: 'Thousands of Nigerian fleet owners have no platform to list vehicles and manage bookings professionally' },
-    { icon: '📵', title: 'Connectivity Gaps', desc: '40% of Nigeria has unreliable data — existing apps fail entirely without internet' },
-    { icon: '💸', title: 'Trust Deficit', desc: 'No negotiation, no relationship — consumers and drivers are strangers with no accountability layer' },
+    { icon: '😤', title: 'No Transparency', desc: 'Fixed surge pricing with no recourse — prices spike 3–5× during peak' },
+    { icon: '🚗', title: 'Fleet Owners Ignored', desc: 'Thousands of fleet owners have no platform to list and manage bookings' },
+    { icon: '📵', title: 'Connectivity Gaps', desc: '40% of Nigeria has unreliable data — existing apps fail without internet' },
+    { icon: '💸', title: 'Trust Deficit', desc: 'No negotiation, no relationship — zero accountability between parties' },
   ];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24 overflow-hidden">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-5"
         style={{ background: 'radial-gradient(ellipse at right, #ef4444 0%, transparent 70%)' }} />
       <SlideTag>The Problem</SlideTag>
-      <h2 className="text-6xl font-black text-white mb-4 leading-tight">Nigeria's transport market<br />is broken.</h2>
-      <p className="text-xl text-white/40 mb-14 max-w-2xl">The $8B ride-hailing market is dominated by foreign apps that don't understand Nigeria — or Nigerians.</p>
-      <div className="grid grid-cols-2 gap-6">
+      <h2 className="text-5xl font-black text-white mb-3 leading-tight">Nigeria's transport market<br />is broken.</h2>
+      <p className="text-lg text-white/40 mb-10 max-w-2xl">The $8B ride-hailing market is dominated by foreign apps that don't understand Nigeria — or Nigerians.</p>
+      <div className="grid grid-cols-2 gap-5">
         {problems.map((p, i) => (
           <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}
-            className="bg-white/[0.03] border border-white/10 rounded-2xl p-7">
-            <div className="text-4xl mb-4">{p.icon}</div>
-            <h3 className="text-lg font-bold text-white mb-2">{p.title}</h3>
-            <p className="text-sm text-white/50 leading-relaxed">{p.desc}</p>
+            className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
+            <div className="text-3xl mb-3">{p.icon}</div>
+            <h3 className="text-base font-bold text-white mb-1">{p.title}</h3>
+            <p className="text-xs text-white/50 leading-relaxed">{p.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -181,24 +181,24 @@ function SlideProblem() {
 // Slide 3 — Solution
 function SlideSolution() {
   const features = [
-    { icon: <Target className="w-5 h-5 text-blue-400" />, title: 'Smart Matching', desc: 'AI-powered provider matching based on location, vehicle type, and rating' },
-    { icon: <DollarSign className="w-5 h-5 text-emerald-400" />, title: 'Price Negotiation', desc: 'Real-time chat-based negotiation between consumers and providers' },
-    { icon: <Building2 className="w-5 h-5 text-amber-400" />, title: 'Fleet Management', desc: 'Complete toolkit for vehicle owners to manage fleets and drivers' },
-    { icon: <Shield className="w-5 h-5 text-violet-400" />, title: 'Trust Layer', desc: 'NIN/CAC verification, star ratings, and trip insurance options' },
-    { icon: <Smartphone className="w-5 h-5 text-rose-400" />, title: 'Offline Ready', desc: 'Queue bookings offline, sync when connected — works on 2G' },
-    { icon: <Layers className="w-5 h-5 text-cyan-400" />, title: 'Multi-Role', desc: 'Consumer, Provider, Driver, and Corporate admin dashboards' },
+    { icon: <Target className="w-4 h-4 text-blue-400" />, title: 'Smart Matching', desc: 'AI-powered provider matching by location, vehicle, rating' },
+    { icon: <DollarSign className="w-4 h-4 text-emerald-400" />, title: 'Price Negotiation', desc: 'Real-time chat-based negotiation between parties' },
+    { icon: <Building2 className="w-4 h-4 text-amber-400" />, title: 'Fleet Management', desc: 'Complete toolkit for fleet owners and drivers' },
+    { icon: <Shield className="w-4 h-4 text-violet-400" />, title: 'Trust Layer', desc: 'NIN/CAC verification, ratings, insurance' },
+    { icon: <Smartphone className="w-4 h-4 text-rose-400" />, title: 'Offline Ready', desc: 'Queue bookings offline, sync on 2G' },
+    { icon: <Layers className="w-4 h-4 text-cyan-400" />, title: 'Multi-Role', desc: 'Consumer, Provider, Driver, Admin dashboards' },
   ];
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>The Solution</SlideTag>
-      <div className="flex gap-20 items-center">
+      <div className="flex gap-14 items-center">
         <div className="flex-1">
-          <h2 className="text-5xl font-black text-white mb-5 leading-tight">One platform.<br />Every stakeholder.</h2>
-          <p className="text-lg text-white/50 mb-10 leading-relaxed">InstantRyde is Nigeria's first multi-sided transport marketplace that gives power back to consumers, fleet owners, and drivers simultaneously.</p>
-          <div className="grid grid-cols-2 gap-4">
+          <h2 className="text-4xl font-black text-white mb-4 leading-tight">One platform.<br />Every stakeholder.</h2>
+          <p className="text-base text-white/50 mb-8 leading-relaxed">InstantRyde is Nigeria's first multi-sided transport marketplace that gives power back to consumers, fleet owners, and drivers.</p>
+          <div className="grid grid-cols-2 gap-3">
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                className="flex gap-3 bg-white/[0.03] border border-white/8 rounded-xl p-4">
+                className="flex gap-2 bg-white/[0.03] border border-white/8 rounded-xl p-3">
                 <div className="mt-0.5">{f.icon}</div>
                 <div>
                   <p className="text-sm font-semibold text-white mb-1">{f.title}</p>
@@ -209,8 +209,8 @@ function SlideSolution() {
           </div>
         </div>
         {/* Phone mockup */}
-        <div className="w-72 flex-shrink-0">
-          <div className="relative bg-white/5 border border-white/10 rounded-[2.5rem] p-4 h-[520px] flex flex-col gap-3 overflow-hidden">
+        <div className="w-64 flex-shrink-0">
+          <div className="relative bg-white/5 border border-white/10 rounded-[2.5rem] p-3 h-[440px] flex flex-col gap-2 overflow-hidden">
             <div className="h-2 w-20 bg-white/20 rounded-full mx-auto mb-1" />
             <div className="bg-white/10 rounded-2xl p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -248,11 +248,11 @@ function SlideSolution() {
 // Slide 4 — Market
 function SlideMarket() {
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Market Opportunity</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">A $48B TAM and<br />growing at 23% CAGR.</h2>
-      <div className="flex gap-12 items-center">
-        <div className="flex flex-col gap-6 flex-1">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">A $48B TAM and<br />growing at 23% CAGR.</h2>
+      <div className="flex gap-10 items-center">
+        <div className="flex flex-col gap-5 flex-1">
           {[
             { label: 'TAM', sub: 'African Mobility Market', value: '$48B', color: 'border-l-white/30', sub2: 'Total ride-hailing + logistics + fleet mgmt across Africa' },
             { label: 'SAM', sub: 'Nigeria Transport Market', value: '$8.2B', color: 'border-l-blue-500/60', sub2: "Formal + informal transport in Nigeria's top 36 cities" },
@@ -293,12 +293,12 @@ function SlideMarket() {
 // Slide 5 — Business Model
 function SlideBusinessModel() {
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Business Model</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">5 diversified revenue streams.</h2>
-      <div className="flex gap-14 items-center">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">5 diversified revenue streams.</h2>
+      <div className="flex gap-10 items-center">
         <div className="flex-1">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={revenueStreams} cx="50%" cy="50%" innerRadius={70} outerRadius={120} paddingAngle={3} dataKey="value">
                 {revenueStreams.map((entry, i) => (
@@ -352,19 +352,19 @@ function SlideTraction() {
     { q: 'Q4 2026', label: 'Series A Prep', items: ['5 cities', '₦2.1B GMV', 'Insurance launch'], done: false },
   ];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Traction & Roadmap</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-6 leading-tight">First mover execution plan.</h2>
-      <p className="text-lg text-white/40 mb-12">MVP is built. Tech is live. We're raising to scale distribution.</p>
-      <div className="flex gap-6 mb-12">
+      <h2 className="text-4xl font-black text-white mb-4 leading-tight">First mover execution plan.</h2>
+      <p className="text-base text-white/40 mb-8">MVP is built. Tech is live. We're raising to scale distribution.</p>
+      <div className="flex gap-5 mb-8">
         {milestones.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
-            className={`flex-1 border rounded-2xl p-6 ${m.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02]'}`}>
-            <div className="flex items-center justify-between mb-4">
+            className={`flex-1 border rounded-2xl p-5 ${m.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02]'}`}>
+            <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-white/40 font-bold uppercase tracking-widest">{m.q}</span>
               {m.done && <CheckCircle className="w-4 h-4 text-emerald-400" />}
             </div>
-            <p className="text-lg font-black text-white mb-4">{m.label}</p>
+            <p className="text-base font-black text-white mb-3">{m.label}</p>
             <div className="flex flex-col gap-2">
               {m.items.map((item, j) => (
                 <div key={j} className="flex items-center gap-2">
@@ -377,9 +377,9 @@ function SlideTraction() {
         ))}
       </div>
       {/* Growth chart */}
-      <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-6">
-        <p className="text-xs text-white/40 uppercase tracking-widest mb-4">Projected Monthly Bookings — Year 1</p>
-        <ResponsiveContainer width="100%" height={120}>
+      <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-5">
+        <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Projected Monthly Bookings — Year 1</p>
+        <ResponsiveContainer width="100%" height={100}>
           <AreaChart data={monthlyGrowth}>
             <defs>
               <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
@@ -401,13 +401,13 @@ function SlideTraction() {
 // Slide 7 — Financials
 function SlideFinancials() {
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Financial Projections</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-10 leading-tight">Path to ₦1B+ revenue<br />in 36 months.</h2>
-      <div className="flex gap-10 items-start">
+      <h2 className="text-4xl font-black text-white mb-8 leading-tight">Path to ₦1B+ revenue<br />in 36 months.</h2>
+      <div className="flex gap-8 items-start">
         <div className="flex-[1.4]">
-          <p className="text-xs text-white/40 uppercase tracking-widest mb-4">GMV vs Revenue (₦ Millions)</p>
-          <ResponsiveContainer width="100%" height={280}>
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-3">GMV vs Revenue (₦ Millions)</p>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart data={revenueProjections} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
               <XAxis dataKey="year" stroke="#ffffff20" tick={{ fill: '#ffffff40', fontSize: 11 }} />
@@ -419,7 +419,7 @@ function SlideFinancials() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-3">
           {revenueProjections.map((r, i) => (
             <div key={i} className="flex items-center justify-between border-b border-white/8 pb-3">
               <span className="text-sm font-bold text-white/60">{r.year}</span>
@@ -460,10 +460,10 @@ function SlideCompetitive() {
   ];
   const dimensions = ['Nigeria Focus', 'Price Negotiation', 'Fleet Owners', 'Corporate', 'Offline Ready'];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Competitive Landscape</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-4 leading-tight">We win on dimensions<br />nobody else built for.</h2>
-      <p className="text-lg text-white/40 mb-12 max-w-2xl">Uber and Bolt are global products with Nigeria as an afterthought. InstantRyde is built from the ground up for this market.</p>
+      <h2 className="text-4xl font-black text-white mb-3 leading-tight">We win on dimensions<br />nobody else built for.</h2>
+      <p className="text-base text-white/40 mb-8 max-w-2xl">Uber and Bolt are global products with Nigeria as an afterthought. InstantRyde is built from the ground up for this market.</p>
       <div className="overflow-hidden rounded-2xl border border-white/10">
         <table className="w-full">
           <thead>
@@ -544,12 +544,12 @@ function SlideTeam() {
 // Slide 10 — Use of Funds
 function SlideUseOfFunds() {
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Use of Funds</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">$2M Seed Round —<br />deployed in 18 months.</h2>
-      <div className="flex gap-14 items-center">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">$2M Seed Round —<br />deployed in 18 months.</h2>
+      <div className="flex gap-10 items-center">
         <div className="flex-1">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={useOfFunds} cx="50%" cy="50%" innerRadius={80} outerRadius={130} paddingAngle={3} dataKey="value">
                 {useOfFunds.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -558,16 +558,16 @@ function SlideUseOfFunds() {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-[1.5] flex flex-col gap-5">
+        <div className="flex-[1.5] flex flex-col gap-4">
           {[
             { pct: '40%', label: 'Tech & Product', amount: '$800K', items: ['Native iOS + Android apps', 'AI matching engine', 'Real-time infrastructure', 'Security & compliance'], color: 'bg-white', text: 'text-black' },
             { pct: '30%', label: 'Sales & Marketing', amount: '$600K', items: ['Driver + Provider acquisition', 'Consumer brand campaigns', 'Corporate sales team', 'WhatsApp + SMS campaigns'], color: 'bg-blue-500', text: 'text-white' },
             { pct: '20%', label: 'Operations', amount: '$400K', items: ['City operations leads', 'Driver onboarding', 'Customer support', 'Verification systems'], color: 'bg-emerald-500', text: 'text-white' },
             { pct: '10%', label: 'Legal & Admin', amount: '$200K', items: ['Regulatory compliance', 'Legal structure', 'Insurance partnerships'], color: 'bg-amber-500', text: 'text-black' },
           ].map((u, i) => (
-            <div key={i} className="flex gap-5 items-start border-b border-white/8 pb-5">
-              <div className={`w-12 h-12 rounded-xl ${u.color} flex items-center justify-center flex-shrink-0`}>
-                <span className={`text-sm font-black ${u.text}`}>{u.pct}</span>
+            <div key={i} className="flex gap-4 items-start border-b border-white/8 pb-4">
+              <div className={`w-10 h-10 rounded-xl ${u.color} flex items-center justify-center flex-shrink-0`}>
+                <span className={`text-xs font-black ${u.text}`}>{u.pct}</span>
               </div>
               <div className="flex-1">
                 <div className="flex items-baseline gap-3 mb-2">
@@ -594,22 +594,22 @@ function SlideAsk() {
     <div className="relative w-full h-full bg-[#080808] flex flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-10"
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] rounded-full opacity-10"
         style={{ background: 'radial-gradient(ellipse, #10b981 0%, transparent 70%)' }} />
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-        className="relative z-10 flex flex-col items-center text-center px-20">
+        className="relative z-10 flex flex-col items-center text-center px-16">
         <SlideTag>The Ask</SlideTag>
-        <h2 className="text-7xl font-black text-white mb-6 leading-tight">
+        <h2 className="text-5xl font-black text-white mb-5 leading-tight">
           Join us in building<br />
           <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.25)' }}>
             Africa's #1 Ride Platform.
           </span>
         </h2>
-        <p className="text-xl text-white/50 max-w-2xl mb-14 leading-relaxed">
+        <p className="text-lg text-white/50 max-w-2xl mb-10 leading-relaxed">
           We're raising $2M at a $10M pre-money valuation to launch in Lagos, scale to 3 cities, and prove the model ahead of a Series A.
         </p>
-        <div className="grid grid-cols-3 gap-6 w-full max-w-3xl mb-14">
+        <div className="grid grid-cols-3 gap-5 w-full max-w-3xl mb-10">
           {[
             { label: 'Round Size', value: '$2M', sub: 'SAFE / Equity', color: 'border-white/20' },
             { label: 'Pre-Money Val.', value: '$10M', sub: 'Based on comps', color: 'border-blue-500/40' },
@@ -638,17 +638,17 @@ function SlideAsk() {
 // ─── Slides Registry ──────────────────────────────────────────────────────────
 
 const slides = [
-  { id: 1, title: 'Cover', component: SlideCover },
-  { id: 2, title: 'Problem', component: SlideProblem },
-  { id: 3, title: 'Solution', component: SlideSolution },
-  { id: 4, title: 'Market', component: SlideMarket },
-  { id: 5, title: 'Business Model', component: SlideBusinessModel },
-  { id: 6, title: 'Traction', component: SlideTraction },
-  { id: 7, title: 'Financials', component: SlideFinancials },
-  { id: 8, title: 'Competitive', component: SlideCompetitive },
-  { id: 9, title: 'Team', component: SlideTeam },
-  { id: 10, title: 'Use of Funds', component: SlideUseOfFunds },
-  { id: 11, title: 'The Ask', component: SlideAsk },
+  { id: 1, title: 'Cover', component: SlideCover, exportable: true },
+  { id: 2, title: 'Problem', component: SlideProblem, exportable: true },
+  { id: 3, title: 'Solution', component: SlideSolution, exportable: true },
+  { id: 4, title: 'Market', component: SlideMarket, exportable: true },
+  { id: 5, title: 'Business Model', component: SlideBusinessModel, exportable: true },
+  { id: 6, title: 'Traction', component: SlideTraction, exportable: true },
+  { id: 7, title: 'Financials', component: SlideFinancials, exportable: true },
+  { id: 8, title: 'Competitive', component: SlideCompetitive, exportable: true },
+  { id: 9, title: 'Team', component: SlideTeam, exportable: false }, // Hidden from export until updated
+  { id: 10, title: 'Use of Funds', component: SlideUseOfFunds, exportable: true },
+  { id: 11, title: 'The Ask', component: SlideAsk, exportable: true },
 ];
 
 // ─── Main PitchDeck ──────────────────────────────────────────────────────────
@@ -705,20 +705,61 @@ export default function PitchDeck() {
   useEffect(() => { resetNavTimer(); }, [resetNavTimer]);
 
   // PDF Export
+  const [isExporting, setIsExporting] = useState(false);
   const exportPDF = async () => {
-    const { default: jsPDF } = await import('jspdf');
-    const { default: html2canvas } = await import('html2canvas');
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1280, 720] });
-
-    const slideEls = document.querySelectorAll('[data-slide]');
-    for (let i = 0; i < slideEls.length; i++) {
-      const el = slideEls[i] as HTMLElement;
-      const canvas = await html2canvas(el, { scale: 1, backgroundColor: '#080808', width: 1280, height: 720 });
-      const img = canvas.toDataURL('image/jpeg', 0.9);
-      if (i > 0) pdf.addPage();
-      pdf.addImage(img, 'JPEG', 0, 0, 1280, 720);
+    setIsExporting(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: html2canvas } = await import('html2canvas');
+      
+      const W = 1280;
+      const H = 720;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [W, H] });
+      
+      // Use the hidden export container which renders ALL slides
+      const exportContainer = document.getElementById('pdf-export-container');
+      if (!exportContainer) return;
+      
+      const exportSlides = exportContainer.querySelectorAll('[data-pdf-slide]');
+      let pageAdded = false;
+      
+      for (let i = 0; i < exportSlides.length; i++) {
+        const el = exportSlides[i] as HTMLElement;
+        // Skip non-exportable slides (e.g., Team)
+        if (el.dataset.pdfSkip === 'true') continue;
+        
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          backgroundColor: '#080808',
+          width: W,
+          height: H,
+          useCORS: true,
+          logging: false,
+          // Ensure SVGs and icons render properly
+          onclone: (doc) => {
+            // Force all SVG elements to have explicit dimensions
+            doc.querySelectorAll('svg').forEach(svg => {
+              if (!svg.getAttribute('width')) {
+                const rect = svg.getBoundingClientRect();
+                svg.setAttribute('width', String(rect.width || 16));
+                svg.setAttribute('height', String(rect.height || 16));
+              }
+            });
+          }
+        });
+        
+        const img = canvas.toDataURL('image/jpeg', 0.92);
+        if (pageAdded) pdf.addPage();
+        pdf.addImage(img, 'JPEG', 0, 0, W, H);
+        pageAdded = true;
+      }
+      
+      pdf.save('InstantRyde-Pitch-Deck.pdf');
+    } catch (err) {
+      console.error('PDF export failed:', err);
+    } finally {
+      setIsExporting(false);
     }
-    pdf.save('InstantRyde-Pitch-Deck.pdf');
   };
 
   const CurrentSlide = slides[current].component;
@@ -745,8 +786,8 @@ export default function PitchDeck() {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={exportPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all">
-                <Download className="w-3.5 h-3.5" /> Export PDF
+              <button onClick={exportPDF} disabled={isExporting} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all disabled:opacity-40">
+                <Download className="w-3.5 h-3.5" /> {isExporting ? 'Exporting...' : 'Export PDF'}
               </button>
               <button onClick={toggleFullscreen} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all">
                 {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -794,13 +835,20 @@ export default function PitchDeck() {
         <motion.div className="h-full bg-white" animate={{ width: `${((current + 1) / total) * 100}%` }} transition={{ duration: 0.3 }} />
       </div>
 
-      {/* Hidden slides for PDF — rendered off-screen */}
-      <div className="fixed -left-[99999px] top-0 w-[1280px] h-[720px] pointer-events-none" aria-hidden>
+      {/* Hidden slides for PDF export — ALL rendered simultaneously at fixed size */}
+      <div id="pdf-export-container" className="fixed pointer-events-none" style={{ left: '-99999px', top: 0 }} aria-hidden>
         {slides.map((s, i) => {
           const SlideComp = s.component;
           return (
-            <div key={i} data-slide={`pdf-${i}`} className="absolute inset-0" style={{ display: i === current ? 'block' : 'none' }}>
-              <SlideComp />
+            <div
+              key={i}
+              data-pdf-slide={i}
+              data-pdf-skip={!s.exportable ? 'true' : 'false'}
+              style={{ width: 1280, height: 720, position: 'relative', overflow: 'hidden' }}
+            >
+              <div style={{ width: 1280, height: 720, transform: 'scale(1)', transformOrigin: 'top left' }}>
+                <SlideComp />
+              </div>
             </div>
           );
         })}
