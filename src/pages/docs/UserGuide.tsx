@@ -72,7 +72,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Driver Features',
     icon: Car,
     features: [
-      { name: 'Driver Onboarding', description: 'License details and NIN verification submission', working: true },
+      { name: 'Driver Onboarding', description: 'License details and NIN submission (NIN API not connected)', working: true, details: ['License number and expiry captured', 'NIN number captured', '❌ NIN verification API not yet connected'] },
       { name: 'Driver Dashboard', description: 'Assigned trips, availability toggle, quick stats', working: true },
       { name: 'Trip Management', description: 'Start trip → navigate → complete trip lifecycle', working: true },
       { name: 'Trip History', description: 'View all past trips with details', working: true },
