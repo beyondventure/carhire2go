@@ -85,7 +85,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     icon: Shield,
     features: [
       { name: 'Admin Dashboard', description: 'Platform-wide metrics and overview', working: true, details: ['Total bookings, revenue, users', 'Real-time data from all tables'] },
-      { name: 'Provider Verification', description: 'Review and approve/reject provider applications', working: true },
+      { name: 'Provider Verification', description: 'Manual review only — NIN/CAC API verification not connected', working: true, details: ['Admin can approve/reject providers manually', '❌ Automated NIN/CAC verification pending API integration'] },
       { name: 'Booking Management', description: 'View and manage all bookings platform-wide', working: true },
       { name: 'Consumer Management', description: 'View all consumers and their activity', working: true },
       { name: 'Provider Management', description: 'View all providers, their fleets, and status', working: true },
