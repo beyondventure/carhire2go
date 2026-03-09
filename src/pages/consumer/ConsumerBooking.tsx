@@ -214,7 +214,7 @@ export default function ConsumerBooking() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-card rounded-2xl border border-border p-6 flex-1 overflow-y-auto custom-scrollbar"
+            className="bg-card rounded-2xl border border-border p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar"
           >
             {/* Header with Steps */}
             <div className="mb-6">

@@ -392,8 +392,8 @@ export default function ProviderDashboard() {
             <h2 className="text-lg font-semibold text-foreground">Recent Bookings</h2>
           </div>
           
-          <div className="overflow-x-auto">
-            <table className="data-table">
+          <div className="overflow-x-auto -mx-0">
+            <table className="data-table min-w-[600px]">
               <thead>
                 <tr className="bg-muted/30">
                   <th>Route</th>

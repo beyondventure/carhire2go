@@ -83,7 +83,7 @@ export default function ProviderDrivers() {
   return (
     <DashboardLayout title="Driver Management" subtitle="Manage your drivers and track performance">
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <MetricCard
           title="Total Drivers"
           value={drivers.length.toString()}

@@ -96,7 +96,7 @@ export default function ProviderEarnings() {
   return (
     <DashboardLayout title="Earnings" subtitle="Track your revenue and settlements">
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <MetricCard
           title="Today's Earnings"
           value={`${CURRENCY}${todayEarnings.toLocaleString()}`}

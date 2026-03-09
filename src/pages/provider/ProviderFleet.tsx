@@ -261,34 +261,34 @@ export default function ProviderFleet() {
                     }`}
                     onClick={() => setSelectedVehicle(vehicle)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-14 rounded-lg bg-muted flex items-center justify-center">
-                        <Car size={24} className="text-muted-foreground" />
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="w-12 h-12 md:w-20 md:h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                        <Car size={20} className="text-muted-foreground" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-foreground">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-semibold text-foreground text-sm md:text-base truncate">
                             {vehicle.make} {vehicle.model}
                           </h4>
                           <span className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground capitalize">
                             {vehicle.vehicle_type}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 mt-1 text-xs md:text-sm text-muted-foreground flex-wrap">
                           <span>{vehicle.plate_number}</span>
-                          <span>•</span>
-                          <span>{vehicle.year}</span>
-                          <span>•</span>
-                          <span>{vehicle.seats} seats</span>
+                          <span className="hidden sm:inline">•</span>
+                          <span className="hidden sm:inline">{vehicle.year}</span>
+                          <span className="hidden sm:inline">•</span>
+                          <span className="hidden sm:inline">{vehicle.seats} seats</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-foreground">
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-foreground text-sm md:text-base">
                           {CURRENCY}{vehicle.daily_rate.toLocaleString()}
                           <span className="text-xs text-muted-foreground font-normal">/day</span>
                         </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 mt-1 justify-end">
+                          <span className="text-xs text-muted-foreground hidden sm:inline">
                             {vehicle.available ? 'Available' : 'Unavailable'}
                           </span>
                           <Switch
