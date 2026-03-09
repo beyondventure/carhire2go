@@ -3,7 +3,7 @@
   "short_name": "InstantRyde",
   "description": "On-demand vehicle hire marketplace. Rides, Instantly.",
   "theme_color": "#111111",
-  "background_color": "#f7f7f7",
+  "background_color": "#111111",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
