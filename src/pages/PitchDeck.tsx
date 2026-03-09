@@ -549,7 +549,7 @@ function SlideUseOfFunds() {
       <h2 className="text-4xl font-black text-white mb-10 leading-tight">$2M Seed Round —<br />deployed in 18 months.</h2>
       <div className="flex gap-10 items-center">
         <div className="flex-1">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={useOfFunds} cx="50%" cy="50%" innerRadius={80} outerRadius={130} paddingAngle={3} dataKey="value">
                 {useOfFunds.map((entry, i) => <Cell key={i} fill={entry.color} />)}
