@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import logoWhite from '@/assets/logo-white.png';
+
 
 export function HeroSection() {
   const navigate = useNavigate();
