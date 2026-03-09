@@ -40,6 +40,7 @@ import MobileDocs from "./pages/MobileDocs";
 import PitchDeck from "./pages/PitchDeck";
 import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
+import UserGuide from "./pages/docs/UserGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
