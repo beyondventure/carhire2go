@@ -638,17 +638,17 @@ function SlideAsk() {
 // ─── Slides Registry ──────────────────────────────────────────────────────────
 
 const slides = [
-  { id: 1, title: 'Cover', component: SlideCover },
-  { id: 2, title: 'Problem', component: SlideProblem },
-  { id: 3, title: 'Solution', component: SlideSolution },
-  { id: 4, title: 'Market', component: SlideMarket },
-  { id: 5, title: 'Business Model', component: SlideBusinessModel },
-  { id: 6, title: 'Traction', component: SlideTraction },
-  { id: 7, title: 'Financials', component: SlideFinancials },
-  { id: 8, title: 'Competitive', component: SlideCompetitive },
-  { id: 9, title: 'Team', component: SlideTeam },
-  { id: 10, title: 'Use of Funds', component: SlideUseOfFunds },
-  { id: 11, title: 'The Ask', component: SlideAsk },
+  { id: 1, title: 'Cover', component: SlideCover, exportable: true },
+  { id: 2, title: 'Problem', component: SlideProblem, exportable: true },
+  { id: 3, title: 'Solution', component: SlideSolution, exportable: true },
+  { id: 4, title: 'Market', component: SlideMarket, exportable: true },
+  { id: 5, title: 'Business Model', component: SlideBusinessModel, exportable: true },
+  { id: 6, title: 'Traction', component: SlideTraction, exportable: true },
+  { id: 7, title: 'Financials', component: SlideFinancials, exportable: true },
+  { id: 8, title: 'Competitive', component: SlideCompetitive, exportable: true },
+  { id: 9, title: 'Team', component: SlideTeam, exportable: false }, // Hidden from export until updated
+  { id: 10, title: 'Use of Funds', component: SlideUseOfFunds, exportable: true },
+  { id: 11, title: 'The Ask', component: SlideAsk, exportable: true },
 ];
 
 // ─── Main PitchDeck ──────────────────────────────────────────────────────────
