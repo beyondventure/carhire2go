@@ -419,7 +419,7 @@ function SlideFinancials() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-3">
           {revenueProjections.map((r, i) => (
             <div key={i} className="flex items-center justify-between border-b border-white/8 pb-3">
               <span className="text-sm font-bold text-white/60">{r.year}</span>
