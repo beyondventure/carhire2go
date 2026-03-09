@@ -705,20 +705,61 @@ export default function PitchDeck() {
   useEffect(() => { resetNavTimer(); }, [resetNavTimer]);
 
   // PDF Export
+  const [isExporting, setIsExporting] = useState(false);
   const exportPDF = async () => {
-    const { default: jsPDF } = await import('jspdf');
-    const { default: html2canvas } = await import('html2canvas');
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1280, 720] });
-
-    const slideEls = document.querySelectorAll('[data-slide]');
-    for (let i = 0; i < slideEls.length; i++) {
-      const el = slideEls[i] as HTMLElement;
-      const canvas = await html2canvas(el, { scale: 1, backgroundColor: '#080808', width: 1280, height: 720 });
-      const img = canvas.toDataURL('image/jpeg', 0.9);
-      if (i > 0) pdf.addPage();
-      pdf.addImage(img, 'JPEG', 0, 0, 1280, 720);
+    setIsExporting(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: html2canvas } = await import('html2canvas');
+      
+      const W = 1280;
+      const H = 720;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [W, H] });
+      
+      // Use the hidden export container which renders ALL slides
+      const exportContainer = document.getElementById('pdf-export-container');
+      if (!exportContainer) return;
+      
+      const exportSlides = exportContainer.querySelectorAll('[data-pdf-slide]');
+      let pageAdded = false;
+      
+      for (let i = 0; i < exportSlides.length; i++) {
+        const el = exportSlides[i] as HTMLElement;
+        // Skip non-exportable slides (e.g., Team)
+        if (el.dataset.pdfSkip === 'true') continue;
+        
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          backgroundColor: '#080808',
+          width: W,
+          height: H,
+          useCORS: true,
+          logging: false,
+          // Ensure SVGs and icons render properly
+          onclone: (doc) => {
+            // Force all SVG elements to have explicit dimensions
+            doc.querySelectorAll('svg').forEach(svg => {
+              if (!svg.getAttribute('width')) {
+                const rect = svg.getBoundingClientRect();
+                svg.setAttribute('width', String(rect.width || 16));
+                svg.setAttribute('height', String(rect.height || 16));
+              }
+            });
+          }
+        });
+        
+        const img = canvas.toDataURL('image/jpeg', 0.92);
+        if (pageAdded) pdf.addPage();
+        pdf.addImage(img, 'JPEG', 0, 0, W, H);
+        pageAdded = true;
+      }
+      
+      pdf.save('InstantRyde-Pitch-Deck.pdf');
+    } catch (err) {
+      console.error('PDF export failed:', err);
+    } finally {
+      setIsExporting(false);
     }
-    pdf.save('InstantRyde-Pitch-Deck.pdf');
   };
 
   const CurrentSlide = slides[current].component;
