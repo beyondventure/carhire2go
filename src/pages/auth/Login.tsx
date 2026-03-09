@@ -30,18 +30,19 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const getRoleBasedRoute = async (userId: string): Promise<string> => {
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId);
+    const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', userId);
 
     const role = roles?.[0]?.role;
-    
+
     switch (role) {
-      case 'admin': return '/admin';
-      case 'provider': return '/provider';
-      case 'driver': return '/driver';
-      default: return '/consumer';
+      case 'admin':
+        return '/admin';
+      case 'provider':
+        return '/provider';
+      case 'driver':
+        return '/driver';
+      default:
+        return '/consumer';
     }
   };
 
@@ -50,7 +51,7 @@ export default function Login() {
     setIsLoading(true);
 
     const { error } = await signIn(email, password);
-    
+
     if (error) {
       toast.error(error.message);
       setIsLoading(false);
@@ -58,45 +59,56 @@ export default function Login() {
     }
 
     // Get current user and redirect based on role
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       const route = await getRoleBasedRoute(user.id);
       toast.success('Welcome back!');
       navigate(route);
     }
-    
+
     setIsLoading(false);
   };
 
   const handleQuickLogin = async (testEmail: string) => {
     setIsLoading(true);
     const { error } = await signIn(testEmail, 'testtest123');
-    
+
     if (error) {
       toast.error(error.message);
       setIsLoading(false);
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       const route = await getRoleBasedRoute(user.id);
       toast.success('Welcome back!');
       navigate(route);
     }
-    
+
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div
+      className={`${isStandalone ? 'min-h-[100dvh]' : 'min-h-screen'} flex`}
+      style={
+        isStandalone
+          ? {
+              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)',
+            }
+          : undefined
+      }
+    >
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient items-center justify-center p-12">
         <div className="text-center text-white space-y-6">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-          >
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
             <img src={logoWhite} alt="InstantRyde" className="h-24 mx-auto" />
           </motion.div>
           <motion.p
@@ -111,12 +123,12 @@ export default function Login() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background overflow-y-auto">
-        <motion.div
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          className="w-full max-w-md space-y-6"
-        >
+      <div
+        className={`flex-1 flex items-center justify-center bg-background overflow-y-auto ${
+          isStandalone ? 'px-4 py-6' : 'p-8'
+        }`}
+      >
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="w-full max-w-md space-y-6">
           <div className="text-center lg:text-left">
             <div className="lg:hidden flex items-center justify-center mb-6">
               <img src={logoAltBlack} alt="InstantRyde" className="h-7" />
@@ -128,7 +140,7 @@ export default function Login() {
           {/* Quick Login Buttons for Demo */}
           <div className="space-y-3">
             <p className="text-sm font-medium text-muted-foreground text-center">Quick Demo Login</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className={`grid gap-2 ${isStandalone ? 'grid-cols-1' : 'grid-cols-2'}`}>
               {testAccounts.map((account) => {
                 const IconComponent = account.icon;
                 return (
@@ -138,13 +150,13 @@ export default function Login() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleQuickLogin(account.email)}
                     disabled={isLoading}
-                    className="flex items-center gap-2 p-3 rounded-xl border border-border hover:border-accent/30 bg-card text-left transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 p-3 rounded-xl border border-border hover:border-accent/30 bg-card text-left transition-all disabled:opacity-50 overflow-hidden min-w-0"
                   >
                     <div className={`w-8 h-8 rounded-lg ${account.color} flex items-center justify-center text-white`}>
                       <IconComponent size={16} />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{account.label}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{account.label}</p>
                       <p className="text-xs text-muted-foreground truncate">{account.email}</p>
                     </div>
                   </motion.button>

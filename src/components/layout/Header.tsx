@@ -32,7 +32,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [messages] = useState(mockMessages);
-  
+
   // Use real-time notifications hook
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
@@ -43,10 +43,10 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
     admin: 'Admin Console',
   };
 
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
+  const handleNotificationClick = (notification: (typeof notifications)[0]) => {
     markAsRead(notification.id);
     setShowNotifications(false);
-    
+
     // Navigate based on notification type
     if (notification.relatedBookingId) {
       if (role === 'consumer') {
@@ -64,7 +64,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
     toast.success('All notifications marked as read');
   };
 
-  const handleMessageClick = (message: typeof mockMessages[0]) => {
+  const handleMessageClick = (message: (typeof mockMessages)[0]) => {
     setShowMessages(false);
     toast.info(`Opening chat with ${message.sender}`);
     if (role === 'consumer') {
@@ -106,9 +106,10 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
           <div className="flex items-center gap-3">
             <img src={headerLogo} alt="InstantRyde" className="h-5" />
             <div className="min-w-0">
-              <h1 className="text-base font-semibold text-foreground truncate">
-                {title || PLATFORM_NAME}
-              </h1>
+              <h1 className="text-base font-semibold text-foreground truncate">{title || PLATFORM_NAME}</h1>
+              {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+            </div>
+          </div>
 
           <div className="flex items-center gap-1">
             {/* Demo Account Switcher */}
@@ -153,11 +154,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
 
             {/* Profile */}
             {profile && (
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleProfileClick}
-                className="p-1 ml-1"
-              >
+              <motion.button whileTap={{ scale: 0.95 }} onClick={handleProfileClick} className="p-1 ml-1">
                 <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-background font-medium text-sm">
                   {profile.name?.charAt(0).toUpperCase() || 'U'}
                 </div>
@@ -178,10 +175,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
               <div className="p-3 border-b border-border flex items-center justify-between">
                 <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
                 <div className="flex gap-2">
-                  <button 
-                    onClick={handleMarkAllRead}
-                    className="text-xs text-accent hover:underline"
-                  >
+                  <button onClick={handleMarkAllRead} className="text-xs text-accent hover:underline">
                     Mark all read
                   </button>
                   <button onClick={() => setShowNotifications(false)}>
@@ -191,29 +185,27 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground text-sm">
-                    No notifications yet
-                  </div>
-                ) : notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`p-3 border-b border-border last:border-0 cursor-pointer active:bg-muted/50 transition-colors ${
-                      !notification.read ? 'bg-accent/5' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {!notification.read && (
-                        <span className="w-2 h-2 bg-accent rounded-full mt-1.5 flex-shrink-0" />
-                      )}
-                      <div className={!notification.read ? '' : 'ml-4'}>
-                        <p className="text-sm font-medium text-foreground">{notification.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
+                  <div className="p-4 text-center text-muted-foreground text-sm">No notifications yet</div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`p-3 border-b border-border last:border-0 cursor-pointer active:bg-muted/50 transition-colors ${
+                        !notification.read ? 'bg-accent/5' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!notification.read && <span className="w-2 h-2 bg-accent rounded-full mt-1.5 flex-shrink-0" />}
+                        <div className={!notification.read ? '' : 'ml-4'}>
+                          <p className="text-sm font-medium text-foreground">{notification.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </motion.div>
           )}
@@ -262,18 +254,14 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 relative">
       <div className="min-w-0 flex-1">
-        <h1 className="text-lg font-semibold text-foreground truncate">
-          {title || (role && roleLabels[role])}
-        </h1>
-        {subtitle && (
-          <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
-        )}
+        <h1 className="text-lg font-semibold text-foreground truncate">{title || (role && roleLabels[role])}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Demo Account Switcher */}
         <DemoAccountSwitcher currentEmail={profile?.email} currentRole={role} />
-        
+
         {/* Search */}
         <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-2 ml-2">
           <Search size={16} className="text-muted-foreground" />
@@ -315,10 +303,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                 <div className="p-4 border-b border-border flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">Notifications</h3>
                   <div className="flex gap-2">
-                    <button 
-                      onClick={handleMarkAllRead}
-                      className="text-xs text-accent hover:underline"
-                    >
+                    <button onClick={handleMarkAllRead} className="text-xs text-accent hover:underline">
                       Mark all read
                     </button>
                     <button onClick={() => setShowNotifications(false)}>
@@ -328,32 +313,30 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground text-sm">
-                      No notifications yet
-                    </div>
-                  ) : notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      onClick={() => handleNotificationClick(notification)}
-                      className={`p-4 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 transition-colors ${
-                        !notification.read ? 'bg-accent/5' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        {!notification.read && (
-                          <span className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />
-                        )}
-                        <div className={!notification.read ? '' : 'ml-5'}>
-                          <p className="text-sm font-medium text-foreground">{notification.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
+                    <div className="p-4 text-center text-muted-foreground text-sm">No notifications yet</div>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`p-4 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 transition-colors ${
+                          !notification.read ? 'bg-accent/5' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          {!notification.read && <span className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />}
+                          <div className={!notification.read ? '' : 'ml-5'}>
+                            <p className="text-sm font-medium text-foreground">{notification.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{notification.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{notification.timeAgo}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
                 <div className="p-3 border-t border-border text-center">
-                  <button 
+                  <button
                     onClick={() => {
                       setShowNotifications(false);
                       toast.info('View all notifications coming soon');
@@ -422,7 +405,7 @@ export function Header({ title, subtitle, isMobile = false }: HeaderProps) {
                   ))}
                 </div>
                 <div className="p-3 border-t border-border text-center">
-                  <button 
+                  <button
                     onClick={() => {
                       setShowMessages(false);
                       if (role === 'consumer') {
