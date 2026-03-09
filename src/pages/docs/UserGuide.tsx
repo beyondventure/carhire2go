@@ -5,184 +5,327 @@ import {
   ArrowLeft, CheckCircle2, Circle, AlertTriangle, ExternalLink,
   Users, Car, Truck, Shield, MapPin, CreditCard, Bell, Settings,
   ChevronDown, ChevronRight, Smartphone, Key, Globe, Database,
-  FileText, BookOpen, HelpCircle, Wallet, Navigation, Star
+  FileText, BookOpen, HelpCircle, Wallet, Navigation, Star,
+  Zap, MessageSquare, Lock, BarChart3, Clock, Wifi, Upload,
+  Monitor, Phone
 } from 'lucide-react';
 import logoAltBlack from '@/assets/logo-alt-black.png';
 import { PLATFORM_NAME } from '@/lib/constants';
 
-type Section = 'checklist' | 'consumer' | 'provider' | 'driver' | 'admin' | 'faq';
+type Section = 'status' | 'checklist' | 'consumer' | 'provider' | 'driver' | 'admin' | 'faq';
 
 interface ChecklistItem {
   title: string;
   description: string;
-  status: 'required' | 'optional' | 'future';
+  status: 'required' | 'optional' | 'done' | 'future';
   steps: string[];
   apiProvider?: string;
+  estimatedCost?: string;
 }
 
-const integrationChecklist: ChecklistItem[] = [
+interface FeatureItem {
+  name: string;
+  description: string;
+  working: boolean;
+  details?: string[];
+}
+
+// ── BUILT & WORKING FEATURES ──
+const featureCategories: { category: string; icon: React.ElementType; features: FeatureItem[] }[] = [
   {
-    title: 'NIN (National Identification Number) Verification',
-    description: 'Verify driver and individual provider identities via NIMC records.',
-    status: 'required',
-    apiProvider: 'VerifyMe, Prembly (Identitypass), or Youverify',
-    steps: [
-      'Sign up for a verification API provider (e.g., VerifyMe, Prembly, or Youverify)',
-      'Obtain your API key and secret from the provider dashboard',
-      'Add the API key as a backend secret named NIN_VERIFY_API_KEY',
-      'Create a backend function "verify-nin" that accepts a NIN and calls the verification API',
-      'Update the onboarding flow to call this function after NIN submission',
-      'Store the verification result in the providers/drivers table (nin_verified field)',
-      'Update admin verification dashboard to show NIN verification status',
+    category: 'Authentication & Accounts',
+    icon: Lock,
+    features: [
+      { name: 'Email Registration', description: 'Users register with name, email, phone, password', working: true, details: ['Auto-confirm enabled for instant access', 'Role selection during signup (Consumer, Provider, Driver)'] },
+      { name: 'Login / Logout', description: 'Secure session-based auth', working: true },
+      { name: 'Role-Based Access Control', description: 'Separate dashboards per role (Consumer, Provider, Driver, Admin)', working: true, details: ['Roles stored in user_roles table', 'RLS policies enforce data isolation'] },
+      { name: 'Profile Management', description: 'Update name, phone, avatar from dashboard', working: true },
     ],
   },
   {
-    title: 'BVN (Bank Verification Number) Verification',
-    description: 'Verify bank account ownership for provider payouts.',
-    status: 'optional',
-    apiProvider: 'Paystack, Flutterwave, or Mono',
-    steps: [
-      'Choose a payment provider that offers BVN verification (Paystack or Flutterwave recommended)',
-      'Get your API keys from the payment provider dashboard',
-      'Add the secret key as a backend secret named BVN_VERIFY_API_KEY',
-      'Create a backend function "verify-bvn" that validates BVN against account details',
-      'Integrate into the provider onboarding bank details step',
-      'Store verification status in the providers table',
+    category: 'Consumer Features',
+    icon: Users,
+    features: [
+      { name: 'Booking Creation', description: 'Full booking form with pickup/dropoff, date, time, vehicle type', working: true, details: ['5 booking types: Full Day, Half Day, To & Fro, Point-to-Point, Event', '5 vehicle types: Sedan, SUV, Luxury, Van, Bus', 'Location search via OpenStreetMap/Nominatim', 'Interactive map with pickup/dropoff markers', 'Estimated price range calculation'] },
+      { name: 'My Bookings', description: 'View all bookings with status filters and search', working: true, details: ['Filter by status (pending, matching, matched, confirmed, etc.)', 'Real-time status updates via WebSocket', 'Click to view details, negotiate, or pay'] },
+      { name: 'Real-Time Matching', description: 'Animated overlay while system finds providers', working: true },
+      { name: 'Price Negotiation Chat', description: 'In-app chat with provider to agree on price', working: true, details: ['Text messages', 'Price proposal/counter/accept flows', 'Real-time message delivery'] },
+      { name: 'Payments', description: 'Pay for confirmed bookings', working: true, details: ['Flutterwave integration (needs API key)', 'Payment history with status tracking', 'Receipt generation'] },
+      { name: 'Consumer Dashboard', description: 'Home page with active booking, trip stats, recent bookings', working: true },
+      { name: 'Consumer Profile', description: 'Edit personal details', working: true },
     ],
   },
   {
-    title: 'CAC (Corporate Affairs Commission) Verification',
-    description: 'Verify company registration for company providers.',
-    status: 'required',
-    apiProvider: 'VerifyMe or Prembly (Identitypass)',
-    steps: [
-      'Sign up for a CAC verification API provider',
-      'Obtain API credentials',
-      'Add the API key as a backend secret named CAC_VERIFY_API_KEY',
-      'Create a backend function "verify-cac" that checks CAC registration number',
-      'Update company provider onboarding to call this function',
-      'Store verification result in the providers table (cac_verified field)',
+    category: 'Provider Features',
+    icon: Truck,
+    features: [
+      { name: 'Provider Onboarding', description: '3-step onboarding: business info → verification → bank details', working: true, details: ['Individual or Company provider types', 'NIN input (individual) or CAC number (company)', 'Service area selection from Nigerian cities', 'Bank details for settlements'] },
+      { name: 'Provider Dashboard', description: 'Metrics, incoming requests, fleet status, driver status', working: true, details: ['Today\'s bookings & earnings', 'Total earnings & acceptance rate', 'Real-time incoming booking requests', 'Quick accept/decline actions'] },
+      { name: 'Fleet Management (CRUD)', description: 'Add, edit, delete vehicles with full details', working: true, details: ['Vehicle make, model, year, color, plate number', 'Vehicle type and seating capacity', 'Daily rate setting', 'Availability toggle', 'Vehicle count metrics'] },
+      { name: 'Driver Management', description: 'View drivers linked to your provider account', working: true },
+      { name: 'Booking Requests', description: 'View and accept/decline incoming booking requests', working: true, details: ['Real-time notifications for new bookings', 'Route and price range preview', 'Accept → auto-assigns provider to booking', 'Chat/negotiate with consumer after accepting'] },
+      { name: 'Earnings Dashboard', description: 'Track completed trip revenue and commission breakdown', working: true },
+      { name: 'Provider Settings', description: 'Update business info, bank details, negotiation preferences', working: true },
     ],
   },
   {
-    title: 'Vehicle Verification',
-    description: 'Verify vehicle registration and roadworthiness.',
-    status: 'required',
-    steps: [
-      'Currently handled manually by admin review in the Verification dashboard',
-      'To automate: integrate with FRSC (Federal Road Safety Corps) API if available',
-      'Alternatively, require providers to upload vehicle documents (registration, insurance, roadworthiness certificate)',
-      'Add a document storage bucket for vehicle documents',
-      'Create an admin review workflow to approve/reject vehicle documents',
-      'Update the vehicles table verified field based on review outcome',
+    category: 'Driver Features',
+    icon: Car,
+    features: [
+      { name: 'Driver Onboarding', description: 'License details and NIN verification submission', working: true },
+      { name: 'Driver Dashboard', description: 'Assigned trips, availability toggle, quick stats', working: true },
+      { name: 'Trip Management', description: 'Start trip → navigate → complete trip lifecycle', working: true },
+      { name: 'Trip History', description: 'View all past trips with details', working: true },
+      { name: 'Earnings Tracking', description: 'View earnings per trip and totals', working: true },
+      { name: 'Driver Profile', description: 'View and edit license info, NIN status', working: true },
     ],
   },
   {
-    title: 'Google Maps API Integration',
-    description: 'Replace OpenStreetMap/Nominatim with Google Maps for better accuracy.',
-    status: 'optional',
-    apiProvider: 'Google Cloud Platform',
-    steps: [
-      'Create a Google Cloud Platform account and enable billing',
-      'Enable the following APIs: Maps JavaScript API, Places API, Geocoding API, Directions API',
-      'Create an API key and restrict it to your domain',
-      'Add the API key as VITE_GOOGLE_MAPS_KEY in your project (this is a publishable key)',
-      'Replace the Leaflet map component with Google Maps (react-google-maps or @react-google-maps/api)',
-      'Update LocationInput to use Google Places Autocomplete instead of Nominatim',
-      'Add route calculation using Directions API for accurate distance/duration estimates',
-      'Update pricing algorithm to use actual distance from Directions API',
+    category: 'Admin Features',
+    icon: Shield,
+    features: [
+      { name: 'Admin Dashboard', description: 'Platform-wide metrics and overview', working: true, details: ['Total bookings, revenue, users', 'Real-time data from all tables'] },
+      { name: 'Provider Verification', description: 'Review and approve/reject provider applications', working: true },
+      { name: 'Booking Management', description: 'View and manage all bookings platform-wide', working: true },
+      { name: 'Consumer Management', description: 'View all consumers and their activity', working: true },
+      { name: 'Provider Management', description: 'View all providers, their fleets, and status', working: true },
+      { name: 'Settlements & Finance', description: 'Track payments and commission', working: true },
+      { name: 'Analytics', description: 'Charts and metrics for platform performance', working: true },
+      { name: 'System Settings', description: 'Platform configuration', working: true },
     ],
   },
   {
-    title: 'Flutterwave Payment Integration',
-    description: 'Process payments from consumers and settle with providers.',
-    status: 'required',
-    apiProvider: 'Flutterwave',
-    steps: [
-      'Sign up for a Flutterwave business account at flutterwave.com',
-      'Complete KYC verification on your Flutterwave account',
-      'Get your public key (already configured as publishable in the app)',
-      'Add your secret key as a backend secret named FLUTTERWAVE_SECRET_KEY',
-      'Create a backend function "verify-payment" to verify transaction status',
-      'Set up a webhook endpoint to receive payment notifications',
-      'Configure provider settlement/payout automation via Flutterwave transfers',
-      'Test with Flutterwave test mode before going live',
+    category: 'Real-Time & Notifications',
+    icon: Zap,
+    features: [
+      { name: 'Real-Time Data Sync', description: 'All dashboards auto-update via WebSocket subscriptions', working: true, details: ['Bookings table: real-time for all roles', 'Notifications table: per-user real-time', 'Chat messages: per-booking real-time', 'Payments: real-time status updates'] },
+      { name: 'In-App Notifications', description: 'Bell icon with unread count, click to navigate', working: true, details: ['New booking alerts for providers', 'Booking matched/confirmed alerts for consumers', 'Trip started/completed alerts', 'Price negotiation alerts', 'Mark as read / mark all read'] },
+      { name: 'Database Triggers', description: 'Auto-generate notifications on booking events', working: true, details: ['notify_providers_new_booking: alerts all verified providers', 'notify_booking_status_change: alerts on match/confirm/start/complete', 'notify_chat_message: alerts on price proposals'] },
+      { name: 'Web Push Notifications', description: 'Browser push notifications via VAPID/service worker', working: true, details: ['VAPID keys configured', 'Service worker registered', 'Push subscription management', 'Needs FCM for mobile native (see checklist)'] },
     ],
   },
   {
-    title: 'Push Notifications (Web & Mobile)',
-    description: 'Send real-time notifications for bookings, trips, and messages.',
-    status: 'optional',
-    steps: [
-      'VAPID keys are already configured in the backend',
-      'Push notification backend function is already deployed',
-      'For mobile: integrate Firebase Cloud Messaging (FCM) with your React Native app',
-      'Add FCM server key as a backend secret named FCM_SERVER_KEY',
-      'Update the push notification function to support both web push and FCM',
-    ],
-  },
-  {
-    title: 'SMS Notifications',
-    description: 'Send SMS alerts for critical booking updates.',
-    status: 'future',
-    apiProvider: 'Termii, Africa\'s Talking, or Twilio',
-    steps: [
-      'Choose an SMS provider with good Nigerian coverage (Termii recommended)',
-      'Sign up and get API credentials',
-      'Add the API key as a backend secret named SMS_API_KEY',
-      'Create a backend function "send-sms" for sending SMS',
-      'Add SMS notifications to booking status change triggers',
+    category: 'Platform & PWA',
+    icon: Smartphone,
+    features: [
+      { name: 'Progressive Web App', description: 'Installable on mobile devices from browser', working: true, details: ['manifest.json with InstantRyde branding', 'Service worker for offline capability', 'Role-specific PWA manifests available', 'Install page with instructions'] },
+      { name: 'Mobile-Responsive UI', description: 'All pages optimized for mobile screens', working: true },
+      { name: 'Dark/Light Theme', description: 'System-aware theme with manual toggle', working: true },
+      { name: 'Landing Page', description: 'Marketing page with hero, services, testimonials, CTA', working: true },
+      { name: 'Pitch Deck', description: 'Investor presentation at /pitch', working: true },
+      { name: 'Developer Documentation', description: 'Mobile dev guide at /docs/mobile', working: true },
     ],
   },
 ];
 
+// ── INTEGRATION CHECKLIST ──
+const integrationChecklist: ChecklistItem[] = [
+  {
+    title: '🔴 NIN (National Identification Number) Verification',
+    description: 'Verify driver and provider identities via NIMC records. REQUIRED before going live.',
+    status: 'required',
+    apiProvider: 'VerifyMe (verifymenow.com) | Prembly/Identitypass | Youverify',
+    estimatedCost: '₦50–₦150 per verification call',
+    steps: [
+      '1. Sign up at your chosen provider (e.g., verifymenow.com)',
+      '2. Complete KYC on the provider platform to access production API',
+      '3. Copy your API key from the provider dashboard',
+      '4. In Lovable: Add it as a backend secret named NIN_VERIFY_API_KEY',
+      '5. A backend function "verify-nin" needs to be created that: accepts a NIN → calls the API → returns pass/fail',
+      '6. The onboarding forms already capture NIN — they just need to call this function',
+      '7. On success, the drivers/providers table nin_verified field is set to true',
+      '8. Admin verification dashboard already shows NIN status',
+    ],
+  },
+  {
+    title: '🟡 BVN (Bank Verification Number) Verification',
+    description: 'Verify bank account ownership for provider payouts. Recommended but can be done later.',
+    status: 'optional',
+    apiProvider: 'Paystack (paystack.com) | Flutterwave | Mono',
+    estimatedCost: '₦50–₦100 per verification',
+    steps: [
+      '1. Use same Flutterwave account (if already set up for payments) or sign up at Paystack',
+      '2. Get the secret key from the dashboard',
+      '3. Add as backend secret named BVN_VERIFY_API_KEY',
+      '4. Create a backend function "verify-bvn" that validates BVN against account name/number',
+      '5. Add a "Verify Bank" button in the provider onboarding bank step',
+      '6. Store result in providers table',
+    ],
+  },
+  {
+    title: '🔴 CAC (Corporate Affairs Commission) Verification',
+    description: 'Verify company registration for company-type providers. REQUIRED for company providers.',
+    status: 'required',
+    apiProvider: 'VerifyMe | Prembly/Identitypass',
+    estimatedCost: '₦100–₦300 per verification',
+    steps: [
+      '1. Use same verification provider as NIN (e.g., VerifyMe)',
+      '2. Get API credentials (may be same key as NIN)',
+      '3. Add as backend secret named CAC_VERIFY_API_KEY (or reuse NIN key if same provider)',
+      '4. Create backend function "verify-cac" that checks CAC registration number',
+      '5. Company provider onboarding already captures CAC number — just needs to call this function',
+      '6. Store result in providers table (cac_verified field)',
+    ],
+  },
+  {
+    title: '🔴 Vehicle Document Verification',
+    description: 'Verify vehicle registration, insurance, and roadworthiness.',
+    status: 'required',
+    steps: [
+      '1. Currently handled via manual admin review in the Verification dashboard',
+      '2. To enhance: create a file storage bucket for vehicle documents',
+      '3. Add upload fields in fleet management for: registration certificate, insurance, roadworthiness',
+      '4. Admin sees uploaded documents in verification queue',
+      '5. Admin approves → vehicles.verified = true → vehicle becomes bookable',
+      '6. (Future) Integrate with FRSC API for automated plate number verification if available',
+    ],
+  },
+  {
+    title: '🟡 Google Maps API Integration',
+    description: 'Replace OpenStreetMap with Google Maps for better autocomplete and routing.',
+    status: 'optional',
+    apiProvider: 'Google Cloud Platform (console.cloud.google.com)',
+    estimatedCost: '$200/month free tier, then pay-per-use (~$7/1000 requests)',
+    steps: [
+      '1. Create a Google Cloud Platform account and enable billing',
+      '2. Go to APIs & Services → Enable these APIs:',
+      '   • Maps JavaScript API',
+      '   • Places API (New)',
+      '   • Geocoding API',
+      '   • Directions API',
+      '3. Create an API key → Restrict to your domain (carhire2go.lovable.app)',
+      '4. Add the key as VITE_GOOGLE_MAPS_KEY in your project settings (this is a publishable/client key)',
+      '5. Install @react-google-maps/api package',
+      '6. Replace Leaflet map component with Google Maps',
+      '7. Replace Nominatim location search with Google Places Autocomplete',
+      '8. Add Directions API for accurate distance/duration/pricing',
+      'NOTE: The current Leaflet/Nominatim setup works fine for MVP. Google Maps improves accuracy.',
+    ],
+  },
+  {
+    title: '🔴 Flutterwave Payment Integration',
+    description: 'Process consumer payments and settle with providers. REQUIRED for paid bookings.',
+    status: 'required',
+    apiProvider: 'Flutterwave (flutterwave.com)',
+    estimatedCost: '1.4% per transaction (capped at ₦2,000)',
+    steps: [
+      '1. Sign up for a Flutterwave business account at flutterwave.com',
+      '2. Complete KYC verification on Flutterwave',
+      '3. Get your PUBLIC KEY (already used in the frontend code)',
+      '4. Get your SECRET KEY and add as backend secret named FLUTTERWAVE_SECRET_KEY',
+      '5. Create backend function "verify-payment" to confirm transactions server-side',
+      '6. Set up webhook URL in Flutterwave dashboard for payment confirmations',
+      '7. Configure subaccount/transfer for provider settlements (provider gets payment minus 10% commission)',
+      '8. Test with Flutterwave TEST MODE first (toggle in Flutterwave dashboard)',
+      '9. Switch to LIVE MODE when ready to accept real payments',
+    ],
+  },
+  {
+    title: '🟢 Web Push Notifications',
+    description: 'Browser push notifications are configured. Mobile push needs FCM.',
+    status: 'done',
+    steps: [
+      '✅ VAPID keys are configured as backend secrets',
+      '✅ Service worker (sw.js) handles push events',
+      '✅ Push subscription management is implemented',
+      '✅ Backend function send-push-notification is deployed',
+      '✅ Database triggers auto-fire notifications on booking events',
+      'For MOBILE NATIVE (React Native) push:',
+      '1. Set up Firebase project at console.firebase.google.com',
+      '2. Enable Cloud Messaging (FCM)',
+      '3. Get FCM server key and add as backend secret FCM_SERVER_KEY',
+      '4. Install @react-native-firebase/messaging in your React Native app',
+      '5. Update send-push-notification function to support both web push and FCM',
+    ],
+  },
+  {
+    title: '🟡 SMS Notifications',
+    description: 'SMS alerts for critical booking updates (driver arriving, trip complete, etc.).',
+    status: 'future',
+    apiProvider: 'Termii (termii.com) | Africa\'s Talking | Twilio',
+    estimatedCost: '₦2–₦4 per SMS',
+    steps: [
+      '1. Sign up at Termii (best Nigerian coverage) or Africa\'s Talking',
+      '2. Get API key from dashboard',
+      '3. Add as backend secret named SMS_API_KEY',
+      '4. Create backend function "send-sms" that sends SMS via the API',
+      '5. Add SMS triggers to key booking events (confirmed, driver arriving, trip complete)',
+      '6. Let users opt-in/out of SMS in their profile settings',
+    ],
+  },
+  {
+    title: '🟡 Email Notifications',
+    description: 'Transactional emails for booking confirmations, receipts, etc.',
+    status: 'future',
+    apiProvider: 'Resend | SendGrid | Brevo',
+    estimatedCost: 'Free tier available (100–300 emails/day)',
+    steps: [
+      '1. Sign up at resend.com (recommended) or SendGrid',
+      '2. Verify your sending domain',
+      '3. Get API key and add as backend secret named EMAIL_API_KEY',
+      '4. Create backend function "send-email" with HTML templates',
+      '5. Send booking confirmation, payment receipt, and trip summary emails',
+    ],
+  },
+];
+
+// ── FAQ ──
 const faqItems = [
   {
     q: 'How do I register as a provider?',
-    a: 'Click "Get Started" on the landing page, select "Provider" as your role, fill in your details, then complete the provider onboarding which includes business details, NIN/CAC verification, and bank details.',
+    a: 'Go to the landing page → click "Get Started" → select "Provider" → fill in your details → complete the 3-step onboarding (business info, verification details, bank details). Your application will be reviewed within 24-48 hours.',
   },
   {
     q: 'How long does verification take?',
-    a: 'Once you submit your details, our team reviews applications within 24-48 hours. You\'ll receive a notification once approved.',
+    a: 'Admin reviews applications within 24-48 hours. You\'ll receive an in-app notification when approved. Until then, your dashboard shows a "Verification Pending" message.',
   },
   {
     q: 'How do I add vehicles to my fleet?',
-    a: 'After being verified, go to Fleet Management in your provider dashboard, click "Add Vehicle", fill in the vehicle details (make, model, year, plate number, type), and submit.',
+    a: 'Once verified: Provider Dashboard → Fleet Management → "Add Vehicle" button. Fill in make, model, year, plate number, color, type (sedan/SUV/etc.), seats, and daily rate. Toggle availability on/off anytime.',
   },
   {
     q: 'How does pricing work?',
-    a: 'Consumers set a budget range when booking. Providers can accept the proposed price or negotiate through the in-app chat. Once both parties agree, the consumer pays to confirm the booking.',
+    a: 'Consumers see an estimated price range when booking. After a provider accepts, both parties can negotiate the final price via in-app chat. The consumer pays the agreed price to confirm. Platform takes 10% commission.',
   },
   {
     q: 'How do I get paid as a provider?',
-    a: 'After a trip is completed, the payment (minus 10% platform commission) is settled to your registered bank account. You can track earnings in the Earnings section.',
+    a: 'After a completed trip, the payment (minus 10% platform commission) is settled to your registered bank account via Flutterwave transfers. Track all earnings in the Earnings section of your dashboard.',
   },
   {
     q: 'Can I be both a provider and a driver?',
-    a: 'Each account can only have one role. If you\'re an individual provider who also drives, register as a Provider. Company providers can add separate driver accounts.',
+    a: 'Each account has one role. If you\'re a solo operator who owns a vehicle AND drives it, register as a Provider. You\'ll manage your own fleet and accept bookings directly.',
   },
   {
     q: 'What happens if a consumer cancels?',
-    a: 'If cancelled before confirmation, no charge applies. After confirmation, cancellation policies apply based on how close to the scheduled date the cancellation occurs.',
+    a: 'Before payment: no charge. After payment but before trip: refund policy applies. During trip: full charge. Cancellation details appear in the booking history.',
   },
   {
     q: 'How do I install the app on my phone?',
-    a: 'Visit the Install page (/install) from your phone\'s browser. On Android, tap "Add to Home Screen" from the browser menu. On iPhone, tap the Share button then "Add to Home Screen".',
+    a: 'Visit the app from your phone browser → For Android: tap browser menu → "Add to Home Screen". For iPhone: tap Share → "Add to Home Screen". The app icon will appear on your home screen like a native app.',
   },
   {
     q: 'What vehicle types are supported?',
-    a: 'We support Sedan, SUV, Luxury, Van, and Bus categories. Each has different seating capacity and pricing tiers.',
+    a: 'Sedan (4 seats), SUV (5-7 seats), Luxury (4 seats, premium), Van (7-12 seats), Bus (15+ seats). Each has different pricing tiers.',
   },
   {
     q: 'How does the matching system work?',
-    a: 'When a consumer creates a booking, all verified providers in the area are notified. Providers can review the request and accept it. The first provider to accept gets matched with the booking.',
+    a: 'Consumer creates booking → all verified providers are notified in real-time → first provider to accept gets matched → consumer is notified instantly → both can negotiate price via chat → consumer pays to confirm.',
+  },
+  {
+    q: 'Do notifications work in real-time?',
+    a: 'Yes! All notifications are delivered instantly via WebSocket connections. When a booking is created, providers see it immediately. When a provider accepts, the consumer is notified right away. Chat messages also appear in real-time.',
+  },
+  {
+    q: 'What currency does the platform use?',
+    a: 'All prices are in Nigerian Naira (₦). The platform uses Flutterwave for NGN payments.',
   },
 ];
 
 export default function UserGuide() {
-  const [activeSection, setActiveSection] = useState<Section>('checklist');
+  const [activeSection, setActiveSection] = useState<Section>('status');
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
   const [expandedFaq, setExpandedFaq] = useState<Set<number>>(new Set());
+  const [expandedFeatures, setExpandedFeatures] = useState<Set<string>>(new Set());
 
   const toggleItem = (index: number) => {
     setExpandedItems(prev => {
@@ -200,7 +343,19 @@ export default function UserGuide() {
     });
   };
 
+  const toggleFeature = (key: string) => {
+    setExpandedFeatures(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  const totalFeatures = featureCategories.reduce((sum, c) => sum + c.features.length, 0);
+  const workingFeatures = featureCategories.reduce((sum, c) => sum + c.features.filter(f => f.working).length, 0);
+
   const sections: { id: Section; label: string; icon: React.ReactNode }[] = [
+    { id: 'status', label: 'Platform Status', icon: <Monitor size={16} /> },
     { id: 'checklist', label: 'Integration Checklist', icon: <CheckCircle2 size={16} /> },
     { id: 'consumer', label: 'Consumer Guide', icon: <Users size={16} /> },
     { id: 'provider', label: 'Provider Guide', icon: <Truck size={16} /> },
@@ -243,14 +398,104 @@ export default function UserGuide() {
           ))}
         </div>
 
-        {/* Integration Checklist */}
+        {/* ═══════════ PLATFORM STATUS ═══════════ */}
+        {activeSection === 'status' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-foreground">Platform Status — What's Built & Working</h1>
+              <p className="text-muted-foreground mt-1">
+                Complete inventory of every feature in {PLATFORM_NAME}. {workingFeatures}/{totalFeatures} features operational.
+              </p>
+              <div className="mt-4 flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 text-success text-sm font-medium">
+                  <CheckCircle2 size={14} /> {workingFeatures} Working
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-sm font-medium">
+                  <Circle size={14} /> {totalFeatures - workingFeatures} Pending
+                </div>
+              </div>
+            </div>
+
+            {featureCategories.map((cat) => (
+              <div key={cat.category} className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="p-4 md:p-5 border-b border-border bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                      <cat.icon size={20} className="text-accent" />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold text-foreground">{cat.category}</h2>
+                      <p className="text-xs text-muted-foreground">
+                        {cat.features.filter(f => f.working).length}/{cat.features.length} features working
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="divide-y divide-border">
+                  {cat.features.map((feature) => {
+                    const key = `${cat.category}-${feature.name}`;
+                    const hasDetails = feature.details && feature.details.length > 0;
+                    return (
+                      <div key={feature.name}>
+                        <button
+                          onClick={() => hasDetails && toggleFeature(key)}
+                          className={`w-full flex items-center justify-between p-3 md:p-4 text-left ${hasDetails ? 'cursor-pointer hover:bg-muted/30' : 'cursor-default'}`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            {feature.working ? (
+                              <CheckCircle2 size={16} className="text-success flex-shrink-0" />
+                            ) : (
+                              <Circle size={16} className="text-muted-foreground flex-shrink-0" />
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-foreground">{feature.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{feature.description}</p>
+                            </div>
+                          </div>
+                          {hasDetails && (
+                            expandedFeatures.has(key) ? <ChevronDown size={14} className="text-muted-foreground flex-shrink-0" /> : <ChevronRight size={14} className="text-muted-foreground flex-shrink-0" />
+                          )}
+                        </button>
+                        {hasDetails && expandedFeatures.has(key) && (
+                          <div className="px-4 md:px-12 pb-3 md:pb-4">
+                            <ul className="space-y-1">
+                              {feature.details!.map((d, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                  <span className="text-accent mt-0.5">•</span>
+                                  <span>{d}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* ═══════════ INTEGRATION CHECKLIST ═══════════ */}
         {activeSection === 'checklist' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-foreground">Integration Checklist</h1>
               <p className="text-muted-foreground mt-1">
-                Steps required to activate all platform features for production use.
+                What the product owner needs to set up before going live. Each item lists the exact steps, API providers, and costs.
               </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning/10 text-warning text-xs font-medium">
+                  <AlertTriangle size={12} /> Required = Must have before launch
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                  <Circle size={12} /> Optional = Can launch without, add later
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 text-success text-xs font-medium">
+                  <CheckCircle2 size={12} /> Done = Already configured
+                </div>
+              </div>
             </div>
 
             {integrationChecklist.map((item, idx) => (
@@ -262,19 +507,22 @@ export default function UserGuide() {
                   <div className="flex items-center gap-3 min-w-0">
                     {item.status === 'required' ? (
                       <AlertTriangle size={18} className="text-warning flex-shrink-0" />
+                    ) : item.status === 'done' ? (
+                      <CheckCircle2 size={18} className="text-success flex-shrink-0" />
                     ) : item.status === 'optional' ? (
                       <Circle size={18} className="text-muted-foreground flex-shrink-0" />
                     ) : (
-                      <Circle size={18} className="text-muted-foreground/50 flex-shrink-0" />
+                      <Clock size={18} className="text-muted-foreground/50 flex-shrink-0" />
                     )}
                     <div className="min-w-0">
                       <h3 className="font-semibold text-foreground text-sm md:text-base">{item.title}</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground truncate">{item.description}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">{item.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                       item.status === 'required' ? 'bg-warning/10 text-warning' :
+                      item.status === 'done' ? 'bg-success/10 text-success' :
                       item.status === 'optional' ? 'bg-muted text-muted-foreground' :
                       'bg-muted/50 text-muted-foreground/60'
                     }`}>
@@ -289,19 +537,25 @@ export default function UserGuide() {
                     animate={{ opacity: 1, height: 'auto' }}
                     className="px-4 md:px-5 pb-4 md:pb-5 border-t border-border pt-4"
                   >
-                    {item.apiProvider && (
-                      <p className="text-sm text-muted-foreground mb-3">
-                        <strong>Recommended provider:</strong> {item.apiProvider}
-                      </p>
-                    )}
-                    <ol className="space-y-2">
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-sm">
+                      {item.apiProvider && (
+                        <p className="text-muted-foreground">
+                          <strong className="text-foreground">Provider:</strong> {item.apiProvider}
+                        </p>
+                      )}
+                      {item.estimatedCost && (
+                        <p className="text-muted-foreground">
+                          <strong className="text-foreground">Cost:</strong> {item.estimatedCost}
+                        </p>
+                      )}
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-4 space-y-2">
                       {item.steps.map((step, sIdx) => (
-                        <li key={sIdx} className="flex items-start gap-2 text-sm">
-                          <span className="text-muted-foreground font-mono text-xs mt-0.5 flex-shrink-0">{sIdx + 1}.</span>
-                          <span className="text-foreground">{step}</span>
-                        </li>
+                        <p key={sIdx} className={`text-sm ${step.startsWith('✅') ? 'text-success' : step.startsWith('NOTE') ? 'text-accent font-medium' : 'text-foreground'}`}>
+                          {step}
+                        </p>
                       ))}
-                    </ol>
+                    </div>
                   </motion.div>
                 )}
               </div>
@@ -309,7 +563,7 @@ export default function UserGuide() {
           </motion.div>
         )}
 
-        {/* Consumer Guide */}
+        {/* ═══════════ CONSUMER GUIDE ═══════════ */}
         {activeSection === 'consumer' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
@@ -323,9 +577,9 @@ export default function UserGuide() {
                 { step: 2, title: 'Start a New Booking', icon: MapPin, desc: 'From your dashboard, click "New Booking". Enter your pickup location using the search bar or use your current GPS location.' },
                 { step: 3, title: 'Choose Service Type', icon: Navigation, desc: 'Select the type of service: Full Day, Half Day, To & Fro, Point-to-Point, or Event. For To & Fro and Point-to-Point, you\'ll also enter a drop-off location.' },
                 { step: 4, title: 'Set Date, Time & Vehicle', icon: Car, desc: 'Choose your travel date, time, and preferred vehicle type (Sedan, SUV, Luxury, Van, or Bus). Review the estimated price range.' },
-                { step: 5, title: 'Wait for Provider Match', icon: Bell, desc: 'After confirming, the system notifies all verified providers. A provider will accept your request, and you\'ll be matched.' },
-                { step: 6, title: 'Negotiate & Pay', icon: CreditCard, desc: 'Chat with your matched provider to agree on a final price. Once agreed, pay securely through Flutterwave to confirm your booking.' },
-                { step: 7, title: 'Enjoy Your Ride', icon: Star, desc: 'On the scheduled date, your assigned driver will arrive at your pickup location. Track your trip in real-time from the app.' },
+                { step: 5, title: 'Wait for Provider Match', icon: Bell, desc: 'After confirming, all verified providers are notified in real-time. A provider will accept your request within minutes. You\'ll see a notification instantly when matched.' },
+                { step: 6, title: 'Negotiate & Pay', icon: CreditCard, desc: 'Chat with your matched provider to agree on a final price. Both sides can propose and counter. Once agreed, pay securely through Flutterwave to confirm.' },
+                { step: 7, title: 'Enjoy Your Ride', icon: Star, desc: 'On the scheduled date, your assigned driver will arrive at your pickup location. Track your trip status in real-time from your dashboard.' },
               ].map((item) => (
                 <div key={item.step} className="bg-card rounded-xl border border-border p-4 md:p-5 flex gap-4">
                   <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -341,7 +595,7 @@ export default function UserGuide() {
           </motion.div>
         )}
 
-        {/* Provider Guide */}
+        {/* ═══════════ PROVIDER GUIDE ═══════════ */}
         {activeSection === 'provider' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
@@ -352,14 +606,14 @@ export default function UserGuide() {
             <div className="space-y-4">
               {[
                 { step: 1, title: 'Register as a Provider', icon: Users, desc: 'Create an account and select "Provider" as your role. You\'ll be directed to the provider onboarding process.' },
-                { step: 2, title: 'Complete Onboarding', icon: FileText, desc: 'Choose between Individual or Company provider. Fill in your business name, address, and service areas. Provide NIN (individual) or CAC number (company) for verification.' },
-                { step: 3, title: 'Add Bank Details', icon: Wallet, desc: 'Enter your bank name, account number, and account name for earnings settlement. You can skip this and add later from Settings.' },
-                { step: 4, title: 'Wait for Verification', icon: Shield, desc: 'Your profile will be reviewed within 24-48 hours. You\'ll receive a notification once approved. You cannot accept bookings until verified.' },
-                { step: 5, title: 'Add Your Vehicles', icon: Car, desc: 'Once verified, go to Fleet Management → Add Vehicle. Enter vehicle details: make, model, year, plate number, color, type, seats, and daily rate. Toggle availability on/off.' },
-                { step: 6, title: 'Add Drivers (Optional)', icon: Users, desc: 'If you have employees, they can register as Drivers and link to your provider account. Drivers need their own license and NIN verification.' },
-                { step: 7, title: 'Accept Booking Requests', icon: Bell, desc: 'When consumers book, you\'ll see incoming requests in your dashboard. Review the route, date, and price range, then Accept or Decline.' },
-                { step: 8, title: 'Negotiate & Confirm', icon: CreditCard, desc: 'After accepting, chat with the consumer to agree on pricing. Once the consumer pays, the booking is confirmed and assigned to your fleet.' },
-                { step: 9, title: 'Assign Driver & Complete', icon: Navigation, desc: 'Assign a driver and vehicle to the confirmed booking. The driver manages the trip (start/complete) from their app. Track earnings in real-time.' },
+                { step: 2, title: 'Complete Onboarding', icon: FileText, desc: 'Choose Individual or Company. Enter business name, address, service areas (Lagos, Abuja, etc.). Provide NIN (individual) or CAC number (company).' },
+                { step: 3, title: 'Add Bank Details', icon: Wallet, desc: 'Enter bank name, account number, and account name for settlement. You can skip and add later from Settings.' },
+                { step: 4, title: 'Wait for Verification', icon: Shield, desc: 'Admin reviews your application within 24-48 hours. You\'ll get a notification when approved. Cannot accept bookings until verified.' },
+                { step: 5, title: 'Add Your Vehicles', icon: Car, desc: 'Fleet Management → Add Vehicle. Enter make, model, year, plate number, color, type, seats, daily rate. Toggle availability on/off.' },
+                { step: 6, title: 'Add Drivers (Optional)', icon: Users, desc: 'Drivers register separately and link to your provider account. They need license + NIN verification.' },
+                { step: 7, title: 'Accept Booking Requests', icon: Bell, desc: 'New bookings appear in real-time on your dashboard. Review route, date, and price range. Accept or Decline.' },
+                { step: 8, title: 'Negotiate & Confirm', icon: MessageSquare, desc: 'After accepting, chat with consumer to agree on price. Send price proposals, counter, or accept. Consumer pays to confirm.' },
+                { step: 9, title: 'Assign Driver & Complete', icon: Navigation, desc: 'Assign a driver and vehicle. Driver manages the trip lifecycle. Track earnings in real-time.' },
               ].map((item) => (
                 <div key={item.step} className="bg-card rounded-xl border border-border p-4 md:p-5 flex gap-4">
                   <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -375,7 +629,7 @@ export default function UserGuide() {
           </motion.div>
         )}
 
-        {/* Driver Guide */}
+        {/* ═══════════ DRIVER GUIDE ═══════════ */}
         {activeSection === 'driver' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
@@ -385,13 +639,13 @@ export default function UserGuide() {
 
             <div className="space-y-4">
               {[
-                { step: 1, title: 'Register as a Driver', icon: Users, desc: 'Create an account and select "Driver". You\'ll be directed to the driver onboarding process.' },
-                { step: 2, title: 'Enter License Details', icon: FileText, desc: 'Provide your valid driver\'s license number and expiry date. The license must be valid for at least 6 months.' },
-                { step: 3, title: 'NIN Verification', icon: Shield, desc: 'Enter your 11-digit NIN (National Identification Number) for identity verification. This builds trust with passengers.' },
-                { step: 4, title: 'Wait for Verification', icon: Settings, desc: 'Your application is reviewed within 24-48 hours. You\'ll be notified once approved.' },
-                { step: 5, title: 'Get Assigned Trips', icon: Bell, desc: 'Once verified and linked to a provider, you\'ll receive trip assignments. Confirmed bookings appear on your dashboard.' },
-                { step: 6, title: 'Start & Complete Trips', icon: Navigation, desc: 'When the trip begins, tap "Start Trip". Navigate to the destination. Upon arrival, tap "Complete Trip" to finish.' },
-                { step: 7, title: 'Track Your Earnings', icon: Wallet, desc: 'View your trip history and earnings breakdown in the Earnings section. Payments are settled through your provider.' },
+                { step: 1, title: 'Register as a Driver', icon: Users, desc: 'Create an account and select "Driver". You\'ll be directed to driver onboarding.' },
+                { step: 2, title: 'Enter License Details', icon: FileText, desc: 'Provide your valid driver\'s license number and expiry date. Must be valid for at least 6 months.' },
+                { step: 3, title: 'NIN Verification', icon: Shield, desc: 'Enter your 11-digit NIN for identity verification. This builds trust with passengers.' },
+                { step: 4, title: 'Wait for Verification', icon: Clock, desc: 'Application reviewed within 24-48 hours. You\'ll be notified once approved.' },
+                { step: 5, title: 'Get Assigned Trips', icon: Bell, desc: 'Once verified and linked to a provider, trip assignments appear on your dashboard in real-time.' },
+                { step: 6, title: 'Start & Complete Trips', icon: Navigation, desc: 'When trip begins, tap "Start Trip". Navigate to destination. On arrival, tap "Complete Trip".' },
+                { step: 7, title: 'Track Your Earnings', icon: Wallet, desc: 'View trip history and earnings breakdown. Payments settled through your provider.' },
               ].map((item) => (
                 <div key={item.step} className="bg-card rounded-xl border border-border p-4 md:p-5 flex gap-4">
                   <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -407,7 +661,7 @@ export default function UserGuide() {
           </motion.div>
         )}
 
-        {/* Admin Guide */}
+        {/* ═══════════ ADMIN GUIDE ═══════════ */}
         {activeSection === 'admin' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
@@ -417,14 +671,14 @@ export default function UserGuide() {
 
             <div className="space-y-4">
               {[
-                { title: 'Dashboard Overview', icon: BookOpen, desc: 'The admin dashboard shows real-time platform metrics: total bookings, active trips, revenue, provider count, and consumer count. Use this for daily operational monitoring.' },
-                { title: 'Verify Providers & Drivers', icon: Shield, desc: 'Go to Verification to review pending applications. Check NIN/CAC details, review documents, and approve or reject applications. Approved providers can immediately start accepting bookings.' },
-                { title: 'Manage Bookings', icon: Car, desc: 'View all bookings across the platform. Filter by status (pending, confirmed, completed, cancelled). Intervene in disputes or reassign bookings if needed.' },
-                { title: 'Monitor Providers', icon: Truck, desc: 'View all registered providers, their verification status, fleet size, earnings, and ratings. Suspend providers if needed.' },
-                { title: 'Consumer Management', icon: Users, desc: 'View all consumers, their booking history, and spending. Handle support requests and account issues.' },
-                { title: 'Settlements & Finance', icon: CreditCard, desc: 'Track all payments and settlements. Monitor platform commission (10%), pending payouts, and completed settlements.' },
-                { title: 'Analytics', icon: Star, desc: 'View platform analytics including booking trends, revenue growth, popular routes, and fleet utilization metrics.' },
-                { title: 'System Settings', icon: Settings, desc: 'Configure platform settings like commission rates, matching timeouts, and notification preferences.' },
+                { title: 'Dashboard Overview', icon: BarChart3, desc: 'Real-time platform metrics: total bookings, active trips, revenue, provider count, consumer count. Use for daily ops monitoring.' },
+                { title: 'Verify Providers & Drivers', icon: Shield, desc: 'Verification page shows pending applications. Review NIN/CAC details, approve or reject. Approved providers can immediately accept bookings.' },
+                { title: 'Manage Bookings', icon: Car, desc: 'View all bookings platform-wide. Filter by status. Intervene in disputes or reassign bookings.' },
+                { title: 'Monitor Providers', icon: Truck, desc: 'View all providers, verification status, fleet size, earnings, ratings. Suspend providers if needed.' },
+                { title: 'Consumer Management', icon: Users, desc: 'View all consumers, booking history, spending. Handle support requests.' },
+                { title: 'Settlements & Finance', icon: CreditCard, desc: 'Track all payments and settlements. Monitor 10% commission, pending payouts, completed settlements.' },
+                { title: 'Analytics', icon: BarChart3, desc: 'Booking trends, revenue growth, popular routes, fleet utilization charts.' },
+                { title: 'System Settings', icon: Settings, desc: 'Configure commission rates, matching timeouts, notification preferences.' },
               ].map((item, idx) => (
                 <div key={idx} className="bg-card rounded-xl border border-border p-4 md:p-5 flex gap-4">
                   <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -440,7 +694,7 @@ export default function UserGuide() {
           </motion.div>
         )}
 
-        {/* FAQ */}
+        {/* ═══════════ FAQ ═══════════ */}
         {activeSection === 'faq' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <div className="mb-6">
