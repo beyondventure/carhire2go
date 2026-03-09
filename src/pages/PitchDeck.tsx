@@ -248,10 +248,10 @@ function SlideSolution() {
 // Slide 4 — Market
 function SlideMarket() {
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Market Opportunity</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">A $48B TAM and<br />growing at 23% CAGR.</h2>
-      <div className="flex gap-12 items-center">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">A $48B TAM and<br />growing at 23% CAGR.</h2>
+      <div className="flex gap-10 items-center">
         <div className="flex flex-col gap-6 flex-1">
           {[
             { label: 'TAM', sub: 'African Mobility Market', value: '$48B', color: 'border-l-white/30', sub2: 'Total ride-hailing + logistics + fleet mgmt across Africa' },
