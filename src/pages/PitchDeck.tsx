@@ -352,11 +352,11 @@ function SlideTraction() {
     { q: 'Q4 2026', label: 'Series A Prep', items: ['5 cities', '₦2.1B GMV', 'Insurance launch'], done: false },
   ];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Traction & Roadmap</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-6 leading-tight">First mover execution plan.</h2>
-      <p className="text-lg text-white/40 mb-12">MVP is built. Tech is live. We're raising to scale distribution.</p>
-      <div className="flex gap-6 mb-12">
+      <h2 className="text-4xl font-black text-white mb-4 leading-tight">First mover execution plan.</h2>
+      <p className="text-base text-white/40 mb-8">MVP is built. Tech is live. We're raising to scale distribution.</p>
+      <div className="flex gap-5 mb-8">
         {milestones.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
             className={`flex-1 border rounded-2xl p-6 ${m.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02]'}`}>
