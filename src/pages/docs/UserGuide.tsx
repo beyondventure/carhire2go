@@ -59,7 +59,7 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Provider Features',
     icon: Truck,
     features: [
-      { name: 'Provider Onboarding', description: '3-step onboarding: business info → verification → bank details', working: true, details: ['Individual or Company provider types', 'NIN input (individual) or CAC number (company)', 'Service area selection from Nigerian cities', 'Bank details for settlements'] },
+      { name: 'Provider Onboarding', description: '3-step onboarding: business info → verification → bank details', working: true, details: ['Individual or Company provider types', 'NIN input (individual) or CAC number (company)', '❌ NIN/CAC verification API not yet connected — captures data only', 'Service area selection from Nigerian cities', 'Bank details for settlements'] },
       { name: 'Provider Dashboard', description: 'Metrics, incoming requests, fleet status, driver status', working: true, details: ['Today\'s bookings & earnings', 'Total earnings & acceptance rate', 'Real-time incoming booking requests', 'Quick accept/decline actions'] },
       { name: 'Fleet Management (CRUD)', description: 'Add, edit, delete vehicles with full details', working: true, details: ['Vehicle make, model, year, color, plate number', 'Vehicle type and seating capacity', 'Daily rate setting', 'Availability toggle', 'Vehicle count metrics'] },
       { name: 'Driver Management', description: 'View drivers linked to your provider account', working: true },
