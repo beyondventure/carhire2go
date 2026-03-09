@@ -786,8 +786,8 @@ export default function PitchDeck() {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={exportPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all">
-                <Download className="w-3.5 h-3.5" /> Export PDF
+              <button onClick={exportPDF} disabled={isExporting} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all disabled:opacity-40">
+                <Download className="w-3.5 h-3.5" /> {isExporting ? 'Exporting...' : 'Export PDF'}
               </button>
               <button onClick={toggleFullscreen} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-all">
                 {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
