@@ -15,6 +15,7 @@ import type { Location, BookingType, VehicleType } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MatchedProvider {
   id: string;
