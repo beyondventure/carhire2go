@@ -298,7 +298,7 @@ function SlideBusinessModel() {
       <h2 className="text-4xl font-black text-white mb-10 leading-tight">5 diversified revenue streams.</h2>
       <div className="flex gap-10 items-center">
         <div className="flex-1">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={revenueStreams} cx="50%" cy="50%" innerRadius={70} outerRadius={120} paddingAngle={3} dataKey="value">
                 {revenueStreams.map((entry, i) => (
