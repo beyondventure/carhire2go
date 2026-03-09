@@ -46,13 +46,14 @@ export function LocationInput({
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
         new URLSearchParams({
-          q: searchQuery,
+          q: searchQuery + ', Nigeria',
           format: 'json',
           addressdetails: '1',
-          limit: '6',
+          limit: '10',
           countrycodes: 'ng',
-          viewbox: '2.5,4.0,15.0,14.0',
-          bounded: '0',
+          viewbox: '2.6,4.2,14.7,13.9',
+          bounded: '1',
+          dedupe: '1',
         }),
         { headers: { 'Accept-Language': 'en' } }
       );
