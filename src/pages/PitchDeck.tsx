@@ -401,12 +401,12 @@ function SlideTraction() {
 // Slide 7 — Financials
 function SlideFinancials() {
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Financial Projections</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-10 leading-tight">Path to ₦1B+ revenue<br />in 36 months.</h2>
-      <div className="flex gap-10 items-start">
+      <h2 className="text-4xl font-black text-white mb-8 leading-tight">Path to ₦1B+ revenue<br />in 36 months.</h2>
+      <div className="flex gap-8 items-start">
         <div className="flex-[1.4]">
-          <p className="text-xs text-white/40 uppercase tracking-widest mb-4">GMV vs Revenue (₦ Millions)</p>
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-3">GMV vs Revenue (₦ Millions)</p>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={revenueProjections} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
