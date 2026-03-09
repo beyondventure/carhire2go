@@ -195,10 +195,10 @@ function SlideSolution() {
         <div className="flex-1">
           <h2 className="text-4xl font-black text-white mb-4 leading-tight">One platform.<br />Every stakeholder.</h2>
           <p className="text-base text-white/50 mb-8 leading-relaxed">InstantRyde is Nigeria's first multi-sided transport marketplace that gives power back to consumers, fleet owners, and drivers.</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                className="flex gap-3 bg-white/[0.03] border border-white/8 rounded-xl p-4">
+                className="flex gap-2 bg-white/[0.03] border border-white/8 rounded-xl p-3">
                 <div className="mt-0.5">{f.icon}</div>
                 <div>
                   <p className="text-sm font-semibold text-white mb-1">{f.title}</p>
