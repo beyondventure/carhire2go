@@ -407,7 +407,7 @@ function SlideFinancials() {
       <div className="flex gap-8 items-start">
         <div className="flex-[1.4]">
           <p className="text-xs text-white/40 uppercase tracking-widest mb-3">GMV vs Revenue (₦ Millions)</p>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart data={revenueProjections} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
               <XAxis dataKey="year" stroke="#ffffff20" tick={{ fill: '#ffffff40', fontSize: 11 }} />
