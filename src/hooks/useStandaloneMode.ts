@@ -33,9 +33,7 @@ export function useStandaloneMode(): boolean {
       return () => mql.removeEventListener('change', sync);
     }
 
-    // @ts-expect-error legacy API
     mql.addListener(sync);
-    // @ts-expect-error legacy API
     return () => mql.removeListener(sync);
   }, []);
 
