@@ -268,8 +268,8 @@ export default function ProviderDashboard() {
                     <span className="truncate">{request.dropoff_name || request.dropoff_address}</span>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                  <span className="font-medium text-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <span className="font-medium text-foreground text-sm">
                       {request.estimated_min_price && request.estimated_max_price
                         ? `${CURRENCY}${request.estimated_min_price.toLocaleString()} – ${CURRENCY}${request.estimated_max_price.toLocaleString()}`
                         : 'Price TBD'}
@@ -279,18 +279,18 @@ export default function ProviderDashboard() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleDeclineRequest(request.id)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors text-sm"
                       >
-                        <XCircle size={16} />
+                        <XCircle size={14} />
                         Decline
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleAcceptRequest(request)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors text-sm"
                       >
-                        <CheckCircle2 size={16} />
+                        <CheckCircle2 size={14} />
                         Accept
                       </motion.button>
                     </div>
