@@ -46,11 +46,11 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
     category: 'Consumer Features',
     icon: Users,
     features: [
-      { name: 'Booking Creation', description: 'Full booking form with pickup/dropoff, date, time, vehicle type', working: true, details: ['5 booking types: Full Day, Half Day, To & Fro, Point-to-Point, Event', '5 vehicle types: Sedan, SUV, Luxury, Van, Bus', 'Location search via OpenStreetMap/Nominatim', 'Interactive map with pickup/dropoff markers', 'Estimated price range calculation'] },
+      { name: 'Booking Creation', description: 'Full booking form with pickup/dropoff, date, time, vehicle type', working: true, details: ['5 booking types: Full Day, Half Day, To & Fro, Point-to-Point, Event', '5 vehicle types: Sedan, SUV, Luxury, Van, Bus', 'Location search via OpenStreetMap/Nominatim (Google Maps not yet connected)', 'Interactive map with pickup/dropoff markers', 'Estimated price range calculation'] },
       { name: 'My Bookings', description: 'View all bookings with status filters and search', working: true, details: ['Filter by status (pending, matching, matched, confirmed, etc.)', 'Real-time status updates via WebSocket', 'Click to view details, negotiate, or pay'] },
       { name: 'Real-Time Matching', description: 'Animated overlay while system finds providers', working: true },
       { name: 'Price Negotiation Chat', description: 'In-app chat with provider to agree on price', working: true, details: ['Text messages', 'Price proposal/counter/accept flows', 'Real-time message delivery'] },
-      { name: 'Payments', description: 'Pay for confirmed bookings', working: true, details: ['Flutterwave integration (needs API key)', 'Payment history with status tracking', 'Receipt generation'] },
+      { name: 'Payments (Flutterwave)', description: 'UI built but Flutterwave API keys NOT connected yet', working: false, details: ['Payment UI and flow built', 'Flutterwave integration code ready', '❌ Needs Flutterwave API keys to process real payments', 'Payment history with status tracking', 'Receipt generation'] },
       { name: 'Consumer Dashboard', description: 'Home page with active booking, trip stats, recent bookings', working: true },
       { name: 'Consumer Profile', description: 'Edit personal details', working: true },
     ],
