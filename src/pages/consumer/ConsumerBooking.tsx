@@ -35,6 +35,7 @@ export default function ConsumerBooking() {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
   const { bookings, createBooking } = useBookings();
+  const isMobile = useIsMobile();
   
   const [currentStep, setCurrentStep] = useState<BookingStep>('pickup');
   const [pickup, setPickup] = useState<Location | undefined>();
