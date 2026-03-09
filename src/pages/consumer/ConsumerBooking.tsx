@@ -195,10 +195,12 @@ export default function ConsumerBooking() {
   };
 
   return (
-    <DashboardLayout title="Book a Ride">
-      <div className="grid lg:grid-cols-5 gap-4 md:gap-6 lg:h-[calc(100vh-8rem)]">
+    <DashboardLayout title="Book a Ride" mobileContentClassName="px-2 pt-2 pb-2">
+      <div className={cn('gap-4 md:gap-6', isMobile ? 'grid grid-cols-1' : 'grid lg:grid-cols-5 lg:h-[calc(100vh-8rem)]')}>
         {/* Map */}
-        <div className="lg:col-span-3 h-[280px] md:h-[400px] lg:h-full">
+        <div className={cn(
+          isMobile ? 'h-[220px] rounded-2xl overflow-hidden border border-border order-2' : 'lg:col-span-3 h-[280px] md:h-[400px] lg:h-full'
+        )}>
           <BookingMap
             pickup={pickup}
             dropoff={dropoff}
@@ -212,7 +214,7 @@ export default function ConsumerBooking() {
         </div>
 
         {/* Booking Panel */}
-        <div className="lg:col-span-2 flex flex-col">
+        <div className={cn('flex flex-col', isMobile ? 'order-1' : 'lg:col-span-2')}>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
