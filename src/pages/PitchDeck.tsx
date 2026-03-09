@@ -252,7 +252,7 @@ function SlideMarket() {
       <SlideTag>Market Opportunity</SlideTag>
       <h2 className="text-4xl font-black text-white mb-10 leading-tight">A $48B TAM and<br />growing at 23% CAGR.</h2>
       <div className="flex gap-10 items-center">
-        <div className="flex flex-col gap-6 flex-1">
+        <div className="flex flex-col gap-5 flex-1">
           {[
             { label: 'TAM', sub: 'African Mobility Market', value: '$48B', color: 'border-l-white/30', sub2: 'Total ride-hailing + logistics + fleet mgmt across Africa' },
             { label: 'SAM', sub: 'Nigeria Transport Market', value: '$8.2B', color: 'border-l-blue-500/60', sub2: "Formal + informal transport in Nigeria's top 36 cities" },
