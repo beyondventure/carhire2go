@@ -1,5 +1,5 @@
 // InstantRyde Push Service Worker
-const CACHE_NAME = 'instantryde-static-v3';
+const CACHE_NAME = 'instantryde-static-v4';
 const STATIC_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.woff', '.woff2', '.ico'];
 
 self.addEventListener('install', () => {
