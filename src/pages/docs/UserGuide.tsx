@@ -114,6 +114,9 @@ const featureCategories: { category: string; icon: React.ElementType; features: 
       { name: 'Landing Page', description: 'Marketing page with hero, services, testimonials, CTA', working: true },
       { name: 'Pitch Deck', description: 'Investor presentation at /pitch', working: true },
       { name: 'Developer Documentation', description: 'Mobile dev guide at /docs/mobile', working: true },
+      { name: 'Native Mobile Apps (iOS/Android)', description: 'React Native apps — NOT YET BUILT, in development', working: false, details: ['❌ Not started — planned for future development', 'Documentation and architecture ready at /docs/mobile', 'PWAs serve as interim mobile solution'] },
+      { name: 'Custom Domain & Hosting', description: 'Production domain not yet configured', working: false, details: ['❌ Not deployed to custom domain yet', 'Currently on Lovable staging URL only', 'Need to purchase domain and configure DNS'] },
+      { name: 'Google Maps Integration', description: 'Using free OpenStreetMap — Google Maps API not connected', working: false, details: ['❌ Google Maps API key not yet obtained', 'Currently using Leaflet + Nominatim (free, less accurate)', 'Google Maps needed for production-quality autocomplete and routing'] },
     ],
   },
 ];
