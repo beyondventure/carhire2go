@@ -1,0 +1,27 @@
+{
+  "name": "InstantRyde",
+  "short_name": "InstantRyde",
+  "description": "On-demand vehicle hire marketplace. Rides, Instantly.",
+  "theme_color": "#111111",
+  "background_color": "#f7f7f7",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "id": "instantryde",
+  "icons": [
+    {
+      "src": "/pwa-icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["transportation", "travel", "business"],
+  "prefer_related_applications": false
+}

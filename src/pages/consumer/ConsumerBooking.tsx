@@ -194,9 +194,9 @@ export default function ConsumerBooking() {
 
   return (
     <DashboardLayout title="Book a Ride">
-      <div className="grid lg:grid-cols-5 gap-6 h-[calc(100vh-8rem)]">
+      <div className="grid lg:grid-cols-5 gap-4 md:gap-6 lg:h-[calc(100vh-8rem)]">
         {/* Map */}
-        <div className="lg:col-span-3 h-full min-h-[400px]">
+        <div className="lg:col-span-3 h-[280px] md:h-[400px] lg:h-full">
           <BookingMap
             pickup={pickup}
             dropoff={dropoff}
@@ -214,7 +214,7 @@ export default function ConsumerBooking() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-card rounded-2xl border border-border p-6 flex-1 overflow-y-auto custom-scrollbar"
+            className="bg-card rounded-2xl border border-border p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar"
           >
             {/* Header with Steps */}
             <div className="mb-6">

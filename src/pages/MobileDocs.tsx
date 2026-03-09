@@ -783,6 +783,9 @@ function ScreensSection() {
             { route: '/register', screen: 'Register', desc: 'Signup form with role selector (consumer/provider/driver)', data: 'auth' },
             { route: '/onboarding/provider', screen: 'Provider Onboarding', desc: 'Multi-step: business info → NIN → CAC → bank details', data: 'providers (create)' },
             { route: '/onboarding/driver', screen: 'Driver Onboarding', desc: 'License details, NIN, provider link', data: 'drivers (create)' },
+            { route: '/install/:role', screen: 'PWA Install', desc: 'Role-specific PWA install page with feature list and notification setup', data: 'push_subscriptions' },
+            { route: '/docs/guide', screen: 'User Guide', desc: 'Integration checklist, FAQ, and step-by-step onboarding guides per role', data: 'none' },
+            { route: '/docs/mobile', screen: 'Mobile Docs', desc: 'This page — BRD, PRD, Architecture, API, and React Native guide', data: 'none' },
           ]
         },
       ].map(role => (
@@ -808,6 +811,39 @@ function MobileGuideSection() {
   return (
     <div className="space-y-8">
       <DocHeader title="Mobile Developer Guide" subtitle="React Native Implementation · Platform Abstraction · Conversion Notes" icon={<Terminal className="h-6 w-6" />} />
+
+      <InfoCard title="Latest Updates (March 2026)" icon={<RefreshCw className="h-4 w-4 text-green-500" />}>
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <p className="font-semibold text-foreground text-xs uppercase tracking-wide">What's New</p>
+          <ul className="space-y-2">
+            {[
+              'Live geocoding with OpenStreetMap Nominatim API (400ms debounce, Nigeria-scoped)',
+              'Reverse geocoding for "Use current location" button',
+              'Auto-confirm email signups enabled — no email verification required',
+              'PWA manifests updated with proper branding and apple-touch-icon support',
+              'Mobile-responsive fixes across all dashboard pages (no content bleeding)',
+              'Integration checklist documentation at /docs/guide (NIN/BVN, Google Maps, Flutterwave, Push)',
+              'FAQ and step-by-step onboarding guides for all user roles at /docs/guide',
+              'Provider dashboard real-time booking requests with Supabase Realtime',
+              'Consumer booking flow: multi-step wizard with progress indicator',
+              'Payment integration with Flutterwave (PaymentButton component)',
+              'Chat/negotiation system with real-time messages via Supabase Realtime',
+            ].map((item, i) => (
+              <li key={i} className="flex gap-2"><CheckCircle className="h-3 w-3 shrink-0 mt-0.5 text-green-500" />{item}</li>
+            ))}
+          </ul>
+          <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+            <p className="text-xs font-semibold text-foreground mb-1">React Native Migration Notes</p>
+            <ul className="text-xs space-y-1">
+              <li>· Replace Nominatim API with <code className="bg-muted px-1 rounded">react-native-google-places-autocomplete</code> for production</li>
+              <li>· Replace Leaflet maps with <code className="bg-muted px-1 rounded">react-native-maps</code> (MapView)</li>
+              <li>· Replace Framer Motion animations with <code className="bg-muted px-1 rounded">react-native-reanimated</code></li>
+              <li>· Use <code className="bg-muted px-1 rounded">@react-navigation/bottom-tabs</code> for role-specific bottom navigation</li>
+              <li>· Flutterwave: use <code className="bg-muted px-1 rounded">flutterwave-react-native</code> SDK instead of WebView redirect</li>
+            </ul>
+          </div>
+        </div>
+      </InfoCard>
 
       <InfoCard title="Project Setup (React Native)" icon={<Package className="h-4 w-4 text-blue-500" />}>
         <div className="space-y-4">
