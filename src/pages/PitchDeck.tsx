@@ -122,7 +122,7 @@ function SlideCover() {
             Ride Platform
           </span>
         </h1>
-        <p className="text-xl text-white/50 max-w-xl leading-relaxed mb-14">
+        <p className="text-lg text-white/50 max-w-xl leading-relaxed mb-10">
           Connecting Nigeria's 220M people to professional vehicles, fleet owners, and drivers — built for negotiation, built for scale.
         </p>
         <div className="flex items-center gap-8">
