@@ -6,15 +6,23 @@ import { MobileNav } from './MobileNav';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface DashboardLayoutProps {
   children?: ReactNode;
   title?: string;
   subtitle?: string;
   isLoading?: boolean;
+  mobileContentClassName?: string;
 }
 
-export function DashboardLayout({ children, title, subtitle, isLoading }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  title,
+  subtitle,
+  isLoading,
+  mobileContentClassName,
+}: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, isLoading: authLoading } = useSupabaseAuth();
   const isMobile = useIsMobile();
@@ -31,7 +39,7 @@ export function DashboardLayout({ children, title, subtitle, isLoading }: Dashbo
     return (
       <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
         <Header title={showSkeleton ? undefined : title} subtitle={showSkeleton ? undefined : subtitle} isMobile />
-        <main className="flex-1 px-4 pt-4 pb-2 overflow-y-auto">
+        <main className={cn('flex-1 overflow-y-auto px-4 pt-4 pb-2', mobileContentClassName)}>
           {showSkeleton ? (
             <DashboardSkeleton />
           ) : (
@@ -56,7 +64,7 @@ export function DashboardLayout({ children, title, subtitle, isLoading }: Dashbo
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      
+
       <motion.main
         initial={false}
         animate={{ marginLeft: sidebarCollapsed ? 80 : 280 }}
@@ -81,3 +89,4 @@ export function DashboardLayout({ children, title, subtitle, isLoading }: Dashbo
     </div>
   );
 }
+

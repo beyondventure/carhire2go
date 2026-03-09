@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SupabaseAuthProvider } from "@/hooks/useSupabaseAuth";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -60,60 +61,60 @@ const App = () => (
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/sitemap" element={<Sitemap />} />
-            
+
             {/* PWA Install Pages */}
             <Route path="/install" element={<InstallApp />} />
             <Route path="/install/:role" element={<InstallApp />} />
-            
+
             {/* Onboarding */}
-            <Route path="/onboarding/provider" element={<ProviderOnboarding />} />
-            <Route path="/onboarding/driver" element={<DriverOnboarding />} />
-            
+            <Route path="/onboarding/provider" element={<RequireAuth><ProviderOnboarding /></RequireAuth>} />
+            <Route path="/onboarding/driver" element={<RequireAuth><DriverOnboarding /></RequireAuth>} />
+
             {/* Consumer Routes */}
-            <Route path="/consumer" element={<ConsumerHome />} />
-            <Route path="/consumer/book" element={<ConsumerBooking />} />
-            <Route path="/consumer/bookings" element={<ConsumerBookings />} />
-            <Route path="/consumer/payments" element={<ConsumerPayments />} />
-            <Route path="/consumer/profile" element={<ConsumerProfile />} />
-            
+            <Route path="/consumer" element={<RequireAuth><ConsumerHome /></RequireAuth>} />
+            <Route path="/consumer/book" element={<RequireAuth><ConsumerBooking /></RequireAuth>} />
+            <Route path="/consumer/bookings" element={<RequireAuth><ConsumerBookings /></RequireAuth>} />
+            <Route path="/consumer/payments" element={<RequireAuth><ConsumerPayments /></RequireAuth>} />
+            <Route path="/consumer/profile" element={<RequireAuth><ConsumerProfile /></RequireAuth>} />
+
             {/* Provider Routes */}
-            <Route path="/provider" element={<ProviderDashboard />} />
-            <Route path="/provider/requests" element={<ProviderRequests />} />
-            <Route path="/provider/fleet" element={<ProviderFleet />} />
-            <Route path="/provider/drivers" element={<ProviderDrivers />} />
-            <Route path="/provider/earnings" element={<ProviderEarnings />} />
-            <Route path="/provider/settings" element={<ProviderSettings />} />
-            
+            <Route path="/provider" element={<RequireAuth><ProviderDashboard /></RequireAuth>} />
+            <Route path="/provider/requests" element={<RequireAuth><ProviderRequests /></RequireAuth>} />
+            <Route path="/provider/fleet" element={<RequireAuth><ProviderFleet /></RequireAuth>} />
+            <Route path="/provider/drivers" element={<RequireAuth><ProviderDrivers /></RequireAuth>} />
+            <Route path="/provider/earnings" element={<RequireAuth><ProviderEarnings /></RequireAuth>} />
+            <Route path="/provider/settings" element={<RequireAuth><ProviderSettings /></RequireAuth>} />
+
             {/* Driver Routes */}
-            <Route path="/driver" element={<DriverHome />} />
-            <Route path="/driver/trip" element={<DriverTrip />} />
-            <Route path="/driver/trips" element={<DriverTrips />} />
-            <Route path="/driver/earnings" element={<DriverEarnings />} />
-            <Route path="/driver/profile" element={<DriverProfile />} />
-            
+            <Route path="/driver" element={<RequireAuth><DriverHome /></RequireAuth>} />
+            <Route path="/driver/trip" element={<RequireAuth><DriverTrip /></RequireAuth>} />
+            <Route path="/driver/trips" element={<RequireAuth><DriverTrips /></RequireAuth>} />
+            <Route path="/driver/earnings" element={<RequireAuth><DriverEarnings /></RequireAuth>} />
+            <Route path="/driver/profile" element={<RequireAuth><DriverProfile /></RequireAuth>} />
+
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/bookings" element={<AdminBookings />} />
-            <Route path="/admin/providers" element={<AdminProviders />} />
-            <Route path="/admin/consumers" element={<AdminConsumers />} />
-            <Route path="/admin/settlements" element={<AdminSettlements />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/verification" element={<AdminVerification />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            
+            <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
+            <Route path="/admin/bookings" element={<RequireAuth><AdminBookings /></RequireAuth>} />
+            <Route path="/admin/providers" element={<RequireAuth><AdminProviders /></RequireAuth>} />
+            <Route path="/admin/consumers" element={<RequireAuth><AdminConsumers /></RequireAuth>} />
+            <Route path="/admin/settlements" element={<RequireAuth><AdminSettlements /></RequireAuth>} />
+            <Route path="/admin/analytics" element={<RequireAuth><AdminAnalytics /></RequireAuth>} />
+            <Route path="/admin/verification" element={<RequireAuth><AdminVerification /></RequireAuth>} />
+            <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+
             {/* Architecture - Public */}
             <Route path="/architecture" element={<SystemArchitecture />} />
-            <Route path="/admin/architecture" element={<SystemArchitecture />} />
-            
+            <Route path="/admin/architecture" element={<RequireAuth><SystemArchitecture /></RequireAuth>} />
+
             {/* Mobile Developer Documentation */}
             <Route path="/docs/mobile" element={<MobileDocs />} />
-            
+
             {/* User Guides & Integration Docs */}
             <Route path="/docs/guide" element={<UserGuide />} />
-            
+
             {/* Investor Pitch Deck */}
             <Route path="/pitch" element={<PitchDeck />} />
-            
+
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>

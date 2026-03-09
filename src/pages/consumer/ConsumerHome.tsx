@@ -7,17 +7,26 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { useBookings } from '@/hooks/useBookings';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { CURRENCY, PLATFORM_NAME } from '@/lib/constants';
+import { storage } from '@/lib/platform';
 import logoWhite from '@/assets/logo-white.png';
+
+const SPLASH_SEEN_KEY = 'ir_consumer_splash_seen';
 
 export default function ConsumerHome() {
   const navigate = useNavigate();
   const { profile } = useSupabaseAuth();
   const { bookings, isLoading } = useBookings();
-  const [showSplash, setShowSplash] = useState(() => window.matchMedia('(display-mode: standalone)').matches);
+  const [showSplash, setShowSplash] = useState(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    return isStandalone && storage.getItem(SPLASH_SEEN_KEY) !== '1';
+  });
 
   useEffect(() => {
     if (!showSplash) return;
-    const timer = window.setTimeout(() => setShowSplash(false), 1300);
+    const timer = window.setTimeout(() => {
+      storage.setItem(SPLASH_SEEN_KEY, '1');
+      setShowSplash(false);
+    }, 1250);
     return () => window.clearTimeout(timer);
   }, [showSplash]);
 
@@ -51,11 +60,16 @@ export default function ConsumerHome() {
             alt={`${PLATFORM_NAME} logo`}
             className="h-10 w-auto"
           />
+          <p className="text-background/75 text-xs mt-3 tracking-[0.2em] uppercase">Rides Instantly</p>
         </motion.div>
       )}
 
-      <DashboardLayout title={`Welcome back, ${userName}`} subtitle="Book faster and track everything in one place.">
-        <div className="space-y-5 md:space-y-6">
+      <DashboardLayout
+        title={`Welcome back, ${userName}`}
+        subtitle="Book faster and track everything in one place."
+        mobileContentClassName="px-0 pt-0 pb-2"
+      >
+        <div className="space-y-5 md:space-y-6 px-3">
           <motion.section
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
