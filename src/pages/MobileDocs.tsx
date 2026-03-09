@@ -817,10 +817,17 @@ function MobileGuideSection() {
           <p className="font-semibold text-foreground text-xs uppercase tracking-wide">What's New</p>
           <ul className="space-y-2">
             {[
+              'Authentication gate: all dashboard routes (/consumer, /provider, /driver, /admin) now require login — unauthenticated users redirect to /login',
+              'PWA splash screen: black background with centered white InstantRyde logo, shown once on first PWA launch (localStorage flag: ir_consumer_splash_seen)',
+              'PWA app icons regenerated: original InstantRyde logo (white on black) for all icon sizes (72px, 512px) and role-specific variants',
+              'Consumer home redesigned for mobile-first PWA: full-width hero, quick-action buttons, better spacing with no squeezed edges',
+              'Consumer booking page optimised for PWA: stacked layout on mobile (panel above, map below), horizontal scroll progress steps',
+              'DashboardLayout mobile padding fix: mobileContentClassName prop prevents content from being squeezed on smaller screens',
+              'Service Worker cache v4: static-only caching strategy — HTML navigations always go to network to prevent stale 404 boot issues',
               'Live geocoding with OpenStreetMap Nominatim API (400ms debounce, Nigeria-scoped)',
               'Reverse geocoding for "Use current location" button',
               'Auto-confirm email signups enabled — no email verification required',
-              'PWA manifests updated with proper branding and apple-touch-icon support',
+              'PWA manifests updated with #111111 theme/background color across all variants',
               'Mobile-responsive fixes across all dashboard pages (no content bleeding)',
               'Integration checklist documentation at /docs/guide (NIN/BVN, Google Maps, Flutterwave, Push)',
               'FAQ and step-by-step onboarding guides for all user roles at /docs/guide',
@@ -840,6 +847,9 @@ function MobileGuideSection() {
               <li>· Replace Framer Motion animations with <code className="bg-muted px-1 rounded">react-native-reanimated</code></li>
               <li>· Use <code className="bg-muted px-1 rounded">@react-navigation/bottom-tabs</code> for role-specific bottom navigation</li>
               <li>· Flutterwave: use <code className="bg-muted px-1 rounded">flutterwave-react-native</code> SDK instead of WebView redirect</li>
+              <li>· Auth gate: wrap navigation with auth check — redirect to Login screen if no session</li>
+              <li>· Splash screen: use <code className="bg-muted px-1 rounded">expo-splash-screen</code> with black bg + white logo asset</li>
+              <li>· App icons: use original InstantRyde logo (white on #111111) for iOS/Android app icons</li>
             </ul>
           </div>
         </div>
