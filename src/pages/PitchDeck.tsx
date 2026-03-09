@@ -359,12 +359,12 @@ function SlideTraction() {
       <div className="flex gap-5 mb-8">
         {milestones.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
-            className={`flex-1 border rounded-2xl p-6 ${m.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02]'}`}>
-            <div className="flex items-center justify-between mb-4">
+            className={`flex-1 border rounded-2xl p-5 ${m.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02]'}`}>
+            <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-white/40 font-bold uppercase tracking-widest">{m.q}</span>
               {m.done && <CheckCircle className="w-4 h-4 text-emerald-400" />}
             </div>
-            <p className="text-lg font-black text-white mb-4">{m.label}</p>
+            <p className="text-base font-black text-white mb-3">{m.label}</p>
             <div className="flex flex-col gap-2">
               {m.items.map((item, j) => (
                 <div key={j} className="flex items-center gap-2">
