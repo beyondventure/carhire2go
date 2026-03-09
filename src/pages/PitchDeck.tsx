@@ -293,10 +293,10 @@ function SlideMarket() {
 // Slide 5 — Business Model
 function SlideBusinessModel() {
   return (
-    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#080808] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Business Model</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-12 leading-tight">5 diversified revenue streams.</h2>
-      <div className="flex gap-14 items-center">
+      <h2 className="text-4xl font-black text-white mb-10 leading-tight">5 diversified revenue streams.</h2>
+      <div className="flex gap-10 items-center">
         <div className="flex-1">
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
