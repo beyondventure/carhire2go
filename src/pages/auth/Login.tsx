@@ -22,6 +22,8 @@ const testAccounts = [
 export default function Login() {
   const navigate = useNavigate();
   const { signIn } = useSupabaseAuth();
+  const isStandalone = useStandaloneMode();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
