@@ -228,14 +228,14 @@ export default function ConsumerBooking() {
               </h2>
               
               {/* Progress Steps */}
-              <div className="flex items-center justify-between">
+              <div className={cn('flex items-center', isMobile ? 'overflow-x-auto pb-1' : 'justify-between')}>
                 {steps.map((step, index) => {
                   const StepIcon = step.icon;
                   const isCompleted = index < currentStepIndex;
                   const isCurrent = step.id === currentStep;
-                  
+
                   return (
-                    <div key={step.id} className="flex items-center flex-1">
+                    <div key={step.id} className={cn('flex items-center', isMobile ? 'min-w-[92px]' : 'flex-1')}>
                       <div className="flex flex-col items-center">
                         <motion.div
                           className={cn(
@@ -244,22 +244,16 @@ export default function ConsumerBooking() {
                             isCurrent ? 'border-accent text-accent bg-accent/10' :
                             'border-muted-foreground/30 text-muted-foreground'
                           )}
-                          animate={{ scale: isCurrent ? 1.1 : 1 }}
+                          animate={{ scale: isCurrent ? 1.05 : 1 }}
                         >
                           {isCompleted ? <Check size={18} /> : <StepIcon size={18} />}
                         </motion.div>
-                        <span className={cn(
-                          'text-xs mt-1 font-medium',
-                          isCurrent ? 'text-accent' : 'text-muted-foreground'
-                        )}>
+                        <span className={cn('text-xs mt-1 font-medium', isCurrent ? 'text-accent' : 'text-muted-foreground')}>
                           {step.label}
                         </span>
                       </div>
                       {index < steps.length - 1 && (
-                        <div className={cn(
-                          'flex-1 h-0.5 mx-2',
-                          isCompleted ? 'bg-accent' : 'bg-muted-foreground/20'
-                        )} />
+                        <div className={cn('h-0.5 mx-2', isMobile ? 'w-10' : 'flex-1', isCompleted ? 'bg-accent' : 'bg-muted-foreground/20')} />
                       )}
                     </div>
                   );
