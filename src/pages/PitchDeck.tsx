@@ -460,10 +460,10 @@ function SlideCompetitive() {
   ];
   const dimensions = ['Nigeria Focus', 'Price Negotiation', 'Fleet Owners', 'Corporate', 'Offline Ready'];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <SlideTag>Competitive Landscape</SlideTag>
-      <h2 className="text-5xl font-black text-white mb-4 leading-tight">We win on dimensions<br />nobody else built for.</h2>
-      <p className="text-lg text-white/40 mb-12 max-w-2xl">Uber and Bolt are global products with Nigeria as an afterthought. InstantRyde is built from the ground up for this market.</p>
+      <h2 className="text-4xl font-black text-white mb-3 leading-tight">We win on dimensions<br />nobody else built for.</h2>
+      <p className="text-base text-white/40 mb-8 max-w-2xl">Uber and Bolt are global products with Nigeria as an afterthought. InstantRyde is built from the ground up for this market.</p>
       <div className="overflow-hidden rounded-2xl border border-white/10">
         <table className="w-full">
           <thead>
