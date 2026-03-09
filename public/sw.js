@@ -1,5 +1,5 @@
 // InstantRyde Push Service Worker
-const CACHE_NAME = 'instantryde-static-v3';
+const CACHE_NAME = 'instantryde-static-v4';
 const STATIC_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.woff', '.woff2', '.ico'];
 
 self.addEventListener('install', () => {
@@ -29,7 +29,7 @@ self.addEventListener('push', (event) => {
     const options = {
       body: data.body || data.message || 'New notification',
       icon: data.icon || '/pwa-icons/icon-512.png',
-      badge: '/pwa-icons/icon-72.png',
+      badge: '/pwa-icons/icon-512.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/',

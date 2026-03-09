@@ -51,14 +51,6 @@ export default function ConsumerHome() {
             alt={`${PLATFORM_NAME} logo`}
             className="h-10 w-auto"
           />
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-            className="text-background/80 text-sm mt-4"
-          >
-            Rides, Instantly.
-          </motion.p>
         </motion.div>
       )}
 
