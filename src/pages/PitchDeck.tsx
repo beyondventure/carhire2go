@@ -835,13 +835,20 @@ export default function PitchDeck() {
         <motion.div className="h-full bg-white" animate={{ width: `${((current + 1) / total) * 100}%` }} transition={{ duration: 0.3 }} />
       </div>
 
-      {/* Hidden slides for PDF — rendered off-screen */}
-      <div className="fixed -left-[99999px] top-0 w-[1280px] h-[720px] pointer-events-none" aria-hidden>
+      {/* Hidden slides for PDF export — ALL rendered simultaneously at fixed size */}
+      <div id="pdf-export-container" className="fixed pointer-events-none" style={{ left: '-99999px', top: 0 }} aria-hidden>
         {slides.map((s, i) => {
           const SlideComp = s.component;
           return (
-            <div key={i} data-slide={`pdf-${i}`} className="absolute inset-0" style={{ display: i === current ? 'block' : 'none' }}>
-              <SlideComp />
+            <div
+              key={i}
+              data-pdf-slide={i}
+              data-pdf-skip={!s.exportable ? 'true' : 'false'}
+              style={{ width: 1280, height: 720, position: 'relative', overflow: 'hidden' }}
+            >
+              <div style={{ width: 1280, height: 720, transform: 'scale(1)', transformOrigin: 'top left' }}>
+                <SlideComp />
+              </div>
             </div>
           );
         })}
