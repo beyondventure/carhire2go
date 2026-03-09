@@ -558,7 +558,7 @@ function SlideUseOfFunds() {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-[1.5] flex flex-col gap-5">
+        <div className="flex-[1.5] flex flex-col gap-4">
           {[
             { pct: '40%', label: 'Tech & Product', amount: '$800K', items: ['Native iOS + Android apps', 'AI matching engine', 'Real-time infrastructure', 'Security & compliance'], color: 'bg-white', text: 'text-black' },
             { pct: '30%', label: 'Sales & Marketing', amount: '$600K', items: ['Driver + Provider acquisition', 'Consumer brand campaigns', 'Corporate sales team', 'WhatsApp + SMS campaigns'], color: 'bg-blue-500', text: 'text-white' },
