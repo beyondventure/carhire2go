@@ -60,11 +60,16 @@ export default function ConsumerHome() {
             alt={`${PLATFORM_NAME} logo`}
             className="h-10 w-auto"
           />
+          <p className="text-background/75 text-xs mt-3 tracking-[0.2em] uppercase">Rides Instantly</p>
         </motion.div>
       )}
 
-      <DashboardLayout title={`Welcome back, ${userName}`} subtitle="Book faster and track everything in one place.">
-        <div className="space-y-5 md:space-y-6">
+      <DashboardLayout
+        title={`Welcome back, ${userName}`}
+        subtitle="Book faster and track everything in one place."
+        mobileContentClassName="px-0 pt-0 pb-2"
+      >
+        <div className="space-y-5 md:space-y-6 px-3">
           <motion.section
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
