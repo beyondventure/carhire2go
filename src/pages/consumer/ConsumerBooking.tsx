@@ -194,9 +194,9 @@ export default function ConsumerBooking() {
 
   return (
     <DashboardLayout title="Book a Ride">
-      <div className="grid lg:grid-cols-5 gap-6 h-[calc(100vh-8rem)]">
+      <div className="grid lg:grid-cols-5 gap-4 md:gap-6 lg:h-[calc(100vh-8rem)]">
         {/* Map */}
-        <div className="lg:col-span-3 h-full min-h-[400px]">
+        <div className="lg:col-span-3 h-[280px] md:h-[400px] lg:h-full">
           <BookingMap
             pickup={pickup}
             dropoff={dropoff}
