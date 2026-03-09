@@ -1,47 +1,35 @@
-// InstantRyde Service Worker
-const CACHE_NAME = 'instantryde-v1';
+// InstantRyde Push Service Worker
+const CACHE_NAME = 'instantryde-static-v3';
+const STATIC_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.woff', '.woff2', '.ico'];
 
-// Install event - cache essential assets
-self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
-// Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[SW] Clearing old cache:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((cache) => cache !== CACHE_NAME)
+          .map((cache) => caches.delete(cache))
+      )
+    )
   );
   return self.clients.claim();
 });
 
 // Push notification event
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received');
-  
-  if (!event.data) {
-    console.log('[SW] No data in push event');
-    return;
-  }
+  if (!event.data) return;
 
   try {
     const data = event.data.json();
-    console.log('[SW] Push data:', data);
 
     const options = {
       body: data.body || data.message || 'New notification',
-      icon: data.icon || '/pwa-icons/icon-192.png',
-      badge: '/pwa-icons/badge-72.png',
+      icon: data.icon || '/pwa-icons/icon-512.png',
+      badge: '/pwa-icons/icon-72.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/',
@@ -55,32 +43,24 @@ self.addEventListener('push', (event) => {
       requireInteraction: data.requireInteraction || false,
     };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title || 'InstantRyde', options)
-    );
-  } catch (error) {
-    console.error('[SW] Error parsing push data:', error);
-    
-    // Fallback for text data
+    event.waitUntil(self.registration.showNotification(data.title || 'InstantRyde', options));
+  } catch {
     const text = event.data.text();
     event.waitUntil(
       self.registration.showNotification('InstantRyde', {
         body: text,
-        icon: '/pwa-icons/icon-192.png',
+        icon: '/pwa-icons/icon-512.png',
       })
     );
   }
 });
 
-// Notification click handler
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event.notification.tag);
   event.notification.close();
 
   const data = event.notification.data || {};
   let targetUrl = data.url || '/';
 
-  // Handle action clicks
   if (event.action) {
     switch (event.action) {
       case 'view':
@@ -95,58 +75,49 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // If we already have a window open, focus it
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.postMessage({
-            type: 'NOTIFICATION_CLICK',
-            data: data,
-          });
+          client.postMessage({ type: 'NOTIFICATION_CLICK', data });
           return client.focus();
         }
       }
-      // Otherwise, open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
     })
   );
 });
 
-// Message handler for subscription updates
 self.addEventListener('message', (event) => {
-  console.log('[SW] Message received:', event.data);
-  
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Fetch handler - network first strategy
+// Cache static assets only (never cache HTML navigations to avoid stale app/404 boot issues)
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  const isNavigation = event.request.mode === 'navigate';
+  if (isNavigation) return;
+
+  const isStaticAsset = STATIC_EXTENSIONS.some((ext) => requestUrl.pathname.endsWith(ext));
+  if (!isStaticAsset) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone the response before caching
-        const responseClone = response.clone();
-        
-        caches.open(CACHE_NAME).then((cache) => {
-          // Only cache GET requests
-          if (event.request.method === 'GET') {
-            cache.put(event.request, responseClone);
+    caches.match(event.request).then((cached) => {
+      const networkFetch = fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           }
-        });
-        
-        return response;
-      })
-      .catch(() => {
-        // Return cached response if network fails
-        return caches.match(event.request);
-      })
+          return response;
+        })
+        .catch(() => cached);
+
+      return cached || networkFetch;
+    })
   );
 });
