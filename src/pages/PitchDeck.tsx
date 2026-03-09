@@ -152,25 +152,25 @@ function SlideCover() {
 // Slide 2 — Problem
 function SlideProblem() {
   const problems = [
-    { icon: '😤', title: 'No Transparency', desc: 'Fixed surge pricing with no consumer recourse — prices spike 3–5× during peak hours' },
-    { icon: '🚗', title: 'Fleet Owners Ignored', desc: 'Thousands of Nigerian fleet owners have no platform to list vehicles and manage bookings professionally' },
-    { icon: '📵', title: 'Connectivity Gaps', desc: '40% of Nigeria has unreliable data — existing apps fail entirely without internet' },
-    { icon: '💸', title: 'Trust Deficit', desc: 'No negotiation, no relationship — consumers and drivers are strangers with no accountability layer' },
+    { icon: '😤', title: 'No Transparency', desc: 'Fixed surge pricing with no recourse — prices spike 3–5× during peak' },
+    { icon: '🚗', title: 'Fleet Owners Ignored', desc: 'Thousands of fleet owners have no platform to list and manage bookings' },
+    { icon: '📵', title: 'Connectivity Gaps', desc: '40% of Nigeria has unreliable data — existing apps fail without internet' },
+    { icon: '💸', title: 'Trust Deficit', desc: 'No negotiation, no relationship — zero accountability between parties' },
   ];
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-24 overflow-hidden">
+    <div className="relative w-full h-full bg-[#0a0a0a] flex flex-col justify-center px-16 overflow-hidden">
       <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-5"
         style={{ background: 'radial-gradient(ellipse at right, #ef4444 0%, transparent 70%)' }} />
       <SlideTag>The Problem</SlideTag>
-      <h2 className="text-6xl font-black text-white mb-4 leading-tight">Nigeria's transport market<br />is broken.</h2>
-      <p className="text-xl text-white/40 mb-14 max-w-2xl">The $8B ride-hailing market is dominated by foreign apps that don't understand Nigeria — or Nigerians.</p>
-      <div className="grid grid-cols-2 gap-6">
+      <h2 className="text-5xl font-black text-white mb-3 leading-tight">Nigeria's transport market<br />is broken.</h2>
+      <p className="text-lg text-white/40 mb-10 max-w-2xl">The $8B ride-hailing market is dominated by foreign apps that don't understand Nigeria — or Nigerians.</p>
+      <div className="grid grid-cols-2 gap-5">
         {problems.map((p, i) => (
           <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}
-            className="bg-white/[0.03] border border-white/10 rounded-2xl p-7">
-            <div className="text-4xl mb-4">{p.icon}</div>
-            <h3 className="text-lg font-bold text-white mb-2">{p.title}</h3>
-            <p className="text-sm text-white/50 leading-relaxed">{p.desc}</p>
+            className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
+            <div className="text-3xl mb-3">{p.icon}</div>
+            <h3 className="text-base font-bold text-white mb-1">{p.title}</h3>
+            <p className="text-xs text-white/50 leading-relaxed">{p.desc}</p>
           </motion.div>
         ))}
       </div>
