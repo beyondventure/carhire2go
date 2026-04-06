@@ -42,6 +42,7 @@ import PitchDeck from "./pages/PitchDeck";
 import InstallApp from "./pages/install/InstallApp";
 import Sitemap from "./pages/Sitemap";
 import UserGuide from "./pages/docs/UserGuide";
+import ApiDocs from "./pages/docs/ApiDocs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -111,6 +112,7 @@ const App = () => (
 
             {/* User Guides & Integration Docs */}
             <Route path="/docs/guide" element={<UserGuide />} />
+            <Route path="/docs/api" element={<ApiDocs />} />
 
             {/* Investor Pitch Deck */}
             <Route path="/pitch" element={<PitchDeck />} />
