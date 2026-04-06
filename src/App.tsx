@@ -112,6 +112,7 @@ const App = () => (
 
             {/* User Guides & Integration Docs */}
             <Route path="/docs/guide" element={<UserGuide />} />
+            <Route path="/docs/api" element={<ApiDocs />} />
 
             {/* Investor Pitch Deck */}
             <Route path="/pitch" element={<PitchDeck />} />
