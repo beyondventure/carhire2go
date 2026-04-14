@@ -43,6 +43,17 @@ export function useBookings() {
       return null;
     }
 
+    if (booking.scheduled_date && booking.scheduled_time) {
+      const selectedDateTime = new Date(`${booking.scheduled_date}T${booking.scheduled_time}`);
+      const currentDateTime = new Date();
+      currentDateTime.setSeconds(0, 0);
+
+      if (selectedDateTime < currentDateTime) {
+        toast.error('Booking date and time cannot be in the past');
+        return null;
+      }
+    }
+
     try {
       const { data, error } = await supabase
         .from('bookings')
