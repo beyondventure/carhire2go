@@ -123,6 +123,16 @@ export default function ConsumerBooking() {
       toast.error('Please select date and time');
       return;
     }
+
+    const selectedDateTime = new Date(`${date}T${time}`);
+    const currentDateTime = new Date();
+    currentDateTime.setSeconds(0, 0);
+
+    if (selectedDateTime < currentDateTime) {
+      toast.error('Booking date and time cannot be in the past');
+      return;
+    }
+
     if (!user) {
       toast.error('Please sign in to create a booking');
       navigate('/login');
