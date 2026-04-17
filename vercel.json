@@ -12,6 +12,6 @@
       ]
     }
   ],
-  "buildCommand": "npm run build",
+  "buildCommand": "node scripts/migrate.mjs && npm run build",
   "outputDirectory": "dist"
 }
