@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Clock, Check, Download, ArrowUpRight, Building2, Loader2, CreditCard } from 'lucide-react';
+import { Wallet, Clock, Check, Download, Loader2, CreditCard } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { MetricCard } from '@/components/ui/metric-card';
-import { SettlementStatusChart, EarningsTrendChart } from '@/components/analytics/AnalyticsCharts';
+import { SettlementStatusChart } from '@/components/analytics/AnalyticsCharts';
 import { Button } from '@/components/ui/button';
 import { CURRENCY, COMMISSION_RATE } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface PaymentWithProvider {
   id: string;
@@ -25,6 +26,7 @@ interface PaymentWithProvider {
 }
 
 export default function AdminSettlements() {
+  const { settlementData } = useAnalytics();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [payments, setPayments] = useState<PaymentWithProvider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -220,7 +222,7 @@ export default function AdminSettlements() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <SettlementStatusChart />
+          <SettlementStatusChart data={settlementData} />
 
           {/* Revenue Summary */}
           <div className="bg-card rounded-xl border border-border p-5">
