@@ -114,25 +114,19 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, name: string, role: AppRole) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Pass role in metadata so the handle_new_user trigger (SECURITY DEFINER)
+      // can insert it into user_roles atomically — avoids RLS blocking a
+      // client-side INSERT and leaving a zombie auth user behind.
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: getOrigin(),
-          data: { name }
+          data: { name, role }
         }
       });
 
       if (error) throw error;
-
-      if (data.user) {
-        // Add the role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: data.user.id, role });
-
-        if (roleError) throw roleError;
-      }
 
       return { error: null };
     } catch (error) {
