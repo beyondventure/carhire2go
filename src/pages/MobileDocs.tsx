@@ -616,7 +616,7 @@ function APISection() {
         <Separator className="my-4" />
         <div>
           <h4 className="text-sm font-bold mb-2">Base URL</h4>
-          <code className="text-xs bg-muted px-3 py-2 rounded block">https://oeadjjfyafneixxcwlfn.supabase.co</code>
+          <code className="text-xs bg-muted px-3 py-2 rounded block">https://&lt;project-ref&gt;.supabase.co</code>
           <div className="mt-2 flex flex-wrap gap-2">
             <Badge variant="outline" className="text-xs">REST: /rest/v1/{`{table}`}</Badge>
             <Badge variant="outline" className="text-xs">Auth: /auth/v1/</Badge>
@@ -867,8 +867,7 @@ npm install react-native-screens react-native-safe-area-context
 npm install react-native-gesture-handler react-native-reanimated
 
 # Storage & Auth
-npm install @react-native-async-storage/async-storage
-npm install expo-secure-store  # for tokens
+npm install expo-secure-store  # secure Supabase session storage
 
 # Maps
 npm install react-native-maps
@@ -894,14 +893,14 @@ npm install react-native-webview`}</pre>
         <div className="bg-muted/30 rounded-lg p-3">
           <pre className="text-xs text-muted-foreground whitespace-pre-wrap">{`// src/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { secureStorageAdapter } from './supabaseStorage';
 
-const SUPABASE_URL = 'https://oeadjjfyafneixxcwlfn.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: AsyncStorage,        // ← replace localStorage
+    storage: secureStorageAdapter,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,    // ← IMPORTANT: disable for RN

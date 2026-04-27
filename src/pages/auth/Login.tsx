@@ -13,10 +13,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const testAccounts = [
-  { email: 'user@carhire2go.ng', role: 'consumer', label: 'Consumer', icon: User, color: 'bg-foreground' },
-  { email: 'provider@carhire2go.ng', role: 'provider', label: 'Provider', icon: Briefcase, color: 'bg-foreground' },
-  { email: 'driver@carhire2go.ng', role: 'driver', label: 'Driver', icon: Users, color: 'bg-foreground' },
-  { email: 'admin@carhire2go.ng', role: 'admin', label: 'Admin', icon: Shield, color: 'bg-foreground' },
+  { email: 'user@instantryde.ng', role: 'consumer', label: 'Consumer', icon: User, color: 'bg-foreground' },
+  { email: 'provider@instantryde.ng', role: 'provider', label: 'Provider', icon: Briefcase, color: 'bg-foreground' },
+  { email: 'driver@instantryde.ng', role: 'driver', label: 'Driver', icon: Users, color: 'bg-foreground' },
+  { email: 'admin@instantryde.ng', role: 'admin', label: 'Admin', icon: Shield, color: 'bg-foreground' },
 ];
 
 export default function Login() {

@@ -9,8 +9,8 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 // ─── Data Definitions ────────────────────────────────────────────────
-const API_BASE_URL = 'https://oeadjjfyafneixxcwlfn.supabase.co';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYWRqamZ5YWZuZWl4eGN3bGZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwMTM2ODAsImV4cCI6MjA4MzU4OTY4MH0.69-9grryw8UL4Wbni6MeLKwFE1ChpEQvxdGpvawSWOk';
+const API_BASE_URL = 'https://<project-ref>.supabase.co';
+const ANON_KEY = '<supabase-publishable-or-anon-key>';
 
 interface Column {
   name: string;
@@ -648,7 +648,7 @@ final roles = await supabase
                 </h3>
                 <p className="text-xs text-muted-foreground mb-3">Password for all: <code className="bg-muted px-1.5 py-0.5 rounded">testtest123</code></p>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  {['user@carhire2go.ng → consumer', 'provider@carhire2go.ng → provider', 'driver@carhire2go.ng → driver', 'admin@carhire2go.ng → admin'].map((a) => (
+                  {['user@instantryde.ng → consumer', 'provider@instantryde.ng → provider', 'driver@instantryde.ng → driver', 'admin@instantryde.ng → admin'].map((a) => (
                     <div key={a} className="text-xs font-mono text-muted-foreground bg-muted/50 p-2 rounded">{a}</div>
                   ))}
                 </div>
