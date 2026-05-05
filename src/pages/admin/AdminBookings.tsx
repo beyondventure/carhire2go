@@ -1,28 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Search, Filter, Eye, MoreVertical, MessageSquare } from 'lucide-react';
+import { Search, Eye, MoreVertical, MessageSquare, Loader2, Calendar } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BookingMap } from '@/components/map/BookingMap';
-import { mockBookings } from '@/lib/mock-data';
 import { CURRENCY, BOOKING_TYPE_LABELS, BOOKING_STATUS_LABELS } from '@/lib/constants';
-import type { Booking } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface BookingRow {
+  id: string;
+  status: string;
+  bookingType: string;
+  pickupLine: string;
+  dropoffLine: string;
+  scheduledDate: string;
+  finalPrice: number | null;
+  consumerName: string;
+  consumerAvatar: string;
+  consumerPhone: string;
+  providerName: string;
+  pickupLat?: number;
+  pickupLng?: number;
+  dropoffLat?: number;
+  dropoffLng?: number;
+}
 
 export default function AdminBookings() {
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredBookings = mockBookings.filter((booking) => {
+  const fetchBookings = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          profiles:consumer_id(name, email, phone, avatar_url),
+          providers:provider_id(business_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const mapped: BookingRow[] = (data || []).map((b: any) => ({
+        id: b.id,
+        status: b.status || 'pending',
+        bookingType: b.booking_type || 'unknown',
+        pickupLine: b.pickup_address || '',
+        dropoffLine: b.dropoff_address || '',
+        scheduledDate: b.scheduled_date || b.created_at,
+        finalPrice: b.final_price ?? b.negotiated_price ?? null,
+        consumerName: b.profiles?.name || 'Unknown',
+        consumerAvatar: b.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${b.consumer_id}`,
+        consumerPhone: b.profiles?.phone || '-',
+        providerName: b.providers?.business_name || '-',
+        pickupLat: b.pickup_lat || 6.5244, 
+        pickupLng: b.pickup_lng || 3.3792,
+        dropoffLat: b.dropoff_lat || 6.5244, 
+        dropoffLng: b.dropoff_lng || 3.3792,
+      }));
+
+      setBookings(mapped);
+    } catch (err: any) {
+      console.error('Error fetching bookings:', err);
+      toast.error('Failed to load bookings');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBookings();
+    
+    const channel = supabase
+      .channel('admin-bookings-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings' },
+        () => fetchBookings()
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchBookings]);
+
+  const filteredBookings = bookings.filter((booking) => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
         booking.id.toLowerCase().includes(query) ||
-        booking.consumer?.name?.toLowerCase().includes(query) ||
-        booking.provider?.businessName?.toLowerCase().includes(query)
+        booking.consumerName.toLowerCase().includes(query) ||
+        booking.providerName.toLowerCase().includes(query)
       );
     }
     return true;
@@ -61,146 +137,181 @@ export default function AdminBookings() {
 
           {/* Bookings Table */}
           <div className="flex-1 overflow-auto bg-card rounded-xl border border-border">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-card border-b border-border">
-                <tr className="text-left text-sm text-muted-foreground">
-                  <th className="p-4 font-medium">Booking ID</th>
-                  <th className="p-4 font-medium">Consumer</th>
-                  <th className="p-4 font-medium">Provider</th>
-                  <th className="p-4 font-medium">Type</th>
-                  <th className="p-4 font-medium">Status</th>
-                  <th className="p-4 font-medium">Amount</th>
-                  <th className="p-4 font-medium">Date</th>
-                  <th className="p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filteredBookings.map((booking, index) => (
-                  <motion.tr
-                    key={booking.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.03 }}
-                    className={`hover:bg-muted/50 cursor-pointer ${
-                      selectedBooking?.id === booking.id ? 'bg-accent/5' : ''
-                    }`}
-                    onClick={() => setSelectedBooking(booking)}
-                  >
-                    <td className="p-4">
-                      <span className="font-mono text-sm text-foreground">#{booking.id.slice(0, 8)}</span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={booking.consumer?.avatar}
-                          alt={booking.consumer?.name}
-                          className="w-8 h-8 rounded-lg"
-                        />
-                        <span className="text-sm text-foreground">{booking.consumer?.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm text-foreground">
-                      {booking.provider?.businessName || '-'}
-                    </td>
-                    <td className="p-4 text-sm text-foreground">
-                      {BOOKING_TYPE_LABELS[booking.bookingType] || booking.bookingType}
-                    </td>
-                    <td className="p-4">
-                      <StatusBadge status={booking.status} />
-                    </td>
-                    <td className="p-4 text-sm font-medium text-foreground">
-                      {booking.finalPrice ? `${CURRENCY}${booking.finalPrice.toLocaleString()}` : '-'}
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      {new Date(booking.scheduledDate).toLocaleDateString()}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye size={16} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical size={16} />
-                        </Button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-accent" />
+              </div>
+            ) : filteredBookings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
+                <Calendar size={48} className="text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold text-foreground">No bookings found</h3>
+                <p className="text-muted-foreground">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="sticky top-0 bg-card border-b border-border z-10">
+                  <tr className="text-left text-sm text-muted-foreground">
+                    <th className="p-4 font-medium">Booking ID</th>
+                    <th className="p-4 font-medium">Consumer</th>
+                    <th className="p-4 font-medium">Provider</th>
+                    <th className="p-4 font-medium">Type</th>
+                    <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium">Amount</th>
+                    <th className="p-4 font-medium whitespace-nowrap">Date</th>
+                    <th className="p-4 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredBookings.map((booking, index) => (
+                    <motion.tr
+                      key={booking.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.03 }}
+                      className={`hover:bg-muted/50 cursor-pointer ${
+                        selectedBooking?.id === booking.id ? 'bg-accent/5' : ''
+                      }`}
+                      onClick={() => setSelectedBooking(booking)}
+                    >
+                      <td className="p-4">
+                        <span className="font-mono text-sm text-foreground">#{booking.id.slice(0, 8).toUpperCase()}</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={booking.consumerAvatar}
+                            alt={booking.consumerName}
+                            className="w-8 h-8 rounded-lg"
+                          />
+                          <span className="text-sm text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                            {booking.consumerName}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-sm text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                        {booking.providerName}
+                      </td>
+                      <td className="p-4 text-sm text-foreground">
+                        {BOOKING_TYPE_LABELS[booking.bookingType] || booking.bookingType}
+                      </td>
+                      <td className="p-4">
+                        <StatusBadge status={booking.status} />
+                      </td>
+                      <td className="p-4 text-sm font-medium text-foreground whitespace-nowrap">
+                        {booking.finalPrice ? `${CURRENCY}${booking.finalPrice.toLocaleString()}` : '-'}
+                      </td>
+                      <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                        {new Date(booking.scheduledDate).toLocaleDateString()}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedBooking(booking)}>
+                            <Eye size={16} />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast.info('Booking options coming soon')}>
+                            <MoreVertical size={16} />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
-        {/* Booking Details */}
+        {/* Booking Details Pane */}
         {selectedBooking && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block w-96 space-y-4"
+            className="hidden lg:flex w-96 flex-col space-y-4"
           >
-            {/* Map */}
-            <BookingMap
-              pickup={selectedBooking.pickup}
-              dropoff={selectedBooking.dropoff}
-              className="h-48"
-            />
+            {/* Fake Map representation since coordinates might not be fully stored */}
+            <div className="h-48 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+              <BookingMap
+                pickup={{ name: selectedBooking.pickupLine, address: selectedBooking.pickupLine, lat: selectedBooking.pickupLat!, lng: selectedBooking.pickupLng! }}
+                dropoff={{ name: selectedBooking.dropoffLine, address: selectedBooking.dropoffLine, lat: selectedBooking.dropoffLat!, lng: selectedBooking.dropoffLng! }}
+                className="h-full w-full"
+              />
+            </div>
 
-            {/* Details */}
-            <div className="bg-card rounded-xl border border-border p-5">
-              <div className="flex items-center justify-between mb-4">
+            {/* Details Card */}
+            <div className="bg-card rounded-xl border border-border p-5 flex-1 overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-foreground">Booking Details</h3>
                 <StatusBadge status={selectedBooking.status} />
               </div>
 
-              <div className="space-y-4 text-sm">
+              <div className="space-y-6">
+                {/* Route */}
                 <div>
-                  <p className="text-muted-foreground mb-1">Route</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-success" />
-                      <span className="text-foreground">{selectedBooking.pickup.name || selectedBooking.pickup.address}</span>
+                  <p className="text-sm text-muted-foreground mb-3">Route Information</p>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-success mt-1.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground line-clamp-2">{selectedBooking.pickupLine || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Pickup Location</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-destructive" />
-                      <span className="text-foreground">{selectedBooking.dropoff.name || selectedBooking.dropoff.address}</span>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-destructive mt-1.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground line-clamp-2">{selectedBooking.dropoffLine || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Drop-off Location</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-muted-foreground">Consumer</p>
-                    <p className="text-foreground font-medium">{selectedBooking.consumer?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Provider</p>
-                    <p className="text-foreground font-medium">{selectedBooking.provider?.businessName || '-'}</p>
-                  </div>
-                </div>
+                <hr className="border-border" />
 
+                {/* Users */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-muted-foreground">Amount</p>
-                    <p className="text-foreground font-bold text-lg">
-                      {selectedBooking.finalPrice ? `${CURRENCY}${selectedBooking.finalPrice.toLocaleString()}` : '-'}
+                    <p className="text-xs text-muted-foreground mb-1">Consumer</p>
+                    <p className="text-sm text-foreground font-medium truncate" title={selectedBooking.consumerName}>
+                      {selectedBooking.consumerName}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate" title={selectedBooking.consumerPhone}>
+                      {selectedBooking.consumerPhone}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Commission</p>
-                    <p className="text-foreground font-medium">
-                      {selectedBooking.finalPrice ? `${CURRENCY}${(selectedBooking.finalPrice * 0.1).toLocaleString()}` : '-'}
+                    <p className="text-xs text-muted-foreground mb-1">Provider</p>
+                    <p className="text-sm text-foreground font-medium truncate" title={selectedBooking.providerName}>
+                      {selectedBooking.providerName}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-border flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <MessageSquare size={14} className="mr-1" />
-                    Contact
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye size={14} className="mr-1" />
-                    Full Details
+                <hr className="border-border" />
+
+                {/* Financials */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Final Amount</p>
+                    <p className="text-lg text-foreground font-bold">
+                      {selectedBooking.finalPrice ? `${CURRENCY}${selectedBooking.finalPrice.toLocaleString()}` : 'Pending'}
+                    </p>
+                  </div>
+                  {selectedBooking.finalPrice && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Platform Fee (10%)</p>
+                      <p className="text-sm text-foreground font-medium mt-1">
+                        {CURRENCY}{(selectedBooking.finalPrice * 0.1).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2 flex gap-3">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => toast.info('Chat interface coming soon')}>
+                    <MessageSquare size={14} className="mr-2" />
+                    Contact Support
                   </Button>
                 </div>
               </div>

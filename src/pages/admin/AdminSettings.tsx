@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Bell, Shield, CreditCard, Globe, Users, Save, ChevronRight } from 'lucide-react';
+import { Settings, Bell, Shield, CreditCard, Globe, Users, Save, ChevronRight, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { COMMISSION_RATE, MATCHING_TIMEOUT } from '@/lib/constants';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function AdminSettings() {
   const [platformSettings, setPlatformSettings] = useState({
@@ -30,6 +32,40 @@ export default function AdminSettings() {
     promoCodeSystem: true,
     referralProgram: false,
   });
+
+  interface AdminUser { name: string; email: string; role: string }
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [adminLoading, setAdminLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+
+        const ids = (roles || []).map(r => r.user_id);
+        if (ids.length === 0) { setAdminUsers([]); return; }
+
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, name, email')
+          .in('id', ids);
+
+        setAdminUsers((profiles || []).map(p => ({
+          name:  p.name,
+          email: p.email,
+          role:  'Admin',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch admin users:', err);
+      } finally {
+        setAdminLoading(false);
+      }
+    };
+    fetchAdmins();
+  }, []);
 
   return (
     <DashboardLayout title="Platform Settings" subtitle="Configure platform-wide settings">
@@ -171,27 +207,31 @@ export default function AdminSettings() {
               </div>
             </div>
             <div className="p-5">
-              <div className="space-y-3">
-                {[
-                  { name: 'Sarah Oke', email: 'sarah@instantryde.com', role: 'Super Admin' },
-                  { name: 'Michael Ade', email: 'michael@instantryde.com', role: 'Admin' },
-                  { name: 'Blessing Nwankwo', email: 'blessing@instantryde.com', role: 'Support' },
-                ].map((admin) => (
-                  <div
-                    key={admin.email}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">{admin.name}</p>
-                      <p className="text-sm text-muted-foreground">{admin.email}</p>
+              {adminLoading ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                </div>
+              ) : adminUsers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No admin users found</p>
+              ) : (
+                <div className="space-y-3">
+                  {adminUsers.map(admin => (
+                    <div
+                      key={admin.email}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border"
+                    >
+                      <div>
+                        <p className="font-medium text-foreground">{admin.name}</p>
+                        <p className="text-sm text-muted-foreground">{admin.email}</p>
+                      </div>
+                      <span className="px-2 py-1 bg-accent/10 text-accent text-xs rounded-full">
+                        {admin.role}
+                      </span>
                     </div>
-                    <span className="px-2 py-1 bg-accent/10 text-accent text-xs rounded-full">
-                      {admin.role}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <Button variant="outline" className="w-full mt-4">
+                  ))}
+                </div>
+              )}
+              <Button variant="outline" className="w-full mt-4" onClick={() => toast.info('Invite flow coming soon')}>
                 <Users size={16} className="mr-2" />
                 Add Admin User
               </Button>
