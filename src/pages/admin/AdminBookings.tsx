@@ -61,9 +61,10 @@ export default function AdminBookings() {
         consumerAvatar: b.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${b.consumer_id}`,
         consumerPhone: b.profiles?.phone || '-',
         providerName: b.providers?.business_name || '-',
-        // Use placeholders if coords aren't available, or parse them if you store them
-        pickupLat: 6.5244, pickupLng: 3.3792,
-        dropoffLat: 6.5244, dropoffLng: 3.3792,
+        pickupLat: b.pickup_lat || 6.5244, 
+        pickupLng: b.pickup_lng || 3.3792,
+        dropoffLat: b.dropoff_lat || 6.5244, 
+        dropoffLng: b.dropoff_lng || 3.3792,
       }));
 
       setBookings(mapped);
@@ -230,8 +231,8 @@ export default function AdminBookings() {
             {/* Fake Map representation since coordinates might not be fully stored */}
             <div className="h-48 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
               <BookingMap
-                pickup={{ name: selectedBooking.pickupLine, address: selectedBooking.pickupLine, coordinates: [selectedBooking.pickupLat!, selectedBooking.pickupLng!] }}
-                dropoff={{ name: selectedBooking.dropoffLine, address: selectedBooking.dropoffLine, coordinates: [selectedBooking.dropoffLat!, selectedBooking.dropoffLng!] }}
+                pickup={{ name: selectedBooking.pickupLine, address: selectedBooking.pickupLine, lat: selectedBooking.pickupLat!, lng: selectedBooking.pickupLng! }}
+                dropoff={{ name: selectedBooking.dropoffLine, address: selectedBooking.dropoffLine, lat: selectedBooking.dropoffLat!, lng: selectedBooking.dropoffLng! }}
                 className="h-full w-full"
               />
             </div>

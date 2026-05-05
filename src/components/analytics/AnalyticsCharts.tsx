@@ -8,6 +8,7 @@ import { CURRENCY } from '@/lib/constants';
 import type {
   RevenuePoint, BookingTypePoint, GrowthPoint,
   GMVPoint, SettlementPoint, EarningsPoint,
+  UtilizationPoint, DriverPerformance,
 } from '@/hooks/useAnalytics';
 
 interface ChartCardProps {
@@ -84,26 +85,18 @@ export function BookingTypeChart({ data }: BookingTypeChartProps) {
   );
 }
 
-// ── Fleet Utilization Chart (static — no DB signal for this yet) ─────────────
-const fleetPlaceholder = [
-  { day: 'Mon', utilization: 0, available: 100 },
-  { day: 'Tue', utilization: 0, available: 100 },
-  { day: 'Wed', utilization: 0, available: 100 },
-  { day: 'Thu', utilization: 0, available: 100 },
-  { day: 'Fri', utilization: 0, available: 100 },
-  { day: 'Sat', utilization: 0, available: 100 },
-  { day: 'Sun', utilization: 0, available: 100 },
-];
+// ── Fleet Utilization Chart ──────────────────────────────────────────────────
+interface FleetUtilizationChartProps { data: UtilizationPoint[] }
 
-export function FleetUtilizationChart() {
+export function FleetUtilizationChart({ data }: FleetUtilizationChartProps) {
   return (
-    <ChartCard title="Fleet Utilization" subtitle="Weekly vehicle usage (live data coming)">
+    <ChartCard title="Fleet Utilization" subtitle="Weekly vehicle usage based on recent bookings">
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={fleetPlaceholder}>
+          <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} unit="%" />
             <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
             <Bar dataKey="utilization" fill="hsl(175, 84%, 40%)" radius={[4, 4, 0, 0]} name="In Use %" />
             <Bar dataKey="available"   fill="hsl(var(--muted))"  radius={[4, 4, 0, 0]} name="Available %" />
@@ -114,12 +107,33 @@ export function FleetUtilizationChart() {
   );
 }
 
-// ── Driver Performance Chart (static — no DB signal for this yet) ────────────
-export function DriverPerformanceChart() {
+// ── Driver Performance Chart ─────────────────────────────────────────────────
+interface DriverPerformanceChartProps { data: DriverPerformance[] }
+
+export function DriverPerformanceChart({ data }: DriverPerformanceChartProps) {
   return (
-    <ChartCard title="Driver Performance" subtitle="Top drivers this month">
-      <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
-        Live driver performance data coming soon
+    <ChartCard title="Driver Performance" subtitle="Top drivers by trip count">
+      <div className="space-y-4">
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+            No driver performance data available
+          </div>
+        ) : (
+          data.map((driver, i) => (
+            <div key={driver.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img src={driver.avatar} alt={driver.name} className="w-8 h-8 rounded-full" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{driver.name}</p>
+                  <p className="text-xs text-muted-foreground">{driver.trips} trips</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 text-warning">
+                <span className="text-sm font-bold">{driver.rating.toFixed(1)}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </ChartCard>
   );

@@ -8,12 +8,13 @@ import {
   PlatformGrowthChart,
   GMVChart,
   FleetUtilizationChart,
+  DriverPerformanceChart,
 } from '@/components/analytics/AnalyticsCharts';
 import { CURRENCY } from '@/lib/constants';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function AdminAnalytics() {
-  const { isLoading, metrics, revenueData, bookingTypeData, growthData, gmvData } = useAnalytics();
+  const { isLoading, metrics, revenueData, bookingTypeData, growthData, gmvData, utilizationData, topDrivers } = useAnalytics();
 
   if (isLoading) {
     return (
@@ -35,7 +36,7 @@ export default function AdminAnalytics() {
             ? `${CURRENCY}${(metrics.totalGMV / 1000000).toFixed(1)}M`
             : `${CURRENCY}${metrics.totalGMV.toLocaleString()}`}
           icon={Wallet}
-          trend={{ value: 23, isPositive: true }}
+          trend={{ value: metrics.gmvTrend, isPositive: metrics.gmvTrend >= 0 }}
         />
         <MetricCard
           title="Platform Revenue"
@@ -43,13 +44,13 @@ export default function AdminAnalytics() {
             ? `${CURRENCY}${(metrics.platformRevenue / 1000000).toFixed(1)}M`
             : `${CURRENCY}${metrics.platformRevenue.toLocaleString()}`}
           icon={TrendingUp}
-          trend={{ value: 18, isPositive: true }}
+          trend={{ value: metrics.gmvTrend, isPositive: metrics.gmvTrend >= 0 }}
         />
         <MetricCard
           title="Total Bookings"
           value={metrics.totalBookings.toLocaleString()}
           icon={Calendar}
-          trend={{ value: 15, isPositive: true }}
+          trend={{ value: metrics.bookingTrend, isPositive: metrics.bookingTrend >= 0 }}
         />
         <MetricCard
           title="Active Bookings"
@@ -80,7 +81,14 @@ export default function AdminAnalytics() {
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <PlatformGrowthChart data={growthData} />
         <BookingTypeChart data={bookingTypeData} />
-        <FleetUtilizationChart />
+        <FleetUtilizationChart data={utilizationData} />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+           {/* Future: Regional breakdown chart could go here */}
+        </div>
+        <DriverPerformanceChart data={topDrivers} />
       </div>
 
       {/* Performance Indicators */}
