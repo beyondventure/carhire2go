@@ -31,8 +31,16 @@ export default function AdminSettlements() {
   const [payments, setPayments] = useState<PaymentWithProvider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const successfulPayments = payments.filter(p => 
+    ['successful', 'success', 'paid', 'completed'].includes(p.status.toLowerCase())
+  );
+  const pendingPayments = payments.filter(p => 
+    ['pending', 'processing'].includes(p.status.toLowerCase())
+  );
+
   useEffect(() => {
     const fetchPayments = async () => {
+      setIsLoading(true);
       try {
         const { data: paymentsData, error } = await supabase
           .from('payments' as any)
@@ -53,9 +61,21 @@ export default function AdminSettlements() {
           providers?.forEach(p => providerMap.set(p.id, p.business_name || 'Provider'));
         }
 
+        // Fetch consumer names from profiles
+        const consumerIds = [...new Set(raw.map(p => p.consumer_id))];
+        let consumerMap = new Map<string, string>();
+        if (consumerIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name')
+            .in('id', consumerIds);
+          profiles?.forEach(p => consumerMap.set(p.id, p.name));
+        }
+
         setPayments(raw.map(p => ({
           ...p,
           providerName: p.provider_id ? providerMap.get(p.provider_id) || 'Unknown Provider' : 'Direct',
+          customer_name: consumerMap.get(p.consumer_id) || p.customer_name || 'Consumer',
         })));
       } catch (err) {
         console.error('Error fetching payments:', err);
@@ -65,15 +85,24 @@ export default function AdminSettlements() {
     };
 
     fetchPayments();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel('admin-payments-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'payments' },
+        () => fetchPayments()
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const filteredPayments = payments.filter(p => {
     if (statusFilter === 'all') return true;
-    return p.status === statusFilter;
+    return p.status.toLowerCase() === statusFilter.toLowerCase();
   });
-
-  const successfulPayments = payments.filter(p => p.status === 'successful');
-  const pendingPayments = payments.filter(p => p.status === 'pending');
   const totalGross = successfulPayments.reduce((sum, p) => sum + p.amount, 0);
   const totalCommission = totalGross * COMMISSION_RATE;
   const pendingAmount = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -93,6 +122,7 @@ export default function AdminSettlements() {
           value={`${CURRENCY}${totalCommission.toLocaleString()}`}
           icon={Check}
           variant="success"
+          trend={{ value: metrics.gmvTrend, isPositive: metrics.gmvTrend >= 0 }}
         />
         <MetricCard
           title="Pending Payments"
