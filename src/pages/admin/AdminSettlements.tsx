@@ -26,7 +26,7 @@ interface PaymentWithProvider {
 }
 
 export default function AdminSettlements() {
-  const { settlementData } = useAnalytics();
+  const { settlementData, metrics } = useAnalytics();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [payments, setPayments] = useState<PaymentWithProvider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +86,7 @@ export default function AdminSettlements() {
           title="Total GMV"
           value={`${CURRENCY}${totalGross.toLocaleString()}`}
           icon={Wallet}
-          trend={{ value: 12, isPositive: true }}
+          trend={{ value: metrics.gmvTrend, isPositive: metrics.gmvTrend >= 0 }}
         />
         <MetricCard
           title="Platform Revenue (10%)"
