@@ -57,35 +57,59 @@ export default function AdminVerification() {
       const [providersRes, driversRes] = await Promise.all([
         supabase
           .from('providers')
-          .select('*, profiles(name, email, avatar_url)')
+          .select('*')
           .order('created_at', { ascending: false }),
         supabase
           .from('drivers')
-          .select('*, profiles(name, email, avatar_url)')
+          .select('*')
           .order('created_at', { ascending: false }),
       ]);
 
-      const providerRows: VerificationRequest[] = (providersRes.data || []).map((row: any) => ({
-        id: `provider:${row.id}`,
-        type: 'provider' as VerificationType,
-        name: row.business_name || row.profiles?.name || 'Unknown Provider',
-        email: row.profiles?.email || '',
-        avatar: row.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.id}`,
-        documents: docsForProvider(row),
-        submittedAt: row.created_at,
-        status: (row.verification_status || 'pending') as VerificationStatus,
-      }));
+      const providersRaw = providersRes.data || [];
+      const driversRaw = driversRes.data || [];
 
-      const driverRows: VerificationRequest[] = (driversRes.data || []).map((row: any) => ({
-        id: `driver:${row.id}`,
-        type: 'driver' as VerificationType,
-        name: row.profiles?.name || 'Unknown Driver',
-        email: row.profiles?.email || '',
-        avatar: row.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.id}`,
-        documents: docsForDriver(row),
-        submittedAt: row.created_at,
-        status: (row.verification_status || 'pending') as VerificationStatus,
-      }));
+      // Collect all user IDs for manual profile join
+      const userIds = [
+        ...new Set([
+          ...providersRaw.map(p => p.user_id),
+          ...driversRaw.map(d => d.user_id),
+        ])
+      ];
+
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, name, email, avatar_url')
+        .in('id', userIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+      const providerRows: VerificationRequest[] = providersRaw.map((row: any) => {
+        const profile = profilesMap.get(row.user_id);
+        return {
+          id: `provider:${row.id}`,
+          type: 'provider' as VerificationType,
+          name: row.business_name || profile?.name || 'Unknown Provider',
+          email: profile?.email || '',
+          avatar: profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.id}`,
+          documents: docsForProvider(row),
+          submittedAt: row.created_at,
+          status: (row.verification_status || 'pending') as VerificationStatus,
+        };
+      });
+
+      const driverRows: VerificationRequest[] = driversRaw.map((row: any) => {
+        const profile = profilesMap.get(row.user_id);
+        return {
+          id: `driver:${row.id}`,
+          type: 'driver' as VerificationType,
+          name: profile?.name || 'Unknown Driver',
+          email: profile?.email || '',
+          avatar: profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.id}`,
+          documents: docsForDriver(row),
+          submittedAt: row.created_at,
+          status: (row.verification_status || 'pending') as VerificationStatus,
+        };
+      });
 
       setRequests([...providerRows, ...driverRows].sort(
         (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()

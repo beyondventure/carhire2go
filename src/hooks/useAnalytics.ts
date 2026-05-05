@@ -82,12 +82,12 @@ export function useAnalytics(): AnalyticsData {
   const fetch = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [bookingsRes, paymentsRes, providersRes, consumersRes, driversRes, vehiclesRes] = await Promise.all([
+      const [bookingsRes, paymentsRes, providersRes, consumersRes, driversRawRes, vehiclesRes] = await Promise.all([
         supabase.from('bookings').select('id, status, booking_type, final_price, negotiated_price, created_at').order('created_at', { ascending: true }),
         supabase.from('payments' as any).select('id, amount, status, created_at'),
         supabase.from('providers').select('id, created_at, verification_status').order('created_at', { ascending: true }),
         supabase.from('user_roles').select('user_id, created_at').eq('role', 'consumer').order('created_at', { ascending: true }),
-        supabase.from('drivers').select('*, profiles(name, avatar_url)').order('created_at', { ascending: true }),
+        supabase.from('drivers').select('*').order('created_at', { ascending: true }),
         supabase.from('vehicles').select('id', { count: 'exact' }),
       ]);
 
@@ -95,7 +95,20 @@ export function useAnalytics(): AnalyticsData {
       const payments    = (paymentsRes.data  || []) as any[];
       const providers   = (providersRes.data || []) as any[];
       const consumers   = (consumersRes.data || []) as any[];
-      const drivers     = (driversRes.data   || []) as any[];
+      const driversRaw  = (driversRawRes.data || []) as any[];
+
+      // Manual join for driver profiles
+      const driverUserIds = [...new Set(driversRaw.map((d: any) => d.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .in('id', driverUserIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      const drivers = driversRaw.map((d: any) => ({
+        ...d,
+        profiles: profilesMap.get(d.user_id),
+      }));
 
       // ── Platform Metrics ────────────────────────────────────────────────
       const activeStatuses = ['pending', 'matching', 'matched', 'negotiating', 'confirmed', 'in-progress'];
@@ -118,6 +131,16 @@ export function useAnalytics(): AnalyticsData {
       
       const gmvTrend = previousGMV === 0 ? 100 : Math.round(((recentGMV - previousGMV) / previousGMV) * 100);
 
+      const recentBookingsCount = bookings
+        .filter((b: any) => new Date(b.created_at).getTime() > thirtyDaysAgo).length;
+      const previousBookingsCount = bookings
+        .filter((b: any) => {
+          const t = new Date(b.created_at).getTime();
+          return t > sixtyDaysAgo && t <= thirtyDaysAgo;
+        }).length;
+      
+      const bookingTrend = previousBookingsCount === 0 ? 100 : Math.round(((recentBookingsCount - previousBookingsCount) / previousBookingsCount) * 100);
+
       setMetrics({
         totalGMV,
         platformRevenue:  totalGMV * COMMISSION_RATE,
@@ -126,7 +149,7 @@ export function useAnalytics(): AnalyticsData {
         activeConsumers:  consumers.length,
         activeProviders:  providers.filter((p: any) => p.verification_status === 'approved').length,
         gmvTrend,
-        bookingTrend: 12, // placeholder for now
+        bookingTrend,
       });
 
       // ── Revenue by Month ────────────────────────────────────────────────

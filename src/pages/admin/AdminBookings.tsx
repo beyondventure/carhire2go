@@ -40,32 +40,52 @@ export default function AdminBookings() {
     try {
       const { data, error } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          profiles:consumer_id(name, email, phone, avatar_url),
-          providers:provider_id(business_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      const rawBookings = data || [];
 
-      const mapped: BookingRow[] = (data || []).map((b: any) => ({
-        id: b.id,
-        status: b.status || 'pending',
-        bookingType: b.booking_type || 'unknown',
-        pickupLine: b.pickup_address || '',
-        dropoffLine: b.dropoff_address || '',
-        scheduledDate: b.scheduled_date || b.created_at,
-        finalPrice: b.final_price ?? b.negotiated_price ?? null,
-        consumerName: b.profiles?.name || 'Unknown',
-        consumerAvatar: b.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${b.consumer_id}`,
-        consumerPhone: b.profiles?.phone || '-',
-        providerName: b.providers?.business_name || '-',
-        pickupLat: b.pickup_lat || 6.5244, 
-        pickupLng: b.pickup_lng || 3.3792,
-        dropoffLat: b.dropoff_lat || 6.5244, 
-        dropoffLng: b.dropoff_lng || 3.3792,
-      }));
+      // Manual join for profiles (consumers)
+      const consumerIds = [...new Set(rawBookings.map(b => b.consumer_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, name, email, phone, avatar_url')
+        .in('id', consumerIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+      // Manual join for providers
+      const providerIds = [...new Set(rawBookings.filter(b => b.provider_id).map(b => b.provider_id!))];
+      const { data: providersData } = await supabase
+        .from('providers')
+        .select('id, business_name')
+        .in('id', providerIds);
+      
+      const providersMap = new Map(providersData?.map(p => [p.id, p]) || []);
+
+      const mapped: BookingRow[] = rawBookings.map((b: any) => {
+        const profile = profilesMap.get(b.consumer_id);
+        const provider = b.provider_id ? providersMap.get(b.provider_id) : null;
+        
+        return {
+          id: b.id,
+          status: b.status || 'pending',
+          bookingType: b.booking_type || 'unknown',
+          pickupLine: b.pickup_address || '',
+          dropoffLine: b.dropoff_address || '',
+          scheduledDate: b.scheduled_date || b.created_at,
+          finalPrice: b.final_price ?? b.negotiated_price ?? null,
+          consumerName: profile?.name || 'Unknown',
+          consumerAvatar: profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${b.consumer_id}`,
+          consumerPhone: profile?.phone || '-',
+          providerName: provider?.business_name || '-',
+          pickupLat: b.pickup_lat || 6.5244, 
+          pickupLng: b.pickup_lng || 3.3792,
+          dropoffLat: b.dropoff_lat || 6.5244, 
+          dropoffLng: b.dropoff_lng || 3.3792,
+        };
+      });
 
       setBookings(mapped);
     } catch (err: any) {
